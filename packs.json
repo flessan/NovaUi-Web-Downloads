@@ -1,0 +1,42 @@
+[
+    {
+    "name":"Nova Ui",
+    "creator":"DANZGAME",
+    "description":"NOVA UI is a name derived from the word innovation, which means developing ideas in a field.",
+    "icon":"asset/nova.png",
+    "version": "1.7.1",
+    "downloads": 4240,
+    "download_pc": "https://github.com/DANZGAME-GD/NovaUI/releases/download/v1.7.1/NovaUi.zip",
+    "download_mobile": "downloads/nova_mobile.zip"
+    },
+    {
+    "name":"[BG] Frieren",
+    "creator":"DANZGAME",
+    "description":"Show how pro you are with this pack",
+    "icon":"asset/icon_pack/frieren.png",
+    "version": "1.0.0",
+    "downloads": 892,
+    "download_pc": "downloads/troll_pc.zip",
+    "download_mobile": "downloads/troll_mobile.zip"
+    },
+    {
+    "name":"[BG] Hoshino",
+    "creator":"DANZGAME",
+    "description":"Show how pro you are with this pack",
+    "icon":"asset/icon_pack/hoshino.png",
+    "version": "1.0.0",
+    "downloads": 892,
+    "download_pc": "downloads/troll_pc.zip",
+    "download_mobile": "downloads/troll_mobile.zip"
+    },
+    {
+    "name":"[BG] Kurosaki Koyuki",
+    "creator":"DANZGAME",
+    "description":"Show how pro you are with this pack",
+    "icon":"asset/icon_pack/kurosaki_koyuki.png",
+    "version": "1.0.0",
+    "downloads": 892,
+    "download_pc": "downloads/troll_pc.zip",
+    "download_mobile": "downloads/troll_mobile.zip"
+    }
+]

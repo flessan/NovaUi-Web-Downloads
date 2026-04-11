@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Search Anime Background</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1 class="title">Texture Packs</h1>
+
+      <input
+        id="search"
+        placeholder="Search Texture Pack (e.g., name or creator)..."
+      />
+
+      <div class="filters">
+        <select id="resolution">
+          <option>All Resolutions</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+
+        <select id="type">
+          <option>All Types</option>
+          <option>Icons</option>
+          <option>Full</option>
+        </select>
+
+        <select id="sort">
+          <option value="recent">Recent</option>
+          <option value="likes">Most Likes</option>
+        </select>
+      </div>
+    </header>
+
+    <div id="packs" class="packs"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
