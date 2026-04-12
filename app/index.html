@@ -100,6 +100,18 @@
     color: var(--text-primary, #f1f5f9);
   }
 
+  .nova-credits-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: .92rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+  }
+
   .nova-mods-header i {
     color: var(--accent, #f59e0b);
     font-size: 1rem;
@@ -207,6 +219,51 @@
   .nova-discord-cta i {
     font-size: 1.2rem;
     color: #5865F2;
+  }
+
+  .nova-credits {
+    margin-bottom: 24px;
+  }
+
+  .nova-credit-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    border-radius: var(--radius-sm, 10px);
+    background: rgba(255,255,255,.02);
+    border: 1px solid rgba(255,255,255,.05);
+    text-decoration: none;
+    transition: all .3s ease;
+  }
+
+  .nova-credit-row:hover {
+    background: rgba(255,255,255,.05);
+    border-color: rgba(99,102,241,.2);
+    transform: translateY(-2px);
+  }
+
+  .nova-credit-tag {
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--primary-light, #818cf8);
+    background: var(--primary-dim, rgba(99,102,241,.1));
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    min-width: 120px;
+  }
+
+  .nova-credit-info {
+    font-size: .75rem;
+    color: var(--text-muted, #94a3b8);
+    line-height: 1.5;
+  }
+
+  .nova-credit-row:hover .nova-mod-arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--primary-light, #818cf8);
   }
 
   .nova-discord-cta span {
@@ -410,28 +467,12 @@
         <i class="fas fa-award"></i>
         Asset Credits
       </div>
-      <ul class="nova-credits-list">
-        <li class="nova-credit-row">
-          <div class="nova-credit-tag"><i class="fas fa-wand-magic-sparkles"></i> Shaders</div>
-          <div class="nova-credit-value"><a href="https://www.shadertoy.com/view/wlXcDS" target="_blank" rel="noopener">Mellow Voronoi</a> on Shadertoy</div>
-        </li>
-        <li class="nova-credit-row">
-          <div class="nova-credit-tag"><i class="fas fa-image"></i> Background</div>
-          <div class="nova-credit-value"><a href="https://www.youtube.com/watch?v=ag13IgTauU8" target="_blank" rel="noopener">Slr — Graphite Background</a></div>
-        </li>
-        <li class="nova-credit-row">
-          <div class="nova-credit-tag"><i class="fas fa-user"></i> Player BG</div>
-          <div class="nova-credit-value"><a href="https://www.youtube.com/watch?v=SU0CCJbHYYk&list=PLBP4wY8Toya-QvSwVIRpALhO_qiYqE0fh" target="_blank" rel="noopener">The Deli Background</a></div>
-        </li>
-        <li class="nova-credit-row">
-          <div class="nova-credit-tag"><i class="fas fa-pen-ruler"></i> Editor Asset</div>
-          <div class="nova-credit-value"><a href="https://www.youtube.com/channel/UCKGhzag0So06pzIqwAeTP-Q" target="_blank" rel="noopener">Alkatreize</a></div>
-        </li>
-        <li class="nova-credit-row">
-          <div class="nova-credit-tag"><i class="fas fa-palette"></i> Logo</div>
-          <div class="nova-credit-value"><a href="https://www.youtube.com/channel/UCaYW_hTEyIpMernm-raeaWg" target="_blank" rel="noopener">Nycelol</a></div>
-        </li>
-      </ul>
+      <a class="nova-credit-row" href="./credit.html">
+        <div class="nova-credit-tag"><i class="fas fa-hands-helping"></i> Credit Page!</div>
+        <div class="nova-credit-info">Full list of third-party assets, library licenses, and developer attributions.</div>
+        <i class="fas fa-arrow-right nova-mod-arrow" style="margin-left: auto;"></i>
+      </a>
+
     </div>
 
     <!-- Discord CTA -->
