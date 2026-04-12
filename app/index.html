@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GD Geode Texture Packs</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../gudang/web/css/dohan.config.css">
+<style>
+  /* ── Nova UI Section Styles ── */
+  .nova-section {
+    position: relative;
+    padding: 60px 0 40px;
+  }
+
+  .nova-section .section-title {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .nova-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 36px;
+  }
+
+  .nova-logo-wrap {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-dim, rgba(99,102,241,.15)), var(--secondary-dim, rgba(6,182,212,.15)));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px rgba(99,102,241,.15), 0 0 80px rgba(6,182,212,.08);
+    animation: novaPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes novaPulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(99,102,241,.15), 0 0 80px rgba(6,182,212,.08); }
+    50% { box-shadow: 0 0 60px rgba(99,102,241,.25), 0 0 100px rgba(6,182,212,.12); }
+  }
+
+  .nova-logo-wrap img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    border-radius: 50%;
+  }
+
+  .nova-hero h2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-light, #818cf8), var(--secondary, #06b6d4));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+  }
+
+  .nova-hero-subtitle {
+    font-size: .88rem;
+    color: var(--text-muted, #94a3b8);
+    text-align: center;
+    max-width: 520px;
+    line-height: 1.65;
+  }
+
+  .nova-hero-subtitle strong {
+    color: var(--text-secondary, #cbd5e1);
+    -webkit-text-fill-color: unset;
+  }
+
+  .nova-hero-subtitle a {
+    color: var(--primary-light, #818cf8);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color .2s;
+  }
+
+  .nova-hero-subtitle a:hover {
+    color: var(--secondary, #06b6d4);
+    text-decoration: underline;
+  }
+
+  /* ── Mod Requirements Grid ── */
+  .nova-mods-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: .92rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  .nova-mods-header i {
+    color: var(--accent, #f59e0b);
+    font-size: 1rem;
+  }
+
+  .nova-mods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+
+  .nova-mod-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm, 10px);
+    background: rgba(255,255,255,.02);
+    border: 1px solid rgba(255,255,255,.05);
+    text-decoration: none;
+    transition: all .25s ease;
+  }
+
+  .nova-mod-item:hover {
+    background: rgba(255,255,255,.05);
+    border-color: rgba(99,102,241,.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(99,102,241,.08);
+  }
+
+  .nova-mod-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary-dim, rgba(99,102,241,.15)), var(--accent-dim, rgba(245,158,11,.1)));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--primary-light, #818cf8);
+    font-size: .85rem;
+  }
+
+  .nova-mod-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .nova-mod-name {
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nova-mod-id {
+    font-size: .65rem;
+    color: var(--text-muted, #94a3b8);
+    font-family: 'Courier New', monospace;
+    opacity: .7;
+  }
+
+  .nova-mod-arrow {
+    color: var(--text-muted, #94a3b8);
+    font-size: .7rem;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all .25s ease;
+  }
+
+  .nova-mod-item:hover .nova-mod-arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--primary-light, #818cf8);
+  }
+
+  /* ── Credits Section ── */
+  .nova-credits {
+    border-radius: var(--radius-sm, 10px);
+    background: rgba(255,255,255,.02);
+    border: 1px solid rgba(255,255,255,.05);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .nova-credits-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: .92rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  .nova-credits-header i {
+    color: var(--secondary, #06b6d4);
+  }
+
+  .nova-credits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  .nova-credit-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.03);
+    font-size: .78rem;
+  }
+
+  .nova-credit-row:last-child {
+    border-bottom: none;
+  }
+
+  .nova-credit-tag {
+    font-weight: 600;
+    color: var(--accent, #f59e0b);
+    min-width: 120px;
+    flex-shrink: 0;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .nova-credit-value {
+    color: var(--text-secondary, #cbd5e1);
+  }
+
+  .nova-credit-value a {
+    color: var(--primary-light, #818cf8);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color .2s;
+  }
+
+  .nova-credit-value a:hover {
+    color: var(--secondary, #06b6d4);
+    text-decoration: underline;
+  }
+
+  /* ── Discord CTA ── */
+  .nova-discord-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-radius: var(--radius-sm, 10px);
+    background: linear-gradient(135deg, rgba(88,101,242,.12), rgba(88,101,242,.04));
+    border: 1px solid rgba(88,101,242,.2);
+    text-decoration: none;
+    color: var(--text-primary, #f1f5f9);
+    font-family: 'Poppins', sans-serif;
+    font-size: .85rem;
+    font-weight: 500;
+    transition: all .3s ease;
+  }
+
+  .nova-discord-cta:hover {
+    background: linear-gradient(135deg, rgba(88,101,242,.2), rgba(88,101,242,.08));
+    border-color: rgba(88,101,242,.35);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(88,101,242,.15);
+  }
+
+  .nova-discord-cta i {
+    font-size: 1.2rem;
+    color: #5865F2;
+  }
+
+  .nova-discord-cta span {
+    color: var(--text-muted, #94a3b8);
+    font-weight: 400;
+    font-size: .78rem;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .nova-logo-wrap {
+      width: 110px;
+      height: 110px;
+    }
+    .nova-logo-wrap img {
+      width: 85px;
+      height: 85px;
+    }
+    .nova-mods-grid {
+      grid-template-columns: 1fr;
+    }
+    .nova-credit-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .nova-credit-tag {
+      min-width: unset;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader" class="loader">
+  <div class="loader-gem"><i class="fas fa-gem"></i></div>
+  <div class="loader-bar"><div class="loader-bar-inner"></div></div>
+</div>
+
+<!-- Scroll Progress -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- Toast Container -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Scroll to Top -->
+<button class="scroll-top" id="scrollTop" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
+
+<canvas id="glcanvas"></canvas>
+<div class="shader-overlay"></div>
+
+<div class="content">
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <nav>
+    <div class="logo">
+      <img src="https://avatars.githubusercontent.com/u/215277622?v=4" alt="Logo">
+      <span>DANZGAME-<span class="logo-dot">GD</span></span>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#nova-ui" data-section="nova-ui"><i class="fas fa-star"></i> Nova UI</a></li>
+      <li><a href="#about" data-section="about"><i class="fas fa-info-circle"></i> About</a></li>
+      <li><a href="./guide.html" data-section="guide"><i class="fas fa-book-open"></i> Guide</a></li>
+      <li><a href="./pack.html" data-section="packs-section"><i class="fas fa-th-large"></i> Packs</a></li>
+      <li><a href="#faq-section" data-section="faq-section"><i class="fas fa-question-circle"></i> FAQ</a></li>
+      <li><a href="https://github.com/DANZGAME-GD/NovaUI" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="heroSection">
+  <div class="hero-bg"></div>
+  <div class="hero-pattern"></div>
+  <div class="geo-float diamond"></div>
+  <div class="geo-float hex"></div>
+  <div class="geo-float circle"></div>
+  <div class="geo-float diamond" style="width:24px;height:24px;border-color:var(--secondary)"></div>
+  <div class="geo-float circle" style="width:14px;height:14px;border-color:var(--primary)"></div>
+
+  <div class="hero-brand">
+    <img src="https://avatars.githubusercontent.com/u/215277622?v=4" alt="Avatar">
+    <span>DANZGAME<span class="logo-dot"> Presents..</span></span>
+  </div>
+
+  <div class="hero-banner">
+    <img src="../gudang/matane.png" alt="Banner Content">
+  </div>
+
+  <h1>Nova UI <span>Texture Packs</span></h1>
+  <p class="hero-tagline">A collection of high-quality texture packs for Geometry Dash. Easy installation via the Geode mod loader — free, safe, and without damaging the original game files.</p>
+
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num" id="totalPacks">0</div><div class="label">Texture Packs</div></div>
+    <div class="hero-stat"><div class="num">100%</div><div class="label">Free</div></div>
+    <div class="hero-stat"><div class="num">2</div><div class="label">Platforms</div></div>
+  </div>
+
+  <div class="hero-cta">
+    <a class="cta-btn cta-primary" href="#nova-ui"><i class="fas fa-star"></i> Explore Nova UI</a>
+    <a class="cta-btn cta-secondary" href="./pack.html"><i class="fas fa-th-large"></i> See All Packs</a>
+  </div>
+</section>
+
+<!-- ═══ NOVA UI SPOTLIGHT ═══ -->
+<section id="nova-ui" class="nova-section reveal">
+  <div class="info-section">
+
+    <!-- Nova Hero -->
+    <div class="nova-hero">
+      <div class="nova-logo-wrap">
+        <img src="/Danz_asset/nova_logo-uhd.png" alt="Nova UI Logo">
+      </div>
+      <h2>Nova UI</h2>
+      <p class="nova-hero-subtitle">
+        A name derived from <strong>innovation</strong> — the act of developing new ideas in a field.
+        <strong>Nova UI</strong> is a <a href="https://store.steampowered.com/app/322170/Geometry_Dash/" target="_blank" rel="noopener">Geometry Dash</a> texture pack
+        that transforms the in-game menu into something visually striking and modern, powered by the
+        <a href="https://geode-sdk.org/" target="_blank" rel="noopener">Geode</a> mod loader.
+      </p>
+    </div>
+
+    <!-- Required Mods -->
+    <div class="nova-mods-header">
+      <i class="fas fa-plug"></i>
+      Required Dependencies
+    </div>
+    <div class="nova-mods-grid">
+      <a class="nova-mod-item" href="https://geode-sdk.org/mods/geode.node-ids" target="_blank" rel="noopener">
+        <div class="nova-mod-icon"><i class="fas fa-sitemap"></i></div>
+        <div class="nova-mod-info">
+          <div class="nova-mod-name">Node IDs</div>
+          <div class="nova-mod-id">geode.node-ids</div>
+        </div>
+        <i class="fas fa-arrow-right nova-mod-arrow"></i>
+      </a>
+      <a class="nova-mod-item" href="https://geode-sdk.org/mods/raydeeux.pages_api" target="_blank" rel="noopener">
+        <div class="nova-mod-icon"><i class="fas fa-file-code"></i></div>
+        <div class="nova-mod-info">
+          <div class="nova-mod-name">Pages API</div>
+          <div class="nova-mod-id">raydeeux.pages_api</div>
+        </div>
+        <i class="fas fa-arrow-right nova-mod-arrow"></i>
+      </a>
+      <a class="nova-mod-item" href="https://geode-sdk.org/mods/prevter.imageplus" target="_blank" rel="noopener">
+        <div class="nova-mod-icon"><i class="fas fa-image"></i></div>
+        <div class="nova-mod-info">
+          <div class="nova-mod-name">ImagePlus</div>
+          <div class="nova-mod-id">prevter.imageplus</div>
+        </div>
+        <i class="fas fa-arrow-right nova-mod-arrow"></i>
+      </a>
+      <a class="nova-mod-item" href="https://geode-sdk.org/mods/cgytrus.menu-shaders" target="_blank" rel="noopener">
+        <div class="nova-mod-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+        <div class="nova-mod-info">
+          <div class="nova-mod-name">Menu Shader</div>
+          <div class="nova-mod-id">cgytrus.menu-shaders</div>
+        </div>
+        <i class="fas fa-arrow-right nova-mod-arrow"></i>
+      </a>
+      <a class="nova-mod-item" href="https://geode-sdk.org/mods/geode.texture-loader" target="_blank" rel="noopener">
+        <div class="nova-mod-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="nova-mod-info">
+          <div class="nova-mod-name">Texture Loader</div>
+          <div class="nova-mod-id">geode.texture-loader</div>
+        </div>
+        <i class="fas fa-arrow-right nova-mod-arrow"></i>
+      </a>
+      <a class="nova-mod-item" href="https://geode-sdk.org/mods/alphalaneous.happy_textures" target="_blank" rel="noopener">
+        <div class="nova-mod-icon" style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05));color:var(--success,#10b981)"><i class="fas fa-face-smile"></i></div>
+        <div class="nova-mod-info">
+          <div class="nova-mod-name">Happy Texture :3</div>
+          <div class="nova-mod-id">alphalaneous.happy_textures</div>
+        </div>
+        <i class="fas fa-arrow-right nova-mod-arrow"></i>
+      </a>
+      <a class="nova-mod-item" href="https://geode-sdk.org/mods/alphalaneous.alphas_geode_utils" target="_blank" rel="noopener">
+        <div class="nova-mod-icon" style="background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(6,182,212,.05));color:var(--secondary,#06b6d4)"><i class="fas fa-toolbox"></i></div>
+        <div class="nova-mod-info">
+          <div class="nova-mod-name">Alpha's Geode Utils</div>
+          <div class="nova-mod-id">alphalaneous.alphas_geode_utils</div>
+        </div>
+        <i class="fas fa-arrow-right nova-mod-arrow"></i>
+      </a>
+      <a class="nova-mod-item" href="https://geode-sdk.org/mods/user95401.animate-this-sprite" target="_blank" rel="noopener">
+        <div class="nova-mod-icon" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.05));color:var(--accent,#f59e0b)"><i class="fas fa-film"></i></div>
+        <div class="nova-mod-info">
+          <div class="nova-mod-name">Animate This Sprite!</div>
+          <div class="nova-mod-id">user95401.animate-this-sprite</div>
+        </div>
+        <i class="fas fa-arrow-right nova-mod-arrow"></i>
+      </a>
+    </div>
+
+    <!-- Asset Credits -->
+    <div class="nova-credits">
+      <div class="nova-credits-header">
+        <i class="fas fa-award"></i>
+        Asset Credits
+      </div>
+      <ul class="nova-credits-list">
+        <li class="nova-credit-row">
+          <div class="nova-credit-tag"><i class="fas fa-wand-magic-sparkles"></i> Shaders</div>
+          <div class="nova-credit-value"><a href="https://www.shadertoy.com/view/wlXcDS" target="_blank" rel="noopener">Mellow Voronoi</a> on Shadertoy</div>
+        </li>
+        <li class="nova-credit-row">
+          <div class="nova-credit-tag"><i class="fas fa-image"></i> Background</div>
+          <div class="nova-credit-value"><a href="https://www.youtube.com/watch?v=ag13IgTauU8" target="_blank" rel="noopener">Slr — Graphite Background</a></div>
+        </li>
+        <li class="nova-credit-row">
+          <div class="nova-credit-tag"><i class="fas fa-user"></i> Player BG</div>
+          <div class="nova-credit-value"><a href="https://www.youtube.com/watch?v=SU0CCJbHYYk&list=PLBP4wY8Toya-QvSwVIRpALhO_qiYqE0fh" target="_blank" rel="noopener">The Deli Background</a></div>
+        </li>
+        <li class="nova-credit-row">
+          <div class="nova-credit-tag"><i class="fas fa-pen-ruler"></i> Editor Asset</div>
+          <div class="nova-credit-value"><a href="https://www.youtube.com/channel/UCKGhzag0So06pzIqwAeTP-Q" target="_blank" rel="noopener">Alkatreize</a></div>
+        </li>
+        <li class="nova-credit-row">
+          <div class="nova-credit-tag"><i class="fas fa-palette"></i> Logo</div>
+          <div class="nova-credit-value"><a href="https://www.youtube.com/channel/UCaYW_hTEyIpMernm-raeaWg" target="_blank" rel="noopener">Nycelol</a></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Discord CTA -->
+    <a class="nova-discord-cta" href="https://discord.gg/WJgFhSpTz5" target="_blank" rel="noopener">
+      <i class="fab fa-discord"></i>
+      <div>
+        <div>Need help? Join the Discord Server</div>
+        <span>Ask questions, report bugs, and get support from the community</span>
+      </div>
+      <i class="fas fa-arrow-right" style="margin-left:auto;color:var(--text-muted,#94a3b8);font-size:.8rem"></i>
+    </a>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ ABOUT GEODE ═══ -->
+<section id="about" class="reveal">
+  <div class="info-section">
+    <div class="info-card">
+      <h3><i class="fas fa-puzzle-piece"></i> What is Geode?</h3>
+      <p><strong>Geode</strong> is an open-source mod loader for <a href="https://store.steampowered.com/app/322170/Geometry_Dash/" target="_blank" rel="noopener" style="color:var(--primary-light);text-decoration:none">Geometry Dash</a> that lets you install mods, texture packs, and custom content <em>without</em> modifying the original game files. Developed by the community, Geode has become the new standard for GD modding, replacing older methods that risked breaking the game.</p>
+      <div class="info-features">
+        <div class="info-feat">
+          <div class="info-feat-icon" style="background:var(--success-dim);color:var(--success)"><i class="fas fa-shield-halved"></i></div>
+          <div><div class="feat-title">Safe & Non-Invasive</div><div class="feat-desc">Doesn't modify game files. Can be uninstalled anytime without a trace.</div></div>
+        </div>
+        <div class="info-feat">
+          <div class="info-feat-icon" style="background:var(--accent-dim);color:var(--accent)"><i class="fas fa-bolt"></i></div>
+          <div><div class="feat-title">Install Once, Done</div><div class="feat-desc">Install Geode, then download mods/packs and they activate instantly. No complex setup.</div></div>
+        </div>
+        <div class="info-feat">
+          <div class="info-feat-icon" style="background:var(--primary-dim);color:var(--primary-light)"><i class="fas fa-users"></i></div>
+          <div><div class="feat-title">Large Community</div><div class="feat-desc">Thousands of mods and packs available from the worldwide GD community on the Geode hub.</div></div>
+        </div>
+        <div class="info-feat">
+          <div class="info-feat-icon" style="background:var(--secondary-dim);color:var(--secondary)"><i class="fas fa-code-branch"></i></div>
+          <div><div class="feat-title">Open Source</div><div class="feat-desc">Source code is open on GitHub. Transparent, auditable by anyone.</div></div>
+        </div>
+      </div>
+
+      <!-- Requirements -->
+      <h3 style="margin-top:22px"><i class="fas fa-microchip"></i> System Requirements</h3>
+      <div class="req-grid">
+        <div class="req-item"><i class="fab fa-windows" style="color:var(--secondary)"></i><div class="req-label">Windows</div><div class="req-value">Windows 10+</div></div>
+        <div class="req-item"><i class="fab fa-android" style="color:var(--success)"></i><div class="req-label">Android</div><div class="req-value">Android 8.0+</div></div>
+        <div class="req-item"><i class="fas fa-gamepad" style="color:var(--accent)"></i><div class="req-label">Geometry Dash</div><div class="req-value">v2.200+ Steam</div></div>
+        <div class="req-item"><i class="fas fa-hard-drive" style="color:var(--primary-light)"></i><div class="req-label">Storage</div><div class="req-value">~50 MB base</div></div>
+      </div>
+      <div class="alert alert-warn" style="margin-top:16px;margin-bottom:0"><i class="fas fa-exclamation-triangle"></i><span><strong>Important:</strong> Geode <strong>only works with the official Steam version of Geometry Dash</strong> (not cracked/pirated copies). On Android, use the version from the Play Store.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Geode Pack vs Old Pack -->
+<section class="reveal">
+  <div class="info-section" style="padding-top:0">
+    <div class="info-card">
+      <h3><i class="fas fa-arrows-left-right"></i> Geode Pack vs Old Pack Method</h3>
+      <p>Why are Geode texture packs better than the old method of replacing files in the <code>Resources</code> folder?</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+        <div style="padding:16px;border-radius:var(--radius-sm);background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.1)">
+          <div style="font-size:.78rem;font-weight:600;color:var(--danger);margin-bottom:8px"><i class="fas fa-times-circle"></i> Old Method</div>
+          <ul style="font-size:.72rem;color:var(--text-muted);padding-left:16px;line-height:1.7">
+            <li>Overwrites original game files</li>
+            <li>Breaks when GD updates</li>
+            <li>Requires manual backups</li>
+            <li>Can't toggle on/off</li>
+            <li>Conflicts between packs</li>
+          </ul>
+        </div>
+        <div style="padding:16px;border-radius:var(--radius-sm);background:var(--success-dim);border:1px solid rgba(16,185,129,.1)">
+          <div style="font-size:.78rem;font-weight:600;color:var(--success);margin-bottom:8px"><i class="fas fa-check-circle"></i> Geode Pack</div>
+          <ul style="font-size:.72rem;color:var(--text-muted);padding-left:16px;line-height:1.7">
+            <li>Separate files, game stays safe</li>
+            <li>Unaffected by updates</li>
+            <li>Automatically isolated</li>
+            <li>Instant toggle on/off</li>
+            <li>Minimal conflicts</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ FAQ ═══ -->
+<section id="faq-section" class="reveal">
+  <div class="section-title">
+    <div class="section-tag"><i class="fas fa-question-circle"></i> FAQ</div>
+    <h2>Frequently Asked Questions</h2>
+  </div>
+  <div class="info-section" style="padding-top:0;padding-bottom:24px">
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-q"><i class="fas fa-question"></i></div><span>Can Geode get me banned?</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><p><strong>No.</strong> Geode only modifies the game locally on your machine. As long as you don't use hacks/cheats (like speedhack, noclip, star hack), you won't be banned. Texture packs are completely safe because they only change visual appearance without affecting gameplay.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-q"><i class="fas fa-question"></i></div><span>Can I completely uninstall Geode?</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><p>Yes, very easily. Just delete the <code>geode/</code> folder in your Geometry Dash directory, then in Steam right-click GD → Properties → Installed Files → <strong>"Verify Integrity of Game Files"</strong>. The game will return to its original state 100%, as if Geode was never installed.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-q"><i class="fas fa-question"></i></div><span>What's the difference between Geode texture packs and old packs?</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><p>Geode packs <strong>don't overwrite original game files</strong>. All pack files are stored separately in the <code>geode/mods/</code> folder. You can toggle on/off anytime without restarting, no manual backups needed, and they don't break when the game updates. Old packs (that replace files in the Resources folder) are no longer recommended and can cause issues.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-q"><i class="fas fa-question"></i></div><span>Can I request a texture pack?</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><p>Yes! Contact the respective pack creator through GitHub or their social media. For DANZGAME packs, reach out via the GitHub repository linked on the pack download page.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-q"><i class="fas fa-question"></i></div><span>Are all packs here free?</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><p><strong>Yes, 100% free.</strong> All texture packs on this page can be downloaded without any cost. Geode itself is also open-source and free. No paywalls, no ads, no hidden fees.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-q"><i class="fas fa-question"></i></div><span>How do I create my own texture pack?</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><p>You need to create a folder with a valid Geode mod structure (including <code>mod.json</code>), replace sprite textures as you wish, and follow the format specified by the Geode SDK. Full documentation is available at <a href="https://docs.geode-sdk.org" target="_blank">docs.geode-sdk.org</a>. Tools like texture unpackers can help extract original GD sprites.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-links">
+    <a href="https://geode-sdk.org" target="_blank" rel="noopener"><i class="fas fa-globe"></i> Geode Website</a>
+    <a href="https://discord.gg/eJVcAMzznM" target="_blank" rel="noopener"><i class="fab fa-discord"></i> Discord</a>
+    <a href="https://discord.gg/WJgFhSpTz5" target="_blank" rel="noopener"><i class="fab fa-discord"></i> Nova UI Discord</a>
+    <a href="https://github.com/DANZGAME-GD/NovaUI" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+    <a href="https://docs.geode-sdk.org" target="_blank" rel="noopener"><i class="fas fa-book"></i> Documentation</a>
+  </div>
+  <p class="footer-copy">Made with <span class="heart"><i class="fas fa-heart"></i></span> by DANZGAME &mdash; Not affiliated with RobTop Games &mdash; <a href="#">GD Geode Packs 2025</a></p>
+</footer>
+
+</div>
+
+<!-- ═══ SCRIPTS ═══ -->
+<script type="module" src="../gudang/web/js/dohan.config.js"></script>
+<script id="vs" type="x-shader/x-vertex">attribute vec4 a_position;void main(){gl_Position=a_position;}</script>
+<script id="fs" type="x-shader/x-fragment">
+precision highp float;uniform vec3 iResolution;uniform float iTime;
+const int POINTS=16;const float WO=12000.0;const float SP=1.0/12.0;const float CS=1.0/4.0;const float BR=1.1;
+void voronoi(vec2 uv,inout vec3 col){vec3 v=vec3(0.0);float t=(iTime+WO)*SP;float bd=999.0;float lb=bd;
+for(int i=0;i<POINTS;i++){float fi=float(i);vec2 p=vec2(mod(fi,1.0)*0.1+sin(fi),-0.05+0.15*float(i/10)+cos(fi+t*cos(uv.x*0.025)));
+float d=distance(uv,p);if(d<bd){lb=bd;bd=d;v.x=p.x;v.yz=vec2(p.x*0.4+p.y,p.y)*vec2(0.9,0.87);}}
+col*=0.68+0.19*v;col+=smoothstep(0.99,1.05,1.0-abs(bd-lb))*0.85;col+=smoothstep(0.95,1.01,1.0-abs(bd-lb))*0.1*col;col+=v*0.1*smoothstep(0.5,1.0,1.0-abs(bd-lb));}
+void mainImage(out vec4 f,in vec2 fc){vec2 uv=fc/iResolution.xy;vec3 c=0.5+0.5*cos(iTime*CS+uv.xyx+vec3(0,2,4));voronoi(uv*4.0-1.0,c);f=vec4(c,1.0)*BR;}
+void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}
+</script>
+</body>
+</html>

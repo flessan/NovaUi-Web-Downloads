@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GD Geode Packs - Guide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../gudang/web/css/dohan.config.css">
+</head>
+<body>
+<div id="loader" class="loader"><div class="loader-gem"><i class="fas fa-gem"></i></div><div class="loader-bar"><div class="loader-bar-inner"></div></div></div>
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+<button class="scroll-top" id="scrollTop" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
+<canvas id="glcanvas"></canvas>
+<div class="shader-overlay"></div>
+<div class="content">
+<header>
+  <nav>
+    <div class="logo"><img src="https://avatars.githubusercontent.com/u/215277622?v=4" alt="Logo"><span>DANZGAME<span class="logo-dot">GD</span></span></div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="./index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="./guide.html"><i class="fas fa-book-open"></i> Guide</a></li>
+      <li><a href="./pack.html" class="active"><i class="fas fa-th-large"></i> Packs</a></li>
+      <li><a href="./index.html#faq-section"><i class="fas fa-question-circle"></i> FAQ</a></li>
+      <li><a href="https://github.com/geode-sdk/geode" target="_blank" rel="noopener"><i class="fab fa-github"></i> Geode SDK</a></li>
+    </ul>
+  </nav>
+</header>
+<!-- ═══ PACKS ═══ -->
+<section id="packs-section" class="reveal">
+  <div class="section-title">
+    <div class="section-tag"><i class="fas fa-th-large"></i> Koleksi</div>
+    <h2>Texture Packs</h2>
+    <p style="color: white;">Pilih pack favoritmu dan download langsung</p>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-tags">
+      <button class="filter-tag active" data-filter="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-tag" data-filter="featured" onclick="setFilter('featured',this)"><i class="fas fa-star" style="font-size:.6rem"></i> Featured</button>
+      <button class="filter-tag" data-filter="ui" onclick="setFilter('ui',this)">UI</button>
+      <button class="filter-tag" data-filter="background" onclick="setFilter('background',this)">Background</button>
+    </div>
+    <div class="filter-right">
+      <span class="search-count" id="searchCount"></span>
+      <select class="filter-sort" id="sortSelect" onchange="applySort()">
+        <option value="featured">Featured First</option>
+        <option value="name">Name A-Z</option>
+        <option value="updated">Recently Updated</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="packs" class="packs-grid"></div>
+</section>
+
+<div id="pagination" class="pagination"></div>
+<footer>
+  <p class="footer-copy">Made with <span class="heart"><i class="fas fa-heart"></i></span> by DANZGAME &mdash; <a href="index.html">GD Geode Packs 2025</a></p>
+</footer>
+</div>
+<script type="module" src="../gudang/web/js/dohan.config.js"></script>
+<script id="vs" type="x-shader/x-vertex">attribute vec4 a_position;void main(){gl_Position=a_position;}</script>
+<script id="fs" type="x-shader/x-fragment">
+precision highp float;uniform vec3 iResolution;uniform float iTime;
+const int POINTS=16;const float WO=12000.0;const float SP=1.0/12.0;const float CS=1.0/4.0;const float BR=1.1;
+void voronoi(vec2 uv,inout vec3 col){vec3 v=vec3(0.0);float t=(iTime+WO)*SP;float bd=999.0;float lb=bd;
+for(int i=0;i<POINTS;i++){float fi=float(i);vec2 p=vec2(mod(fi,1.0)*0.1+sin(fi),-0.05+0.15*float(i/10)+cos(fi+t*cos(uv.x*0.025)));
+float d=distance(uv,p);if(d<bd){lb=bd;bd=d;v.x=p.x;v.yz=vec2(p.x*0.4+p.y,p.y)*vec2(0.9,0.87);}}
+col*=0.68+0.19*v;col+=smoothstep(0.99,1.05,1.0-abs(bd-lb))*0.85;col+=smoothstep(0.95,1.01,1.0-abs(bd-lb))*0.1*col;col+=v*0.1*smoothstep(0.5,1.0,1.0-abs(bd-lb));}
+void mainImage(out vec4 f,in vec2 fc){vec2 uv=fc/iResolution.xy;vec3 c=0.5+0.5*cos(iTime*CS+uv.xyx+vec3(0,2,4));voronoi(uv*4.0-1.0,c);f=vec4(c,1.0)*BR;}
+void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}</script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GD Geode Packs - Guide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../gudang/web/css/dohan.config.css">
+</head>
+<body>
+<div id="loader" class="loader"><div class="loader-gem"><i class="fas fa-gem"></i></div><div class="loader-bar"><div class="loader-bar-inner"></div></div></div>
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+<button class="scroll-top" id="scrollTop" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
+<canvas id="glcanvas"></canvas>
+<div class="shader-overlay"></div>
+<div class="content">
+<header>
+  <nav>
+    <div class="logo"><img src="https://avatars.githubusercontent.com/u/215277622?v=4" alt="Logo"><span>DANZGAME<span class="logo-dot">GD</span></span></div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="./index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="./guide.html" class="active"><i class="fas fa-book-open"></i> Guide</a></li>
+      <li><a href="./pack.html"><i class="fas fa-th-large"></i> Packs</a></li>
+      <li><a href="./index.html#faq-section"><i class="fas fa-question-circle"></i> FAQ</a></li>
+      <li><a href="https://github.com/geode-sdk/geode" target="_blank" rel="noopener"><i class="fab fa-github"></i> Geode SDK</a></li>
+    </ul>
+  </nav>
+</header>
+<!-- ═══ GUIDE ═══ -->
+<section id="guide" class="reveal">
+  <div class="section-title">
+    <div class="section-tag"><i class="fas fa-map"></i> Panduan Lengkap</div>
+    <h2>Guide untuk Pemula</h2>
+    <p style="color: white;">Ikuti langkah-langkah berikut dari nol sampai texture pack berhasil terpasang</p>
+  </div>
+
+  <div class="info-section" style="padding-top:0">
+    <div class="guide-tabs">
+      <button class="guide-tab active" onclick="switchTab('tab-install',this)"><i class="fas fa-download"></i> Install Geode</button>
+      <button class="guide-tab" onclick="switchTab('tab-pack',this)"><i class="fas fa-box-open"></i> Install Pack</button>
+      <button class="guide-tab" onclick="switchTab('tab-fix',this)"><i class="fas fa-wrench"></i> Troubleshoot</button>
+      <button class="guide-tab" onclick="switchTab('tab-tips',this)"><i class="fas fa-lightbulb"></i> Tips</button>
+    </div>
+
+    <!-- TAB: Install Geode -->
+    <div id="tab-install" class="tab-panel active">
+      <div class="alert alert-warn"><i class="fas fa-exclamation-triangle"></i><span><strong>Penting:</strong> Pastikan kamu punya <strong>Geometry Dash versi Steam</strong> (bukan crack/pirated). Geode hanya kompatibel dengan versi resmi. Versi 2.200+ direkomendasikan.</span></div>
+
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-card">
+          <h4>Download Geode Installer</h4>
+          <p>Kunjungi halaman resmi Geode dan download installer terbaru sesuai OS kamu.</p>
+          <a href="https://geode-sdk.org/install" target="_blank" rel="noopener" class="cta-btn cta-primary" style="margin-top:12px;font-size:.78rem;padding:8px 18px"><i class="fas fa-external-link-alt"></i> geode-sdk.org/install</a>
+          <div class="alert alert-info" style="margin-top:12px;margin-bottom:0"><i class="fas fa-info-circle"></i><span>Geode mendukung <strong>Windows</strong> dan <strong>Android</strong>. macOS/iOS belum tersedia secara resmi.</span></div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-card">
+          <h4>Jalankan Installer</h4>
+          <p>Buka file installer. Installer akan <strong>otomatis mendeteksi lokasi Geometry Dash</strong> kamu. Klik <strong>"Install"</strong> dan tunggu proses selesai. Jangan tutup window sampai muncul konfirmasi.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-card">
+          <h4>Buka Geometry Dash</h4>
+          <p>Jalankan GD via Steam. Jika berhasil, kamu akan melihat <strong>splash screen Geode</strong> (logo berlian) saat loading, dan <strong>ikon Geode</strong> muncul di pojok kanan atas menu utama.</p>
+          <div class="alert alert-ok" style="margin-top:10px;margin-bottom:0"><i class="fas fa-check-circle"></i><span>Logo Geode muncul? Instalasi berhasil! Lanjut ke tab <strong>"Install Pack"</strong>.</span></div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-card">
+          <h4>Verifikasi Folder Geode (Opsional)</h4>
+          <p>Klik ikon Geode di menu → <strong>Geode Settings</strong> untuk melihat info. Folder Geode berada di:</p>
+          <div class="code-block" style="margin-top:10px">
+            <code id="pathWin">%localappdata%/GeometryDash/geode/</code>
+            <button class="copy-btn" onclick="copyPath('pathWin')" title="Copy path"><i class="fas fa-copy"></i></button>
+          </div>
+          <div class="code-block">
+            <code id="pathAndroid">/sdcard/GeometryDash/geode/</code>
+            <button class="copy-btn" onclick="copyPath('pathAndroid')" title="Copy path"><i class="fas fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Install Pack -->
+    <div id="tab-pack" class="tab-panel">
+      <div class="alert alert-info"><i class="fas fa-info-circle"></i><span>Pastikan Geode sudah ter-install dan berjalan. Lihat tab <strong>"Install Geode"</strong> jika belum.</span></div>
+
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-card"><h4>Pilih Texture Pack</h4><p>Scroll ke bagian <strong>"Texture Packs"</strong> di halaman ini, atau gunakan search bar untuk menemukan pack yang kamu inginkan. Klik tombol <strong>"Download"</strong> pada card pack.</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-card">
+          <h4>Pilih Resolusi yang Tepat</h4>
+          <p>Setiap pack tersedia dalam dua varian resolusi. Pilih sesuai platform kamu:</p>
+          <div class="res-grid">
+            <div class="res-card"><div class="res-icon"><i class="fas fa-desktop" style="color:var(--primary-light)"></i><span>PC Resolution</span></div><p>Texture beresolusi tinggi untuk PC/Laptop. Kualitas detail maksimal, ukuran file lebih besar. Gunakan ini jika bermain di komputer.</p></div>
+            <div class="res-card"><div class="res-icon"><i class="fas fa-mobile-alt" style="color:var(--secondary)"></i><span>Mobile Resolution</span></div><p>Texture beresolusi rendah untuk Android. Performa stabil, ukuran file kecil. Wajib digunakan jika bermain di HP/tablet.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-card">
+          <h4>Install via Geode (Direkomendasikan)</h4>
+          <p>Buka Geometry Dash → klik ikon Geode → pilih <strong>"Mods"</strong> → klik <strong>"Open Folder"</strong> → masuk folder <code>mods</code> → taruh file/folder pack di sini → restart game.</p>
+          <div class="code-block" style="margin-top:10px">
+            <code id="pathMods">%localappdata%/GeometryDash/geode/mods/</code>
+            <button class="copy-btn" onclick="copyPath('pathMods')" title="Copy path"><i class="fas fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-card">
+          <h4>Install Manual (Alternatif)</h4>
+          <p>Jika metode di atas tidak bisa, ekstrak file zip yang didownload, lalu copy seluruh folder pack ke lokasi berikut:</p>
+          <div class="code-block" style="margin-top:10px">
+            <code id="pathMods2">%localappdata%/GeometryDash/geode/mods/[nama-pack]/</code>
+            <button class="copy-btn" onclick="copyPath('pathMods2')" title="Copy path"><i class="fas fa-copy"></i></button>
+          </div>
+          <p style="margin-top:8px">Pastikan setiap pack berada di <strong>folder tersendiri</strong> dan mengandung file <code>mod.json</code> di root-nya.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-card">
+          <h4>Aktifkan & Mainkan!</h4>
+          <p>Restart game → buka menu Geode Mods → temukan pack kamu → toggle <strong>ON</strong>. Texture langsung aktif tanpa perlu restart lagi!</p>
+          <div class="alert alert-ok" style="margin-top:10px;margin-bottom:0"><i class="fas fa-check-circle"></i><span>Selamat! Texture pack sudah terpasang. Kamu bisa toggle OFF/ON kapan saja untuk berganti pack.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Troubleshoot -->
+    <div id="tab-fix" class="tab-panel">
+      <div class="alert alert-info" style="margin-bottom:22px"><i class="fas fa-info-circle"></i><span>Masalah paling umum dan solusinya. Jika masalahmu tidak ada di sini, kunjungi <a href="https://discord.gg/geode" target="_blank" style="color:var(--secondary)">Discord Geode</a> untuk bantuan.</span></div>
+      <div class="faq-list">
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-red"><i class="fas fa-times"></i></div><span>Geode tidak muncul / tidak loading</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><ul><li>Pastikan versi Geode <strong>cocok dengan versi GD</strong> kamu (cek di Geode Settings)</li><li>Pastikan game versi Steam resmi (bukan pirated)</li><li>Re-install Geode dari <a href="https://geode-sdk.org/install" target="_blank">geode-sdk.org/install</a></li><li>Disable antivirus sementara saat install (sering false positive)</li><li>Hapus folder <code>geode/</code> lama, lalu install ulang dari awal</li><li>Cek <code>geode/logs/</code> untuk error message</li></ul></div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-red"><i class="fas fa-times"></i></div><span>Texture pack tidak muncul di daftar mods</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><ul><li>Pastikan file berada di <code>geode/mods/</code> (bukan subfolder yang salah)</li><li>Pastikan ada file <code>mod.json</code> di root folder pack</li><li>Restart game setelah menaruh file</li><li>Cek crash log di <code>geode/logs/</code></li><li>Pastikan pack kompatibel dengan versi Geode kamu</li></ul></div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-red"><i class="fas fa-times"></i></div><span>Game crash setelah install texture pack</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><ul><li>Pack mungkin tidak kompatibel dengan versi Geode/GD kamu</li><li>Hapus pack yang baru di-install, cek apakah game normal</li><li>Jangan aktifkan dua pack yang mengubah texture elemen sama secara bersamaan</li><li>Download ulang pack (file mungkin corrupt saat download)</li><li>Cek <code>geode/crashlogs/</code> untuk detail error</li></ul></div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-red"><i class="fas fa-times"></i></div><span>Texture berantakan / tidak sesuai di game</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><ul><li>Download versi yang <strong>benar (PC vs Mobile)</strong> — jangan tertukar</li><li>Jangan campur texture dari pack berbeda untuk elemen yang sama</li><li>Matikan semua pack lain, aktifkan satu per satu untuk tes</li><li>Pastikan tidak ada leftover file dari pack lama di folder Resources</li></ul></div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-red"><i class="fas fa-times"></i></div><span>Geode Android tidak ter-install</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><ul><li>GD Android harus versi <strong>2.205+</strong> dari Play Store</li><li>Download installer Android dari <a href="https://geode-sdk.org/install" target="_blank">halaman resmi</a></li><li>Izinkan akses storage saat diminta oleh installer</li><li>Pasang dari Unknown Sources jika perlu (Settings → Security)</li><li>Beberapa device dengan custom ROM mungkin memiliki masalah kompatibilitas</li></ul></div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><div class="faq-icon faq-icon-red"><i class="fas fa-times"></i></div><span>Bermain online dengan texture pack — aman?</span><i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-a"><p><strong>Aman 100%.</strong> Texture pack hanya bersifat client-side. Player lain tidak melihat perubahan apapun, dan kamu <strong>tidak akan di-ban</strong> karena texture pack tidak mempengaruhi gameplay, score, atau input.</p></div></div>
+      </div>
+    </div>
+
+    <!-- TAB: Tips -->
+    <div id="tab-tips" class="tab-panel">
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-icon" style="background:var(--primary-dim);color:var(--primary-light)"><i class="fas fa-layer-group"></i></div><h4>Satu Pack Sekali</h4><p>Aktifkan hanya satu texture pack pada satu waktu. Beberapa pack sekaligus bisa konflik dan membuat tampilan berantakan.</p></div>
+        <div class="tip-card"><div class="tip-icon" style="background:var(--secondary-dim);color:var(--secondary)"><i class="fas fa-desktop"></i></div><h4>Pilih Resolusi Tepat</h4><p>PC untuk komputer, Mobile untuk Android. Pack PC di Android bisa lag karena texture terlalu besar untuk GPU mobile.</p></div>
+        <div class="tip-card"><div class="tip-icon" style="background:var(--accent-dim);color:var(--accent)"><i class="fas fa-folder"></i></div><h4>Backup Sebelum Ganti</h4><p>Sebelum install pack baru, backup folder <code>mods</code> supaya bisa kembali ke pack lama kapan saja.</p></div>
+        <div class="tip-card"><div class="tip-icon" style="background:var(--info-dim);color:var(--info)"><i class="fas fa-sync-alt"></i></div><h4>Update Geode Secara Rutin</h4><p>Selalu update Geode ke versi terbaru saat ada update GD besar. Versi lama sering tidak kompatibel.</p></div>
+        <div class="tip-card"><div class="tip-icon" style="background:var(--danger-dim);color:var(--danger)"><i class="fas fa-shield-alt"></i></div><h4>Sumber Terpercaya Saja</h4><p>Download pack hanya dari sumber terpercaya seperti halaman ini atau Geode hub. Pack dari sumber asing bisa berisiko.</p></div>
+        <div class="tip-card"><div class="tip-icon" style="background:var(--success-dim);color:var(--success)"><i class="fas fa-file-code"></i></div><h4>Struktur Folder Wajib</h4><p>Setiap pack harus punya <code>mod.json</code> di root folder. Tanpa file ini, Geode tidak akan mengenali pack sama sekali.</p></div>
+        <div class="tip-card" style="grid-column:1/-1"><div class="tip-icon" style="background:rgba(255,255,255,.04);color:var(--text-sec)"><i class="fas fa-tachometer-alt"></i></div><h4>Performa & FPS</h4><p>Texture pack umumnya <strong>tidak mempengaruhi FPS secara signifikan</strong> karena hanya mengganti gambar statis (sprite). Namun pack dengan resolusi sangat tinggi di PC low-end bisa sedikit menurunkan performa. Kalau FPS turun drastis, coba gunakan versi Mobile atau nonaktifkan pack.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <p class="footer-copy">Made with <span class="heart"><i class="fas fa-heart"></i></span> by DANZGAME &mdash; <a href="index.html">GD Geode Packs 2025</a></p>
+</footer>
+</div>
+<script type="module" src="../gudang/web/js/dohan.config.js"></script>
+<script id="vs" type="x-shader/x-vertex">attribute vec4 a_position;void main(){gl_Position=a_position;}</script>
+<script id="fs" type="x-shader/x-fragment">
+precision highp float;uniform vec3 iResolution;uniform float iTime;
+const int POINTS=16;const float WO=12000.0;const float SP=1.0/12.0;const float CS=1.0/4.0;const float BR=1.1;
+void voronoi(vec2 uv,inout vec3 col){vec3 v=vec3(0.0);float t=(iTime+WO)*SP;float bd=999.0;float lb=bd;
+for(int i=0;i<POINTS;i++){float fi=float(i);vec2 p=vec2(mod(fi,1.0)*0.1+sin(fi),-0.05+0.15*float(i/10)+cos(fi+t*cos(uv.x*0.025)));
+float d=distance(uv,p);if(d<bd){lb=bd;bd=d;v.x=p.x;v.yz=vec2(p.x*0.4+p.y,p.y)*vec2(0.9,0.87);}}
+col*=0.68+0.19*v;col+=smoothstep(0.99,1.05,1.0-abs(bd-lb))*0.85;col+=smoothstep(0.95,1.01,1.0-abs(bd-lb))*0.1*col;col+=v*0.1*smoothstep(0.5,1.0,1.0-abs(bd-lb));}
+void mainImage(out vec4 f,in vec2 fc){vec2 uv=fc/iResolution.xy;vec3 c=0.5+0.5*cos(iTime*CS+uv.xyx+vec3(0,2,4));voronoi(uv*4.0-1.0,c);f=vec4(c,1.0)*BR;}
+void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}</script>
+</body>
+</html>
