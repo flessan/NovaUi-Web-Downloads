@@ -275,7 +275,7 @@ export function openDownload(pk){
 
   const buttonsHtml = isUI ? `
       <button class="popup-dl" onclick="dl('${pk.download_pc}','${pk.name.replace(/'/g,"\\'")}','UI Pack')">
-        <i class="fas fa-file-archive"></i> Download UI Pack
+        <i class="fas fa-file-archive"></i> Download Stable
       </button>
       <button class="popup-dl" style="background:rgba(245, 202, 11, 0.39); color:#fbbf24; border-color:rgba(245,158,11,0.3);" onclick="dl('${pk.download_mobile}','${pk.name.replace(/'/g,"\\'")}','Extension')">
         <i class="fas fa-puzzle-piece"></i> Download Extension
