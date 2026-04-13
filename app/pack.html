@@ -25,6 +25,7 @@
       <li><a href="./guide.html"><i class="fas fa-book-open"></i> Guide</a></li>
       <li><a href="./pack.html" class="active"><i class="fas fa-th-large"></i> Packs</a></li>
       <li><a href="./index.html#faq-section"><i class="fas fa-question-circle"></i> FAQ</a></li>
+      <li><a href="./credit.html" data-section="credit-section"><i class="fas fa-heart"></i> Credits</a></li>
       <li><a href="https://github.com/geode-sdk/geode" target="_blank" rel="noopener"><i class="fab fa-github"></i> Geode SDK</a></li>
     </ul>
   </nav>
@@ -32,11 +33,11 @@
 <!-- ═══ PACKS ═══ -->
 <section id="packs-section" class="reveal">
   <div class="section-title">
-    <div class="section-tag"><i class="fas fa-th-large"></i> Koleksi</div>
+    <div class="section-tag"><i class="fas fa-th-large"></i> Collection</div>
     <h2>Texture Packs</h2>
-    <p style="color: white;">Pilih pack favoritmu dan download langsung</p>
+    <p style="color: white;">Choose your favorite package and download it now</p>
   </div>
-
+  <input id="search" placeholder="Search anime pack (e.g., name or creator)..." oninput="applyFilters()">
   <div class="filter-bar">
     <div class="filter-tags">
       <button class="filter-tag active" data-filter="all" onclick="setFilter('all',this)">All</button>
