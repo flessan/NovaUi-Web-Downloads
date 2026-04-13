@@ -288,7 +288,7 @@ export function openDownload(pk){
         <i class="fas fa-times"></i> Cancel
       </button>
     </div>
-    <div class="popup-note">File akan terbuka di tab baru. Taruh di folder <code>geode/mods/</code> lalu restart game.</div>
+    <div class="popup-note">The file will open in a new tab. Place it in <code>geode/config/geode.texture-loader/packs</code> folder then restart the game.</div>
   </div>`;
   document.body.appendChild(p);
   document.body.style.overflow = "hidden";
