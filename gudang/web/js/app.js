@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ── Mobile Menu ── */
-function initMobileMenu() {
+export function initMobileMenu() {
   const menuToggle = document.getElementById("menuToggle");
   const navLinks = document.getElementById("navLinks");
   if(!menuToggle || !navLinks) return;
@@ -270,25 +270,46 @@ export function openDownload(pk){
   p.className = "popup";
   p.addEventListener("click", e=>{ if(e.target===p) closePopup(); });
   
+  const isUI = pk.category === 'ui';
+  const installPath = "geode/config/geode.texture-loader/packs";
+
+  const buttonsHtml = isUI ? `
+      <button class="popup-dl" onclick="dl('${pk.download_pc}','${pk.name.replace(/'/g,"\\'")}','UI Pack')">
+        <i class="fas fa-file-archive"></i> Download UI Pack
+      </button>
+      <button class="popup-dl" style="background:rgba(245, 202, 11, 0.39); color:#fbbf24; border-color:rgba(245,158,11,0.3);" onclick="dl('${pk.download_mobile}','${pk.name.replace(/'/g,"\\'")}','Extension')">
+        <i class="fas fa-puzzle-piece"></i> Download Extension
+      </button>
+      <button class="popup-dl ghost" style="margin-top:8px; font-size:0.75rem; opacity:0.8" onclick="navigator.clipboard.writeText('${installPath}').then(()=>showToast('Install path copied!','success'))">
+        <i class="fas fa-copy"></i> Copy Install Path
+      </button>
+  ` : `
+      <button class="popup-dl" onclick="dl('${pk.download_pc}','${pk.name.replace(/'/g,"\\'")}','PC')">
+        <i class="fas fa-desktop"></i> Download PC Resolution
+      </button>
+      <button class="popup-dl" onclick="dl('${pk.download_mobile}','${pk.name.replace(/'/g,"\\'")}','Mobile')">
+        <i class="fas fa-mobile-alt"></i> Download Mobile Resolution
+      </button>
+  `;
+
+  const noteHtml = isUI ? 
+    `Khusus UI: Pastikan anda sudah menginstal <strong>Texture Loader</strong>. Ekstrak UI Pack dan Extension ke folder yang ditentukan.` :
+    `The file will open in a new tab. Place it in <code>${installPath}</code> folder then restart the game.`;
+
   p.innerHTML = `<div class="popup-box">
     <div class="popup-avatar">
       <img src="${pk.icon}" alt="${pk.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
       <div class="placeholder" style="display:none"><i class="fas fa-image"></i></div>
     </div>
-    <h2>${pk.name}</h2>
+    <h2 style="${isUI ? 'color:var(--primary-light)' : ''}">${pk.name}</h2>
     <div class="popup-meta">v${pk.version} &middot; by ${pk.creator} &middot; ${pk.size}</div>
     <div class="popup-btns">
-      <button class="popup-dl" onclick="dl('${pk.download_pc}','${pk.name.replace(/'/g,"\\'")}','PC')">
-        <i class="fas fa-desktop"></i>Download PC Resolution
-      </button>
-      <button class="popup-dl" onclick="dl('${pk.download_mobile}','${pk.name.replace(/'/g,"\\'")}','Mobile')">
-        <i class="fas fa-mobile-alt"></i>Download Mobile Resolution
-      </button>
+      ${buttonsHtml}
       <button class="popup-cancel" onclick="closePopup()">
         <i class="fas fa-times"></i> Cancel
       </button>
     </div>
-    <div class="popup-note">The file will open in a new tab. Place it in <code>geode/config/geode.texture-loader/packs</code> folder then restart the game.</div>
+    <div class="popup-note">${noteHtml}</div>
   </div>`;
   document.body.appendChild(p);
   document.body.style.overflow = "hidden";
@@ -379,5 +400,9 @@ window.toggleFaq = toggleFaq;
 window.copyPath = copyPath;
 window.renderPagination = renderPagination;
 window.showToast = showToast;
+window.initMobileMenu = initMobileMenu;
+window.initScrollProgress = initScrollProgress;
+window.initScrollReveal = initScrollReveal;
+window.initActiveNav = initActiveNav;
 
 console.log("✅ Semua fungsi global telah didaftarkan & app siap.");

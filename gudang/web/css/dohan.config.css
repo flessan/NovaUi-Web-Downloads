@@ -1,4 +1,29 @@
-/* Di dalam core.css */
-@import "warna.css";
+/*
+=== 1. DAFTAR ISI ===
+1. Pewarnaan
+2. Layout
+3. Sparepart
+4. Responsibilitas
+*/
+
+/* === 1. Pewarnaan site === */
+@import "lainnya/warna.css";
+
+/* Layout site, besar ukuran */
 @import "gaya.css";
-@import "responsif.css";
+
+/*=== 3. SPAREPART CSS ===*/
+/* Loading Animation */
+@import "sperpart/loading.css";
+
+/* Gaya scroll progress diatas site */
+@import "sperpart/scroll.min.css";
+
+/* GayaPopup */
+@import "sperpart/muncul.css";
+
+/* Gaya footer site*/
+@import "sperpart/kaki.css";
+
+/* === 4. Keresponsif-an layar site === */
+@import "lainnya/responsif.css";
