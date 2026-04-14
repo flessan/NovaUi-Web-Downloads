@@ -224,7 +224,7 @@ export function render(list){
 
   const items = list.slice((currentPage-1)*perPage, currentPage*perPage);
   if(!items.length){
-    c.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>Tidak ditemukan</p><p class="sub">Coba kata kunci lain atau ubah filter</p></div>`;
+    c.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>Not found</p><p class="sub">Try different keywords or change the filter</p></div>`;
     renderPagination(list);
     return;
   }
