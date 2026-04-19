@@ -1,34 +1,47 @@
-/* ── Data ── */
-export const packs=[
-  {name:"Nova Ui",creator:"DANZGAME",description:"NOVA UI is a name derived from the word innovation, which means developing ideas in a field. A complete UI overhaul with modern design language.",icon:"../gudang/icon_logo/nova.png",version:"1.7.3",category:"ui",size:"10.4 MB",lastUpdated:"2026-04-12",download_pc:"https://github.com/DANZGAME-GD/NovaUI/releases/download/v1.7.3/NovaUi.zip",download_mobile:"https://github.com/DANZGAME-GD/NovaUI/releases/download/v1.7.3/NovaUi_Extension.zip",featured:true,isNew:false},
-  {name:"[BG] Shorekeeper",creator:"DANZGAME",description:"Shorekeeper from Wuthering Waves",icon:"../gudang/icon_pack/shorekeeper.png",version:"1.0.0",category:"background",size:"112 / 65 MB",lastUpdated:"2026-04-17",download_pc:"https://www.mediafire.com/file/2aogag595cgcbdr/%255BBG%255D_Shorekeeper_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/6ztz48qj9ffmndc/%255BBG%255D_Shorekeeper_19-9.zip/file",featured:false,isNew:true},
-  {name:"[BG] Evanescia",creator:"DANZGAME",description:"Evanescia from Honkai Star Rail",icon:"../gudang/icon_pack/evanescia.png",version:"1.0.0",category:"background",size:"104 / 62 MB",lastUpdated:"2026-04-16",download_pc:"https://www.mediafire.com/file/ka17z2u9d9454on/%255BBG%255D_Evanescia_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/gdakk8ddimvg4pb/%255BBG%255D_Evanescia_19-9.zip/file",featured:false,isNew:true},
-  {name:"[BG] Kurosaki Koyuki",creator:"DANZGAME",description:"Kurosaki Koyuki from Blue archive",icon:"../gudang/icon_pack/kurosaki_koyuki.png",version:"1.0.0",category:"background",size:"100 / 60 MB",lastUpdated:"2026-04-4",download_pc:"https://www.mediafire.com/file/wt1956zqtpqrde1/%255BBG%255D_Kurosaki_Koyuki_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/2cnhr2pyabjmhel/%255BBG%255D_Kurosaki_Koyuki_19-9.zip/file",featured:false,isNew:true},
-  {name:"[BG] Frieren",creator:"DANZGAME",description:"Frieren From anime Frieren: Beyond Journey`s End",icon:"../gudang/icon_pack/frieren.png",version:"1.0.0",category:"background",size:"115 / 66 MB",lastUpdated:"2026-04-3",download_pc:"https://www.mediafire.com/file/o3bs9mz7azne10k/%255BBG%255D_Frieren_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/uo6mjza1rw9y6ds/%255BBG%255D_Frieren_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Atri",creator:"DANZGAME",description:"Atri from My Dear Moments",icon:"../gudang/icon_pack/atri.png",version:"1.0.0",category:"background",size:"112 / 81 MB",lastUpdated:"2026-02-17",download_pc:"https://www.mediafire.com/file/ed0praix94hnl8e/%255BBG%255D_Atri_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/6s0buwhbp440x8x/%255BBG%255D_Atri_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Columbina Hyposelenia",creator:"DANZGAME",description:"Columbina Hyposelenia from Genshin Impact",icon:"../gudang/icon_pack/columbina_hyposelenia.png",version:"1.0.0",category:"background",size:"56 / 42 MB",lastUpdated:"2026-02-16",download_pc:"https://www.mediafire.com/file/aubd6d31aothims/%255BBG%255D_Columbina_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/qz0sfcy21sui8y0/%255BBG%255D_Columbina_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Gojo Satoru",creator:"DANZGAME",description:"Gojo Satoru from anime Jujutsu Kaisen",icon:"../gudang/icon_pack/gojo_satoru.png",version:"1.1.0",category:"background",size:"99 / 60 MB",lastUpdated:"2026-01-25",download_pc:"https://www.mediafire.com/file/j2jlbpyd7cy3b03/%255BBG%255D_Gojo_Satoru_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/38mmbsq4j3117if/%255BBG%255D_Gojo_Satoru_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Hayase Yuuka",creator:"DANZGAME",description:"Hayase Yuuka from Blue archive",icon:"../gudang/icon_pack/hayase_yuuka.png",version:"1.0.0",category:"background",size:"94 / 53 MB",lastUpdated:"2026-01-15",download_pc:"https://www.mediafire.com/file/x19og6savystwb0/%255BBG%255D_Hayase_Yuuka_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/qeetyvow41nceeb/%255BBG%255D_Hayase_Yuuka_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Tachibana Hikari",creator:"DANZGAME",description:"Tachibana Hikari from Blue archive",icon:"../gudang/icon_pack/tachibana_hikari.png",version:"1.0.0",category:"background",size:"112 / 65  MB",lastUpdated:"2026-01-4",download_pc:"https://www.mediafire.com/file/hyl8za1sasmmt8l/%255BBG%255D_Tachibana_Hikari_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/44upid0x6utf6cy/[BG]+Tachibana+Hikari+19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Chisa",creator:"DANZGAME",description:"Chisa from Wuthering Wave",icon:"../gudang/icon_pack/chisa.png",version:"1.0.0",category:"background",size:"123 / 71 MB",lastUpdated:"2025-12-31",download_pc:"https://www.dropbox.com/scl/fi/8b2yg253cnoocxcth54j2/BG-Chisa-16-9.zip?rlkey=lyg3qluxkcqb0ygmywem3y1fm&st=nqdnmp2h&dl=1",download_mobile:"https://www.dropbox.com/scl/fi/yr3ynhun2bk6uigfg56mc/BG-Chisa-19-9.zip?rlkey=4zhqv9zbkqwszgfm6xlt3xply&st=tk19k21a&dl=1",featured:false,isNew:false},
-  {name:"[BG] Sancho",creator:"DANZGAME",description:"Sancho from Limbus Company",icon:"../gudang/icon_pack/sancho.png",version:"1.0.0",category:"background",size:"143 / 81 MB",lastUpdated:"2025-12-29",download_pc:"https://www.mediafire.com/file/sgz5rnt5rtvytah/[BG]+Sancho+16-9.zip/file",download_mobile:"https://www.mediafire.com/file/ghm1sgrnnuritrp/[BG]+Sancho+19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Manhattan Cafe",creator:"DANZGAME",description:"Manhattan Cafe from Umamusume",icon:"../gudang/icon_pack/manhattan_cafe.png",version:"1.0.0",category:"background",size:"124 / 72 MB",lastUpdated:"2025-12-29",download_pc:"https://www.mediafire.com/file/dxamgmwuz38o08m/[BG]+Manhattan+Cafe+16-9.zip/file",download_mobile:"https://www.mediafire.com/file/v4lfeo8e2jxobpy/[BG]+Manhattan+Cafe+19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Furina De Fountaine",creator:"DANZGAME",description:"Furina De Fountaine from Genshin Impact",icon:"../gudang/icon_pack/furina_de_fountaine.png",version:"1.0.0",category:"background",size:"63 / 38 MB",lastUpdated:"2025-12-23",download_pc:"https://www.mediafire.com/file/wsz9lvui52q5vzv/[BG]+Furina+De+Fontaine+16-9.zip/file",download_mobile:"https://www.mediafire.com/file/hz181a2gnr8r3gp/[BG]+Furina+De+Fontaine+19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Vestia Zeta",creator:"DANZGAME",description:"Vtuber Vestia Zeta",icon:"../gudang/icon_pack/vestia_zeta.png",version:"1.0.0",category:"background",size:"57 / 35 MB",lastUpdated:"2025-11-10",download_pc:"https://www.mediafire.com/file/9oura20aja0997n/%255BBG%255D_Vestia_Zeta_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/jtwsbabf9bwz61j/%5BBG%5D_Vestia_Zeta_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Hoshimi Miyabi",creator:"DANZGAME",description:"Hoshimi Miyami from Zenless Zone Zero",icon:"../gudang/icon_pack/hoshimi_miyabi.jpg",version:"1.0.0",category:"background",size:"75 / 45 MB",lastUpdated:"2025-11-3",download_pc:"https://www.mediafire.com/file/dayou6nu12gw9ro/%255BBG%255D_Hoshimi_Miyabi_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/2qkqjfno53geaap/%255BBG%255D_Hoshimi_Miyabi_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Kuromi Serika",creator:"DANZGAME",description:"Kuromi Serika from Blue archive",icon:"../gudang/icon_pack/kuromi_serika.jpg",version:"1.0.0",category:"background",size:"92 / 54 MB",lastUpdated:"2025-10-17",download_pc:"https://www.mediafire.com/file/t169zf27zetxw2o/%255BBG%255D_Kuromi_Serika_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/38mcaqkxzxgde0l/%255BBG%255D_Kuromi_Serika_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Elaina",creator:"DANZGAME",description:"Elaina from Wandering Witch: The Journey of Elaina",icon:"../gudang/icon_pack/elaina.jpg",version:"1.0.0",category:"background",size:"74 / 45 MB",lastUpdated:"2025-10-10",download_pc:"https://www.mediafire.com/file/6s6sefdcwjld3qw/%255BBG%255D_Elaina_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/mziwe15boqzg49n/%255BBG%255D_Elaina_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Ellen Joe",creator:"DANZGAME",description:"Ellen Joe from Zenless Zone Zero",icon:"../gudang/icon_pack/ellen_joe.jpg",version:"1.0.0",category:"background",size:"158 / 92 MB",lastUpdated:"2025-08-30",download_pc:"https://www.mediafire.com/file/uk1k9fvf7fsqyu4/%255BBG%255D_Ellen_Joe_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/ojlc7zkxiuytyfa/%255BBG%255D_Ellen_Joe_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Mahiru Shiina",creator:"DANZGAME",description:"Mahiru Shiina from Anime The Angel Next Door Spoils Me Rotten",icon:"../gudang/icon_pack/mahiru_shiina.jpg",version:"1.0.0",category:"background",size:"79 / 46 MB",lastUpdated:"2025-08-11",download_pc:"https://www.mediafire.com/file/qb6o5lkne3bhilo/%255BBG%255D_Mahiru_Shiina_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/j6mf4q5hum37vc7/%255BBG%255D_Mahiru_Shiina_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Lilith",creator:"DANZGAME",description:"Lilith from The Non Existence of you and Me",icon:"../gudang/icon_pack/lilith.jpg",version:"1.0.0",category:"background",size:"110 / 66 MB",lastUpdated:"2025-09-6",download_pc:"https://www.mediafire.com/file/tsu2bzd7mgh3vr0/%255BBG%255D_Lilith_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/23x8i4qinei2plv/%255BBG%255D_Lilith_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Hatsune Miku",creator:"DANZGAME",description:"Virtual Idol Singer Hatsune Miku",icon:"../gudang/icon_pack/hatsune_miku.jpg",version:"1.0.0",category:"background",size:"178 / 101 MB",lastUpdated:"2025-08-27",download_pc:"https://www.mediafire.com/file/q381dayohktf98w/%255BBG%255D_Hatsune_Miku_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/pens3gt9s6rixls/%255BBG%255D_Hatsune_Miku_19-9.zip/file",featured:false,isNew:false},
-  {name:"[BG] Ryou Yamada",creator:"DANZGAME",description:"Ryou Yamada from Anime bocchi the Rock!",icon:"../gudang/icon_pack/ryou_yamada.png",version:"1.0.0",category:"background",size:"122 / 57 MB",lastUpdated:"2025-08-1",download_pc:"https://www.mediafire.com/file/1mpklbw64drnlhd/%255BBG%255D_Ryou_Yamada_16-9.zip/file",download_mobile:"https://www.mediafire.com/file/ls7lh0pe7xohugm/%255BBG%255D_Ryou_Yamada_19-9.zip/file",featured:false,isNew:false}
-];
+/* ── Konfigurasi ── */
+// Link Google Sheets CSV yang kamu berikan
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSIWy57PZw5eV1PjxjYC7gX6Haqg9aRgIlATvOCCzns8mcyIRhQkpl1vz40-GK_j4Sxlk4oOBevxBea/pub?output=csv";
 
-// Tambahkan 'export' juga di sini karena app.js butuh variabel ini untuk filter/pagination
-export let currentPage=1, activeFilter='all', searchQuery='';
-export const perPage=9;
+/* ── State & Data ── */
+// Variabel packs akan diisi otomatis setelah data dari Sheets berhasil dimuat
+export let packs = [];
 
-export function jalankanJawa() {
-    console.log("Data loaded");
+// Variabel pendukung untuk pagination dan filter (digunakan oleh app.js)
+export let currentPage = 1, activeFilter = 'all', searchQuery = '';
+export const perPage = 9;
+
+/**
+ * Fungsi Utama: jalankanJawa
+ * Mengambil data dari Google Sheets dan mengubahnya menjadi array of objects.
+ */
+export async function jalankanJawa() {
+    try {
+        console.log("Memulai memuat data dari Google Sheets...");
+        
+        const response = await fetch(SHEET_URL);
+        if (!response.ok) throw new Error("Gagal mengambil data dari Google Sheets");
+        
+        const csvData = await response.text();
+
+        return new Promise((resolve, reject) => {
+            // Memproses data CSV menggunakan PapaParse
+            Papa.parse(csvData, {
+                header: true,         // Baris pertama di Sheets dijadikan kunci (name, creator, dll)
+                dynamicTyping: true,  // Otomatis mengubah "true"/"false" menjadi boolean, dan angka tetap angka
+                skipEmptyLines: true, // Abaikan baris kosong di akhir sheet
+                complete: function(results) {
+                    packs = results.data;
+                    console.log("Data berhasil dimuat. Total item:", packs.length);
+                    resolve(packs);
+                },
+                error: function(err) {
+                    console.error("Gagal parsing CSV:", err);
+                    reject(err);
+                }
+            });
+        });
+    } catch (error) {
+        console.error("Koneksi error atau URL tidak valid:", error);
+        return []; // Kembalikan array kosong jika gagal
+    }
 }
