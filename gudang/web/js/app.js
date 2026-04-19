@@ -25,20 +25,38 @@ export function relativeDate(ds){
 export function categoryLabel(c){ return c==='ui' ? 'UI' : 'Background'; }
 
 /* ── Init ── */
+import { jalankanJawa } from './jawa.js'; // Pastikan jalankanJawa diimport
+
 document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(()=>{
-    const loader = document.getElementById("loader");
-    if(loader) loader.classList.add("hidden");
-  }, 900);
+  // 1. Jalankan loader seperti biasa
+  setTimeout(()=>{
+    const loader = document.getElementById("loader");
+    if(loader) loader.classList.add("hidden");
+  }, 900);
 
-  animateStats();
-  const filtered = getFilteredSorted();
-  if(filtered.length) render(filtered);
+  // 2. TUNGGU data dari Google Sheets selesai, baru render
+  jalankanJawa().then(() => {
+    console.log("Data siap di app.js, memulai render awal...");
+    
+    // Inisialisasi statistik (jumlah packs)
+    animateStats();
+    
+    // Ambil data yang sudah difilter/sort (sekarang packs sudah berisi)
+    const filtered = getFilteredSorted();
+    
+    // Render ke HTML
+    if(filtered.length) {
+        render(filtered);
+    } else {
+        console.warn("Data berhasil dimuat tapi list kosong.");
+    }
 
-  initScrollReveal();
-  initScrollProgress();
-  initActiveNav();
-  initMobileMenu();
+    // Inisialisasi fitur UI lainnya
+    initScrollReveal();
+    initScrollProgress();
+    initActiveNav();
+    initMobileMenu();
+  });
 });
 
 /* ── Mobile Menu ── */
