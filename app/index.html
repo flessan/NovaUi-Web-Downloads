@@ -32,6 +32,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../gudang/web/css/dohan.config.css">
+
+  <!-- ★ Early check: hide shader BEFORE body renders, prevents flash -->
+  <script>
+    if(localStorage.getItem('shader-off')==='1'){
+      document.documentElement.classList.add('shader-disabled');
+    }
+  </script>
+
 <style>
   /* ── Nova UI Section Styles ── */
   .nova-section {
@@ -179,6 +187,7 @@
     flex-shrink: 0;
     color: var(--primary-light, #818cf8);
     font-size: .85rem;
+    overflow: hidden;
   }
 
   .nova-mod-info {
@@ -297,6 +306,138 @@
     font-size: .78rem;
   }
 
+  /* ═══════════════════════════════════════════
+     ★ SHADER TOGGLE
+     ═══════════════════════════════════════════ */
+
+  /* Hide shader with smooth fade */
+  #glcanvas,
+  .shader-overlay {
+    transition: opacity .6s cubic-bezier(.4,0,.2,1), visibility .6s;
+  }
+
+  html.shader-disabled #glcanvas,
+  html.shader-disabled .shader-overlay {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Toggle button */
+  .shader-toggle {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 9999;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(10, 14, 23, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: var(--primary-light, #818cf8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: .9rem;
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .shader-toggle:hover {
+    background: rgba(10, 14, 23, 0.85);
+    border-color: rgba(99,102,241,0.25);
+    transform: scale(1.1);
+    box-shadow: 0 4px 24px rgba(99,102,241,.12);
+  }
+
+  .shader-toggle:active {
+    transform: scale(0.95);
+  }
+
+  /* Tooltip */
+  .shader-toggle::after {
+    content: 'Background: ON';
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-6px);
+    white-space: nowrap;
+    font-family: 'Poppins', sans-serif;
+    font-size: .68rem;
+    font-weight: 600;
+    color: var(--text-secondary, #cbd5e1);
+    background: rgba(10, 14, 23, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 5px 12px;
+    border-radius: 7px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+  }
+
+  .shader-toggle:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+
+  /* OFF state */
+  .shader-toggle.off {
+    color: var(--text-muted, #64748b);
+    opacity: 0.55;
+  }
+
+  .shader-toggle.off:hover {
+    opacity: 0.85;
+    border-color: rgba(100,116,139,0.25);
+    box-shadow: 0 4px 24px rgba(100,116,139,0.08);
+  }
+
+  .shader-toggle.off::after {
+    content: 'Background: OFF';
+    color: var(--text-muted, #94a3b8);
+  }
+
+  /* Hide until page ready (prevents FOUC) */
+  .shader-toggle {
+    opacity: 0;
+    animation: stFadeIn .4s .8s ease forwards;
+  }
+
+  @keyframes stFadeIn {
+    to { opacity: 1; }
+  }
+
+  .shader-toggle.off {
+    animation: stFadeIn .4s .8s ease forwards;
+  }
+
+  @keyframes stFadeIn {
+    to { opacity: 0.55; }
+  }
+
+  /* Mobile: smaller + adjust position */
+  @media (max-width: 640px) {
+    .shader-toggle {
+      bottom: 18px;
+      left: 18px;
+      width: 38px;
+      height: 38px;
+      font-size: .8rem;
+    }
+
+    .shader-toggle::after {
+      left: calc(100% + 8px);
+      font-size: .62rem;
+      padding: 4px 9px;
+    }
+  }
+
   /* ── Responsive ── */
   @media (max-width: 640px) {
     .nova-logo-wrap {
@@ -337,6 +478,11 @@
 
 <!-- Scroll to Top -->
 <button class="scroll-top" id="scrollTop" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
+
+<!-- ★ Shader Toggle Button -->
+<button class="shader-toggle" id="shaderToggle" aria-label="Toggle background shader" title="Toggle background shader">
+  <i class="fas fa-wand-magic-sparkles"></i>
+</button>
 
 <canvas id="glcanvas"></canvas>
 <div class="shader-overlay"></div>
@@ -632,6 +778,63 @@ float d=distance(uv,p);if(d<bd){lb=bd;bd=d;v.x=p.x;v.yz=vec2(p.x*0.4+p.y,p.y)*ve
 col*=0.68+0.19*v;col+=smoothstep(0.99,1.05,1.0-abs(bd-lb))*0.85;col+=smoothstep(0.95,1.01,1.0-abs(bd-lb))*0.1*col;col+=v*0.1*smoothstep(0.5,1.0,1.0-abs(bd-lb));}
 void mainImage(out vec4 f,in vec2 fc){vec2 uv=fc/iResolution.xy;vec3 c=0.5+0.5*cos(iTime*CS+uv.xyx+vec3(0,2,4));voronoi(uv*4.0-1.0,c);f=vec4(c,1.0)*BR;}
 void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}
+</script>
+
+<!-- ★ Shader Toggle Logic -->
+<script>
+(function() {
+  var btn = document.getElementById('shaderToggle');
+  if (!btn) return;
+
+  var KEY = 'shader-off';
+  var icon = btn.querySelector('i');
+
+  /* Read current state */
+  function isOff() {
+    return localStorage.getItem(KEY) === '1';
+  }
+
+  /* Sync UI with state */
+  function sync() {
+    var off = isOff();
+    if (off) {
+      document.documentElement.classList.add('shader-disabled');
+      btn.classList.add('off');
+      icon.className = 'fas fa-eye-slash';
+    } else {
+      document.documentElement.classList.remove('shader-disabled');
+      btn.classList.remove('off');
+      icon.className = 'fas fa-wand-magic-sparkles';
+    }
+  }
+
+  /* Run once on load */
+  sync();
+
+  /* Toggle on click */
+  btn.addEventListener('click', function() {
+    var next = isOff() ? '0' : '1';
+    localStorage.setItem(KEY, next);
+    sync();
+
+    /* Show toast if available (waits for app.js to expose it) */
+    if (typeof window.showToast === 'function') {
+      window.showToast(
+        next === '1' ? 'Background shader disabled' : 'Background shader enabled',
+        'info'
+      );
+    }
+  });
+
+  /* Keyboard: press B to toggle */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'b' && !e.ctrlKey && !e.metaKey && !e.altKey &&
+        document.activeElement.tagName !== 'INPUT' &&
+        document.activeElement.tagName !== 'TEXTAREA') {
+      btn.click();
+    }
+  });
+})();
 </script>
 </body>
 </html>
