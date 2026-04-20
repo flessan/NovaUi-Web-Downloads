@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /app/
+Allow: /gudang/
+
+# Beritahu bot lokasi sitemap jika kamu sudah membuatnya nanti
+Sitemap: https://novaui-id.pages.dev/sitemap.xml
