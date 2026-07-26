@@ -3,7 +3,7 @@ export function jalankanWebGL() {
     const c = document.getElementById("glcanvas");
     if (!c) return; // Keamanan jika canvas tidak ada
 
-    const gl = c.getContext("webgl");
+    const gl = c.getContext("webgl") || c.getContext("experimental-webgl");
     if (!gl) {
         c.style.background = "linear-gradient(135deg,#080c16,#0d1225)";
         return;
@@ -43,6 +43,10 @@ export function jalankanWebGL() {
         if (!sourceElement) return null;
         gl.shaderSource(s, sourceElement.text);
         gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+            console.error("Shader compile error (" + i + "):", gl.getShaderInfoLog(s));
+            return null;
+        }
         return s;
     }
 
@@ -54,6 +58,10 @@ export function jalankanWebGL() {
     gl.attachShader(p, v);
     gl.attachShader(p, f);
     gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+        console.error("Program link error:", gl.getProgramInfoLog(p));
+        return;
+    }
     gl.useProgram(p);
 
     const a = gl.getAttribLocation(p, "a_position");

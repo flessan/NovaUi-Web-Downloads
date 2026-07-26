@@ -32,8 +32,9 @@ function boot() {
      off at load we never call jalankanWebGL(), so without this the
      toggle had nothing to restart and the background stayed dead until
      a manual reload. */
-  window.__novaStartShader = () => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+  window.__novaStartShader = (force = false) => {
+    const explicitOn = localStorage.getItem('shader-off') === '0';
+    if (!force && !explicitOn && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
     if (!window.__novaShader) {
       // jalankanWebGL returns { mulai, berhenti } so the toggle can stop
       // the loop rather than just hiding the canvas with CSS.

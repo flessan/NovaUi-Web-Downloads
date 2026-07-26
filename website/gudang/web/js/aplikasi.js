@@ -555,7 +555,7 @@ export function initShaderToggle() {
        it back on may need a cold boot, because a shader that was off at
        page load was never started in the first place. */
     if (next) window.__novaShader?.berhenti?.();
-    else window.__novaStartShader?.();
+    else window.__novaStartShader?.(true);
 
     sync();
     tap();
