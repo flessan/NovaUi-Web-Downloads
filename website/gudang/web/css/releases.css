@@ -1,0 +1,667 @@
+/* ═══════════════════════════════════════════════════════════════
+   NOVA UI · RELEASES, CHANGELOG & SUPPORT
+   Loaded only by the pages that render GitHub release data.
+   ═══════════════════════════════════════════════════════════════ */
+
+.release-shell {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 40px) var(--gutter) clamp(40px, 7vw, 72px);
+}
+
+.latest-release-card,
+.support-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3vw, 30px);
+  -webkit-backdrop-filter: blur(var(--blur));
+  backdrop-filter: blur(var(--blur));
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Latest release ────────────────────────────────────────── */
+.release-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.release-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.release-heading h3 {
+  color: #fff;
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.release-heading p,
+.release-preview,
+.release-no-assets {
+  color: var(--text-sec);
+  font-size: var(--fs-xs);
+}
+
+.release-version {
+  flex-shrink: 0;
+  padding: 6px 13px;
+  border-radius: var(--radius-full);
+  background: var(--primary-dim);
+  color: var(--primary-light);
+  font-weight: 700;
+  font-size: var(--fs-2xs);
+  white-space: nowrap;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.release-preview {
+  line-height: 1.8;
+  max-width: 76ch;
+  margin-top: 6px
+}
+
+.release-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: var(--sp-5)
+}
+
+/* ── Loading / empty / error states ────────────────────────── */
+.release-state {
+  min-height: 190px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: var(--sp-6);
+  color: var(--text-sec);
+  font-size: var(--fs-xs);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.release-state i {
+  font-size: 1.7rem;
+  color: var(--secondary)
+}
+
+.release-state-error i,
+.release-state-rate-limit i,
+.release-state-not-found i {
+  color: var(--accent)
+}
+
+.release-state button {
+  margin-top: 4px;
+  padding: 9px 18px;
+  min-height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--glass-soft);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.release-state button:hover {
+  border-color: var(--border-hover);
+  background: rgba(255, 255, 255, .08)
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CHANGELOG · Material You (Material 3)
+
+   Follows M3 conventions rather than imitating them loosely:
+     · tonal surfaces - elevation is expressed by surface tint, not
+       by heavy drop shadows
+     · large expressive corner radii (28px containers, full-round
+       chips and icon buttons)
+     · assist/filter chips for metadata
+     · state layers on every interactive surface (M3 hover 8%,
+       pressed 12% overlays) instead of ad-hoc colour swaps
+     · a timeline rail with a filled node marking each release
+   ══════════════════════════════════════════════════════════════ */
+
+.m3-timeline {
+  /* M3 tonal palette derived from the site's primary. Scoped here so
+     the rest of the site keeps its own tokens. */
+  --m3-primary: #c3c0ff;
+  --m3-on-primary: #221a4e;
+  --m3-primary-container: #3a2f88;
+  --m3-on-primary-container: #e4dfff;
+  --m3-secondary: #8ce8d8;
+  --m3-tertiary: #ffd28c;
+
+  --m3-surface: #11131c;
+  --m3-surface-1: #181a25;
+  /* +5% primary tint  */
+  --m3-surface-2: #1c1f2b;
+  /* +8%  */
+  --m3-surface-3: #212433;
+  /* +11% */
+  --m3-outline: rgba(200, 200, 230, .16);
+  --m3-outline-strong: rgba(200, 200, 230, .28);
+  --m3-on-surface: #e5e1e9;
+  --m3-on-surface-var: #c8c4d0;
+  --m3-on-surface-dim: #948fa0;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2.4vw, 20px);
+}
+
+/* ── Timeline rail ─────────────────────────────────────────── */
+.m3-release {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 14px
+}
+
+.m3-rail {
+  position: relative;
+  display: flex;
+  justify-content: center
+}
+
+/* The connecting line. It stops short of the last node so the
+   timeline fades out rather than ending abruptly. */
+.m3-rail::before {
+  content: '';
+  position: absolute;
+  top: 34px;
+  bottom: -24px;
+  width: 2px;
+  background: var(--m3-outline);
+  border-radius: 2px;
+}
+
+.m3-release:last-child .m3-rail::before {
+  bottom: 0;
+  background: linear-gradient(to bottom, var(--m3-outline), transparent);
+}
+
+.m3-node {
+  position: relative;
+  z-index: 1;
+  margin-top: 22px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--m3-surface-3);
+  box-shadow: inset 0 0 0 2px var(--m3-outline-strong);
+}
+
+/* The newest release gets a filled, haloed node. */
+.m3-release.is-latest .m3-node {
+  background: var(--m3-primary);
+  box-shadow: inset 0 0 0 2px var(--m3-primary), 0 0 0 5px rgba(195, 192, 255, .14);
+}
+
+/* ── Card ──────────────────────────────────────────────────── */
+.m3-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  /* M3 extra-large */
+  background: var(--m3-surface-1);
+  border: 1px solid var(--m3-outline);
+  padding: clamp(18px, 3vw, 26px);
+  transition: background-color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease),
+    box-shadow var(--dur-3) var(--ease);
+}
+
+.m3-release.is-latest .m3-card {
+  background: var(--m3-surface-2);
+  border-color: rgba(195, 192, 255, .3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+}
+
+@media (hover:hover) {
+  .m3-card:hover {
+    background: var(--m3-surface-2);
+    border-color: var(--m3-outline-strong)
+  }
+}
+
+/* ── Head ──────────────────────────────────────────────────── */
+.m3-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: var(--sp-4)
+}
+
+.m3-headline {
+  flex: 1;
+  min-width: 0
+}
+
+.m3-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px
+}
+
+.m3-badges:empty {
+  display: none
+}
+
+/* M3 assist chip */
+.m3-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.m3-chip i {
+  font-size: .85em
+}
+
+.m3-chip-tag {
+  background: transparent;
+  color: var(--m3-on-surface-var);
+  border: 1px solid var(--m3-outline-strong);
+  font-family: ui-monospace, 'SF Mono', 'Courier New', monospace;
+}
+
+.m3-chip-latest {
+  background: var(--m3-primary);
+  color: var(--m3-on-primary);
+  font-weight: 700;
+}
+
+.m3-card h2 {
+  font-size: clamp(1.12rem, 1rem + .8vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+  color: var(--m3-on-surface);
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+/* Supporting text: date · relative · downloads */
+.m3-support {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: var(--fs-2xs);
+  color: var(--m3-on-surface-dim);
+}
+
+.m3-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .55;
+  flex-shrink: 0
+}
+
+/* M3 standard icon button, 40dp target with a circular state layer */
+.m3-icon-btn {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--m3-on-surface-var);
+  font-size: 1.15rem;
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease);
+}
+
+.m3-icon-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease);
+}
+
+.m3-icon-btn:hover {
+  color: var(--m3-primary)
+}
+
+.m3-icon-btn:hover::before {
+  opacity: .08
+}
+
+/* M3 hover state layer */
+.m3-icon-btn:active::before {
+  opacity: .12
+}
+
+/* M3 pressed state layer */
+
+/* ── Release notes ─────────────────────────────────────────── */
+.m3-notes {
+  padding: 0;
+  margin-bottom: var(--sp-5);
+  color: var(--m3-on-surface-var);
+  font-size: var(--fs-xs);
+  line-height: 1.8;
+}
+
+.m3-notes> :first-child {
+  margin-top: 0
+}
+
+.m3-notes> :last-child {
+  margin-bottom: 0
+}
+
+.m3-notes h2,
+.m3-notes h3,
+.m3-notes h4 {
+  color: var(--m3-on-surface)
+}
+
+.m3-notes code {
+  background: rgba(195, 192, 255, .12);
+  color: var(--m3-primary);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.m3-notes pre {
+  background: var(--m3-surface);
+  border: 1px solid var(--m3-outline);
+  border-radius: 14px;
+}
+
+.m3-notes a {
+  color: var(--m3-secondary)
+}
+
+/* ── Assets ────────────────────────────────────────────────── */
+.m3-assets {
+  border-top: 1px solid var(--m3-outline);
+  padding-top: var(--sp-4);
+}
+
+.m3-assets h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--m3-on-surface-dim);
+  margin-bottom: 12px;
+}
+
+.m3-assets h3 i {
+  color: var(--m3-tertiary);
+  font-size: 1em
+}
+
+.m3-asset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px
+}
+
+/* M3 list item on a tonal container, with a state layer */
+.m3-asset {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: var(--m3-surface-2);
+  color: var(--m3-on-surface);
+  text-decoration: none;
+  transition: background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease-out);
+}
+
+.m3-asset::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--m3-primary);
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease);
+}
+
+.m3-asset>* {
+  position: relative
+}
+
+@media (hover:hover) {
+  .m3-asset:hover::before {
+    opacity: .08
+  }
+}
+
+.m3-asset:active {
+  transform: scale(.985)
+}
+
+.m3-asset:active::before {
+  opacity: .12
+}
+
+.m3-asset-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--m3-primary-container);
+  color: var(--m3-on-primary-container);
+  font-size: .95rem;
+}
+
+.m3-asset-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px
+}
+
+.m3-asset-name {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--m3-on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.m3-asset-meta {
+  font-size: var(--fs-2xs);
+  color: var(--m3-on-surface-dim)
+}
+
+.m3-asset-cue {
+  flex-shrink: 0;
+  color: var(--m3-on-surface-dim);
+  font-size: .85rem;
+  transition: color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease-out);
+}
+
+.m3-asset:hover .m3-asset-cue {
+  color: var(--m3-primary);
+  transform: translateY(2px)
+}
+
+.m3-no-assets {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--m3-surface-2);
+  color: var(--m3-on-surface-dim);
+  font-size: var(--fs-2xs);
+}
+
+.m3-no-assets i {
+  color: var(--m3-on-surface-dim)
+}
+
+/* ── Compact ───────────────────────────────────────────────── */
+@media (max-width:600px) {
+
+  /* Drop the rail: on a narrow screen the indent costs more than the
+     visual metaphor is worth. The latest card stays distinct through
+     its tonal surface and chip. */
+  .m3-release {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0
+  }
+
+  .m3-rail {
+    display: none
+  }
+
+  .m3-card {
+    border-radius: 24px;
+    padding: 18px 16px
+  }
+
+  .m3-card h2 {
+    font-size: 1.08rem
+  }
+
+  .m3-asset {
+    padding: 12px;
+    gap: 12px;
+    border-radius: 16px
+  }
+
+  .m3-asset-icon {
+    width: 36px;
+    height: 36px;
+    font-size: .85rem
+  }
+
+  /* Wrap long asset filenames rather than truncating: on a phone the
+     ellipsis often hides the part that distinguishes two builds. */
+  .m3-asset-name {
+    white-space: normal;
+    overflow-wrap: anywhere
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .m3-asset:hover .m3-asset-cue {
+    transform: none
+  }
+}
+
+/* NOTE: the older .release-assets / .asset-row rules were removed with
+   this redesign; the latest-release card on the home page still uses
+   .release-* styles defined at the top of this file. */
+
+/* ── Support grid ──────────────────────────────────────────── */
+.support-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: clamp(14px, 2vw, 20px);
+}
+
+.support-card {
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--dur-3) var(--ease-out), border-color var(--dur-3) var(--ease), box-shadow var(--dur-3) var(--ease);
+}
+
+.support-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow)
+}
+
+.support-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+
+.support-card h2 i {
+  color: var(--secondary);
+  font-size: .95em
+}
+
+.support-card p {
+  color: var(--text-sec);
+  font-size: var(--fs-xs);
+  margin: 10px 0 var(--sp-5);
+  line-height: 1.75;
+  flex: 1
+}
+
+.support-card .cta-btn {
+  margin: 4px 4px 0 0
+}
+
+/* ── Mobile ────────────────────────────────────────────────── */
+@media (max-width:640px) {
+  .release-heading {
+    flex-direction: column;
+    gap: 10px
+  }
+
+  .release-actions .cta-btn {
+    width: 100%
+  }
+
+  .support-card .cta-btn {
+    width: 100%;
+    margin-inline: 0
+  }
+}
+
+@media (hover:none) {
+  .support-card:hover {
+    transform: none
+  }
+}

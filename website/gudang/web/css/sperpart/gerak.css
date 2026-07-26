@@ -1,0 +1,385 @@
+/* ═══════════════════════════════════════════════════════════════
+   NOVA UI · MOTION LAYER
+   Every animation on the site is defined here so the performance
+   rules can be reasoned about in one place.
+
+   RULES THIS FILE FOLLOWS (these are what killed the old stutter):
+   1. Only `transform`, `opacity` and `filter` are animated - never
+      width/height/top/left, which force layout on every frame.
+   2. `will-change` is applied by JS just before an element animates
+      and removed on completion. Leaving it on permanently creates
+      hundreds of composited layers and exhausts GPU memory, which
+      is the classic cause of scroll-linked jank on Android.
+   3. Anything that transitions is wrapped in `.motion-ready`, added
+      to <html> one frame after load, so nothing animates during the
+      initial style/layout burst.
+   4. `html.perf-lite` (set by gerak.js on weak devices, low battery,
+      or Data-Saver) strips blur and non-essential motion.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 0. Boot guard ─────────────────────────────────────────────
+   Before the first paint settles, transitions are disabled outright.
+   This kills the "everything slides in at once" stutter on load. */
+html:not(.motion-ready) *,
+html:not(.motion-ready) *::before,
+html:not(.motion-ready) *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition: none !important;
+}
+
+/* ── 1. Scroll reveal ──────────────────────────────────────────
+   translate3d keeps the element on its own compositor layer for the
+   duration of the tween; the layer is released by gerak.js after. */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition: opacity var(--dur-5) var(--ease-out), transform var(--dur-5) var(--ease-out);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0)
+}
+
+/* Children stagger without one timer per node: the index is written
+   once as a custom property and CSS derives the delay. */
+.reveal-stagger>* {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity var(--dur-4) var(--ease-out), transform var(--dur-4) var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 55ms);
+}
+
+.reveal-stagger.revealed>*,
+.reveal-stagger.visible>* {
+  opacity: 1;
+  transform: translate3d(0, 0, 0)
+}
+
+/* Cap the cascade so a long list never waits seconds for the tail. */
+.reveal-stagger>*:nth-child(n+9) {
+  transition-delay: 440ms
+}
+
+/* ── 2. Card entrance (pack grid) ──────────────────────────────
+   Applied as a class rather than an inline `animation` string so the
+   browser can share one keyframe timeline across every card. */
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0) scale(.985)
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1)
+  }
+}
+
+.card-in {
+  animation: cardIn var(--dur-4) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+.card-in:nth-child(n+7) {
+  animation-delay: 270ms
+}
+
+/* ── 3. Tab panels ─────────────────────────────────────────────
+   Fades the incoming panel only; the outgoing one is removed from
+   the flow immediately so there is no height flicker. */
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0)
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0)
+  }
+}
+
+.tab-panel.active {
+  animation: panelIn var(--dur-3) var(--ease-out) both
+}
+
+/* ── 4. Floating hero shapes ───────────────────────────────────
+   Long, low-frequency loops. `translate3d` + `rotate` on a promoted
+   layer costs the compositor ~nothing; the old version animated a
+   plain `translateY` alongside `opacity` on a non-promoted node,
+   which repainted the hero gradient behind it every frame. */
+@keyframes geoFloat {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot, 45deg))
+  }
+
+  50% {
+    transform: translate3d(0, -20px, 0) rotate(calc(var(--rot, 45deg) + 10deg))
+  }
+}
+
+.geo-float {
+  animation: geoFloat var(--float-dur, 8s) var(--ease) infinite
+}
+
+.geo-float.diamond {
+  --rot: 45deg;
+  --float-dur: 7s
+}
+
+.geo-float.hex {
+  --rot: 0deg;
+  --float-dur: 9s
+}
+
+.geo-float.circle {
+  --rot: 0deg;
+  --float-dur: 6s
+}
+
+.geo-float:nth-of-type(2) {
+  animation-delay: -1.5s
+}
+
+.geo-float:nth-of-type(3) {
+  animation-delay: -3s
+}
+
+.geo-float:nth-of-type(4) {
+  animation-delay: -.8s
+}
+
+.geo-float:nth-of-type(5) {
+  animation-delay: -2.2s
+}
+
+/* ── 5. Nova logo halo ─────────────────────────────────────────
+   Animating `box-shadow` repaints a large blurred region each frame.
+   A pseudo-element with a static shadow whose *opacity and scale*
+   are animated gives the same look for a fraction of the cost. */
+.nova-logo-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 60px rgba(124, 92, 252, .3), 0 0 100px rgba(25, 220, 198, .14);
+  animation: haloPulse 4.5s var(--ease) infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes haloPulse {
+
+  0%,
+  100% {
+    opacity: .45;
+    transform: scale(.96)
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04)
+  }
+}
+
+/* ── 6. Heartbeat in the footer ────────────────────────────────
+   Scale-only; the old version also animated colour. */
+.heart {
+  color: var(--danger);
+  display: inline-block;
+  margin: 0 3px;
+  animation: beat 1.6s var(--ease) infinite
+}
+
+@keyframes beat {
+
+  0%,
+  100% {
+    transform: scale(1)
+  }
+
+  45% {
+    transform: scale(1.22)
+  }
+}
+
+/* ── 7. Spinner ────────────────────────────────────────────────*/
+@keyframes spin {
+  to {
+    transform: rotate(360deg)
+  }
+}
+
+.release-state-loading i {
+  animation: spin 1s linear infinite
+}
+
+/* ── 8. Press feedback ─────────────────────────────────────────
+   A native app confirms every tap instantly. `:active` fires before
+   the 300ms click delay, so this reads as immediate. */
+@media (hover:none) {
+
+  .pressable:active,
+  .cta-btn:active,
+  .btn:active,
+  .pack-card:active,
+  .nova-mod-item:active,
+  .filter-tag:active,
+  .guide-tab:active,
+  .faq-q:active,
+  .nav-links a:active {
+    transform: scale(.975);
+    transition-duration: var(--dur-1);
+  }
+}
+
+/* Material-style ripple. The span is created and removed by gerak.js. */
+.ripple-host {
+  position: relative;
+  overflow: hidden
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: currentColor;
+  opacity: .22;
+  transform: scale(0);
+  animation: rippleOut 560ms var(--ease-out) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes rippleOut {
+  to {
+    transform: scale(2.6);
+    opacity: 0
+  }
+}
+
+/* ── 9. Page transitions ───────────────────────────────────────
+   Gives multi-page navigation the continuity of a single-page app.
+   The View Transition API does this natively where supported. */
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0)
+  }
+
+  to {
+    opacity: 1;
+    transform: none
+  }
+}
+
+@keyframes pageOut {
+  to {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0)
+  }
+}
+
+html.page-enter .content {
+  animation: pageIn var(--dur-4) var(--ease-out) both
+}
+
+html.page-leaving .content {
+  animation: pageOut var(--dur-2) var(--ease) both
+}
+
+@supports (view-transition-name:none) {
+  html.page-enter .content {
+    animation: none
+  }
+
+  ::view-transition-old(root) {
+    animation: pageOut var(--dur-2) var(--ease) both
+  }
+
+  ::view-transition-new(root) {
+    animation: pageIn var(--dur-3) var(--ease-out) both
+  }
+}
+
+/* ── 10. perf-lite ─────────────────────────────────────────────
+   Set by gerak.js when the device reports few cores, little memory,
+   Data-Saver, or a low battery. Keeps the layout identical but drops
+   everything that costs GPU bandwidth. */
+html.perf-lite {
+  --blur-sm: 0px;
+  --blur: 0px;
+  --blur-lg: 0px;
+}
+
+html.perf-lite header,
+html.perf-lite .info-card,
+html.perf-lite .pack-card,
+html.perf-lite .faq-item,
+html.perf-lite .tip-card,
+html.perf-lite .step-card,
+html.perf-lite .toast,
+html.perf-lite .scroll-top,
+html.perf-lite .shader-toggle,
+html.perf-lite .app-tabbar,
+html.perf-lite .sheet-panel {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-color: var(--glass-strong);
+}
+
+html.perf-lite header {
+  background-color: rgba(8, 11, 20, .97)
+}
+
+html.perf-lite .geo-float,
+html.perf-lite .nova-logo-wrap::before,
+html.perf-lite body::after {
+  display: none
+}
+
+html.perf-lite .pack-card:hover {
+  transform: none
+}
+
+/* ── 11. Reduced motion ────────────────────────────────────────
+   Honour the OS setting completely: content still appears, it just
+   appears instantly, and no infinite loop keeps the GPU awake. */
+@media (prefers-reduced-motion:reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto
+  }
+
+  .reveal,
+  .reveal-stagger>* {
+    opacity: 1 !important;
+    transform: none !important
+  }
+
+  .card-in {
+    animation: none;
+    opacity: 1
+  }
+
+  .geo-float,
+  .nova-logo-wrap::before,
+  .heart {
+    animation: none
+  }
+
+  .ripple {
+    display: none
+  }
+}

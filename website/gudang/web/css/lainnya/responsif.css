@@ -1,0 +1,415 @@
+/* ═══════════════════════════════════════════════════════════════
+   NOVA UI · RESPONSIVE LAYER
+   The component styles are already fluid (clamp + auto-fit grids),
+   so this file only handles genuine layout *changes* per breakpoint
+   plus input-modality and platform tweaks.
+
+   Breakpoints
+     ≤480   compact phone
+     ≤640   phone
+     ≤860   tablet / drawer + tab bar territory
+     ≥861   desktop
+     ≥1200  wide
+     ≥1600  ultra-wide
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── ≤ 860px · phones and small tablets ────────────────────── */
+@media (max-width:860px) {
+
+  /* Content must clear the fixed bottom tab bar. */
+  footer {
+    margin-bottom: 0
+  }
+
+  .pagination {
+    padding-bottom: var(--sp-8)
+  }
+
+  .section-title {
+    text-align: left;
+    padding-inline: var(--gutter)
+  }
+
+  .section-title p {
+    margin-left: 0
+  }
+
+  .hero {
+    padding-top: clamp(24px, 6vw, 40px)
+  }
+
+  .hero-stats {
+    width: 100%;
+    gap: 0;
+    margin-top: var(--sp-5);
+    padding: 14px 4px;
+    border-radius: var(--radius);
+    background: var(--glass-soft);
+    border: 1px solid var(--border-soft);
+    flex-wrap: nowrap;
+  }
+
+  .hero-stat {
+    flex: 1;
+    min-width: 0
+  }
+
+  .hero-stat+.hero-stat {
+    border-left: 1px solid var(--border-soft)
+  }
+
+  .hero-cta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%
+  }
+
+  .hero-cta .cta-btn {
+    width: 100%;
+    min-height: 48px
+  }
+
+  /* Horizontally scrollable filter row - standard mobile pattern. */
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-inline: 0;
+  }
+
+  .filter-tags {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 2px var(--gutter) 6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+  }
+
+  .filter-tags::-webkit-scrollbar {
+    display: none
+  }
+
+  .filter-tag {
+    flex: 0 0 auto;
+    scroll-snap-align: start
+  }
+
+  .filter-right {
+    justify-content: space-between;
+    padding-inline: var(--gutter)
+  }
+
+  #search {
+    max-width: none
+  }
+
+  .filter-shell,
+  .info-section {
+    padding-inline: var(--gutter)
+  }
+
+  .req-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+  }
+
+  .compare-grid {
+    grid-template-columns: 1fr
+  }
+
+  .res-grid {
+    grid-template-columns: 1fr
+  }
+
+  .footer-links {
+    gap: 12px
+  }
+
+  .footer-links a {
+    flex: 1 1 40%;
+    justify-content: center;
+    padding: 11px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--glass-softer);
+  }
+}
+
+/* ── ≤ 640px · phones ──────────────────────────────────────── */
+@media (max-width:640px) {
+  .packs-grid {
+    grid-template-columns: 1fr
+  }
+
+  .info-features {
+    grid-template-columns: 1fr
+  }
+
+  .nova-mods-grid {
+    grid-template-columns: 1fr
+  }
+
+  .tips-grid {
+    grid-template-columns: 1fr
+  }
+
+  .nova-credit-row {
+    flex-wrap: wrap;
+    gap: 8px
+  }
+
+  .nova-credit-tag {
+    min-width: 0
+  }
+
+  .hero-brand {
+    gap: 10px
+  }
+
+  .step-item {
+    padding-left: 48px
+  }
+
+  .step-card {
+    padding: 18px
+  }
+
+  .toast-wrap {
+    left: max(12px, var(--safe-l));
+    right: max(12px, var(--safe-r));
+    max-width: none;
+    align-items: stretch;
+  }
+
+  .toast {
+    width: 100%
+  }
+}
+
+/* ── ≤ 480px · compact phones ──────────────────────────────── */
+@media (max-width:480px) {
+  .req-grid {
+    grid-template-columns: 1fr
+  }
+
+  .logo img {
+    height: 30px;
+    width: 30px
+  }
+
+  .nova-discord-cta {
+    flex-wrap: wrap
+  }
+
+  .nova-discord-cta>i:last-child {
+    display: none
+  }
+
+  .pagination {
+    gap: 8px
+  }
+
+  .pagination button {
+    padding: 11px 16px
+  }
+}
+
+/* ── ≥ 861px · desktop ─────────────────────────────────────── */
+@media (min-width:861px) {
+  .packs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+  }
+}
+
+@media (min-width:1200px) {
+  .packs-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+  }
+}
+
+@media (min-width:1600px) {
+  :root {
+    --shell: var(--shell-wide)
+  }
+
+  .hero-banner {
+    max-width: 1060px
+  }
+}
+
+/* ── Landscape phones ──────────────────────────────────────── */
+/* Vertical space is scarce; trim the hero rather than the content. */
+@media (max-height:520px) and (orientation:landscape) {
+  .hero {
+    padding-block: 20px
+  }
+
+  .hero-banner {
+    max-width: min(560px, 60vw)
+  }
+
+  .nova-logo-wrap {
+    width: 88px
+  }
+
+  .loader-gem img {
+    width: 56px;
+    height: 56px
+  }
+
+  .app-tabbar {
+    --tabbar-h: 52px
+  }
+
+  .app-tabbar a {
+    font-size: 9px
+  }
+
+  .app-tabbar a i {
+    font-size: 1rem
+  }
+}
+
+/* ── Input modality ────────────────────────────────────────── */
+/* Hover effects only where a real pointer exists - on touch they
+   stick after a tap and read as a rendering bug. */
+@media (hover:none) {
+
+  .pack-card:hover,
+  .tip-card:hover,
+  .info-feat:hover,
+  .req-item:hover,
+  .res-card:hover,
+  .step-card:hover,
+  .nova-mod-item:hover,
+  .nova-credit-row:hover,
+  .hero-banner:hover,
+  .nova-discord-cta:hover,
+  .cta-btn:hover,
+  .pack-dl-btn:hover,
+  .scroll-top:hover,
+  .shader-toggle:hover {
+    transform: none;
+  }
+
+  .pack-card:hover .pack-img {
+    transform: none
+  }
+}
+
+/* Coarse pointers need bigger targets than the 40px desktop default. */
+@media (pointer:coarse) {
+
+  .nav-links a,
+  .footer-links a,
+  .filter-tag,
+  .guide-tab,
+  .pagination button,
+  .copy-btn,
+  .faq-q {
+    min-height: 44px
+  }
+
+  .copy-btn {
+    min-width: 52px
+  }
+}
+
+/* ── Focus visibility ──────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+
+/* Mouse users do not get a ring, keyboard users always do. */
+:focus:not(:focus-visible) {
+  outline: none
+}
+
+/* ── Scrollbars ────────────────────────────────────────────── */
+@media (hover:hover) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(124, 92, 252, .32);
+    border-radius: var(--radius-full);
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 92, 252, .55);
+    background-clip: content-box
+  }
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 92, 252, .4) transparent
+}
+
+/* ── Print ─────────────────────────────────────────────────── */
+@media print {
+
+  #glcanvas,
+  .shader-overlay,
+  .app-tabbar,
+  .scroll-top,
+  .shader-toggle,
+  .scroll-progress,
+  .toast-wrap,
+  .loader,
+  .install-prompt,
+  .menu-toggle,
+  body::after {
+    display: none !important
+  }
+
+  body {
+    background: #fff;
+    color: #000
+  }
+
+  .content {
+    padding-bottom: 0
+  }
+
+  .reveal,
+  .reveal-stagger>* {
+    opacity: 1 !important;
+    transform: none !important
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: .8em;
+    color: #555
+  }
+}
+
+/* ── High contrast ─────────────────────────────────────────── */
+@media (prefers-contrast:more) {
+  :root {
+    --text-muted: #c3cddf;
+    --text-faint: #a6b2c8;
+    --border: rgba(180, 192, 255, .34);
+    --border-soft: rgba(255, 255, 255, .2);
+  }
+
+  .info-card,
+  .pack-card,
+  .faq-item,
+  .tip-card,
+  .step-card {
+    background: var(--glass-strong)
+  }
+}

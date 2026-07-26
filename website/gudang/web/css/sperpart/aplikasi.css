@@ -1,0 +1,742 @@
+/* ═══════════════════════════════════════════════════════════════
+   NOVA UI · APP SHELL
+   The pieces that make the site feel like an installed application:
+   navigation drawer, bottom tab bar, bottom sheets, pull-to-refresh
+   and the standalone-display adjustments.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Navigation drawer (compact viewports) ─────────────────── */
+.nav-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-header) - 1);
+  background: rgba(3, 5, 10, .6);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-3) var(--ease), visibility var(--dur-3) var(--ease);
+}
+
+body.menu-open .nav-scrim {
+  opacity: 1;
+  visibility: visible
+}
+
+@media (max-width:860px) {
+
+  /* The trigger deliberately sits above both the drawer and the
+     shader canvas so it can always close what it opened. */
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: calc(var(--z-header) + 2);
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 14px;
+    background: var(--glass-soft);
+    border: 1px solid var(--border-soft);
+    color: var(--text);
+    font-size: 1.15rem;
+    transition: background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease-out);
+    touch-action: manipulation;
+  }
+
+  .menu-toggle:active {
+    transform: scale(.93);
+    background: var(--primary-dim)
+  }
+
+  body.menu-open {
+    overflow: hidden;
+    overscroll-behavior: none
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(84vw, 340px);
+    height: 100vh;
+    height: 100svh;
+    z-index: calc(var(--z-header) + 1);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: calc(var(--header-h) + var(--safe-t) + 16px) max(18px, var(--safe-r)) calc(24px + var(--safe-b)) 18px;
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: blur(var(--blur-lg));
+    backdrop-filter: blur(var(--blur-lg));
+    border-left: 1px solid var(--border);
+    box-shadow: -20px 0 60px -20px rgba(0, 0, 0, .8);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    /* translate3d, not `right`, so opening the drawer never triggers
+       layout - this was a major source of the reported stutter. */
+    transform: translate3d(100%, 0, 0);
+    visibility: hidden;
+    transition: transform var(--dur-4) var(--ease-out), visibility var(--dur-4) var(--ease);
+  }
+
+  .nav-links.active {
+    transform: translate3d(0, 0, 0);
+    visibility: visible
+  }
+
+  .nav-links::before {
+    content: 'Navigation';
+    font-size: var(--fs-2xs);
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding: 0 14px 10px;
+  }
+
+  .nav-links li {
+    width: 100%
+  }
+
+  .nav-links a {
+    min-height: 52px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    font-size: var(--fs-md);
+    font-weight: 600;
+    color: var(--text-sec);
+    gap: 14px;
+  }
+
+  .nav-links a i {
+    width: 22px;
+    text-align: center;
+    color: var(--secondary);
+    font-size: 1em;
+    opacity: 1
+  }
+
+  .nav-links a.active {
+    background: var(--primary-dim);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px var(--border-hover)
+  }
+
+  .nav-links a.active i {
+    color: var(--primary-light)
+  }
+
+  .nav-links a:active {
+    background: var(--primary-dim)
+  }
+}
+
+@media (min-width:861px) {
+  .nav-scrim {
+    display: none
+  }
+}
+
+/* ── Bottom tab bar (native-app primary navigation) ────────── */
+.app-tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-tabbar);
+  display: none;
+  align-items: stretch;
+  height: calc(var(--tabbar-h) + var(--safe-b));
+  padding: 0 max(6px, var(--safe-l)) var(--safe-b) max(6px, var(--safe-r));
+  background: rgba(9, 12, 22, .88);
+  -webkit-backdrop-filter: blur(var(--blur-lg)) saturate(1.3);
+  backdrop-filter: blur(var(--blur-lg)) saturate(1.3);
+  border-top: 1px solid var(--border);
+  /* Slides away while scrolling down, returns on scroll up. */
+  transform: translate3d(0, 0, 0);
+  transition: transform var(--dur-3) var(--ease-out);
+  /* `layout` only - `paint` would clip any future fixed-position child,
+     the same trap that broke the nav drawer inside the header. */
+  contain: layout;
+}
+
+.app-tabbar.hidden {
+  transform: translate3d(0, calc(100% + 2px), 0)
+}
+
+.app-tabbar a {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 2px;
+  text-decoration: none;
+  color: var(--text-faint);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  position: relative;
+  transition: color var(--dur-2) var(--ease);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-tabbar a i {
+  font-size: 1.15rem;
+  transition: transform var(--dur-3) var(--ease-spring);
+}
+
+.app-tabbar a span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-tabbar a:active i {
+  transform: scale(.86)
+}
+
+.app-tabbar a.active {
+  color: var(--primary-light)
+}
+
+.app-tabbar a.active i {
+  transform: translateY(-1px)
+}
+
+/* The little pill above the active tab, the way iOS/Android mark state. */
+.app-tabbar a::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 26px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  transform: translateX(-50%) scaleX(0);
+  transition: transform var(--dur-3) var(--ease-spring);
+}
+
+.app-tabbar a.active::before {
+  transform: translateX(-50%) scaleX(1)
+}
+
+@media (max-width:860px) {
+  .app-tabbar {
+    display: flex
+  }
+}
+
+/* ── Bottom sheet (replaces the centred popup on touch) ────── */
+.popup,
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gutter);
+  background: rgba(3, 5, 10, 0);
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  transition: background-color var(--dur-3) var(--ease), backdrop-filter var(--dur-3) var(--ease), -webkit-backdrop-filter var(--dur-3) var(--ease);
+}
+
+.popup.open,
+.sheet.open {
+  background: rgba(3, 5, 10, .72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.popup-box,
+.sheet-panel {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+  padding: 32px 28px calc(28px + var(--safe-b));
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  transform: translate3d(0, 18px, 0) scale(.96);
+  opacity: 0;
+  transition: transform var(--dur-4) var(--ease-out), opacity var(--dur-3) var(--ease);
+  max-height: calc(100svh - 2 * var(--gutter));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.popup.open .popup-box,
+.sheet.open .sheet-panel {
+  transform: translate3d(0, 0, 0) scale(1);
+  opacity: 1
+}
+
+.popup-box::before,
+.sheet-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient);
+}
+
+/* Grab handle + edge-anchored layout on phones. */
+@media (max-width:640px) {
+
+  .popup,
+  .sheet {
+    align-items: flex-end;
+    padding: 0
+  }
+
+  .popup-box,
+  .sheet-panel {
+    max-width: none;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding-top: 26px;
+    transform: translate3d(0, 100%, 0) scale(1);
+    max-height: 88svh;
+  }
+
+  .popup.open .popup-box,
+  .sheet.open .sheet-panel {
+    transform: translate3d(0, 0, 0)
+  }
+
+  .popup-box::after,
+  .sheet-panel::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 38px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--border);
+  }
+}
+
+.popup-avatar {
+  width: 78px;
+  height: 78px;
+  border-radius: 22px;
+  overflow: hidden;
+  margin: 0 auto 16px;
+  border: 2px solid var(--border);
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.popup-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover
+}
+
+.popup-avatar .placeholder {
+  color: rgba(255, 255, 255, .14);
+  font-size: 1.6rem
+}
+
+.popup-box h2 {
+  font-size: var(--fs-lg);
+  color: #fff;
+  margin-bottom: 5px;
+  font-weight: 700
+}
+
+.popup-box .popup-meta {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  margin-bottom: 22px;
+  line-height: 1.6
+}
+
+.popup-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px
+}
+
+.popup-btns button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 22px;
+  min-height: 48px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  font-family: inherit;
+  transition: transform var(--dur-2) var(--ease-out), filter var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease);
+  touch-action: manipulation;
+}
+
+.popup-btns button:active {
+  transform: scale(.97)
+}
+
+.popup-dl {
+  background: var(--accent);
+  color: #1a1206;
+  box-shadow: 0 6px 18px -6px rgba(247, 187, 58, .45)
+}
+
+.popup-dl:hover {
+  filter: brightness(1.06)
+}
+
+.popup-dl.ghost {
+  background: var(--glass-soft);
+  color: var(--text-sec);
+  box-shadow: none;
+  border: 1px solid var(--border-soft)
+}
+
+.popup-cancel {
+  background: var(--glass-soft);
+  color: var(--text-muted);
+  border: 1px solid var(--border-soft)
+}
+
+.popup-cancel:hover {
+  background: rgba(255, 255, 255, .09);
+  color: var(--text)
+}
+
+.popup-note {
+  font-size: var(--fs-2xs);
+  color: var(--text-faint);
+  margin-top: 16px;
+  line-height: 1.65
+}
+
+.popup-note code {
+  background: var(--primary-dim);
+  padding: 2px 6px;
+  border-radius: 5px;
+  color: var(--primary-light);
+  font-family: ui-monospace, monospace
+}
+
+/* ── Pull to refresh ───────────────────────────────────────── */
+.ptr-indicator {
+  position: fixed;
+  left: 50%;
+  top: calc(var(--header-h) + var(--safe-t) + 6px);
+  z-index: calc(var(--z-header) - 1);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  color: var(--primary-light);
+  font-size: .85rem;
+  box-shadow: var(--shadow-sm);
+  /* Driven entirely by transform from JS - no layout per frame. */
+  transform: translate3d(-50%, -64px, 0) scale(.7);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ptr-indicator.settling {
+  transition: transform var(--dur-3) var(--ease-out), opacity var(--dur-2) var(--ease)
+}
+
+.ptr-indicator.spinning i {
+  animation: spin .8s linear infinite
+}
+
+/* ── Loader ────────────────────────────────────────────────── */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: var(--bg);
+  transition: opacity var(--dur-5) var(--ease), visibility var(--dur-5) var(--ease);
+}
+
+.loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none
+}
+
+.loader-gem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-sec);
+  letter-spacing: .04em;
+}
+
+.loader-gem img {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  animation: gemPulse 1.4s var(--ease) infinite
+}
+
+@keyframes gemPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: .75
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 1
+  }
+}
+
+.loader-bar {
+  width: 140px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  overflow: hidden
+}
+
+.loader-bar-inner {
+  height: 100%;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--gradient);
+  /* Animating transform instead of width keeps this off the main thread. */
+  animation: loadSlide 1.1s var(--ease) infinite;
+}
+
+@keyframes loadSlide {
+  from {
+    transform: translate3d(-110%, 0, 0)
+  }
+
+  to {
+    transform: translate3d(320%, 0, 0)
+  }
+}
+
+/* ── Scroll progress ───────────────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: var(--z-progress);
+  background: var(--gradient);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  /* scaleX rather than width: no layout, no paint, compositor only. */
+  will-change: transform;
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: var(--sp-8) var(--gutter) calc(var(--sp-8) + var(--safe-b));
+  text-align: center;
+  margin-top: var(--sp-10);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: clamp(14px, 3vw, 24px);
+  margin-bottom: var(--sp-4);
+  flex-wrap: wrap
+}
+
+.footer-links a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: var(--fs-xs);
+  padding: 6px 4px;
+  min-height: 36px;
+  transition: color var(--dur-2) var(--ease);
+}
+
+.footer-links a:hover {
+  color: var(--secondary)
+}
+
+footer .footer-copy {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: 1.8
+}
+
+footer .footer-copy a {
+  color: var(--primary-light);
+  text-decoration: none;
+  font-weight: 600
+}
+
+footer .footer-copy a:hover {
+  color: var(--secondary)
+}
+
+/* ── Installed / standalone mode ───────────────────────────── */
+@media (display-mode:standalone) {
+
+  /* No browser chrome to scroll away, so the header can stay solid
+     and the drag region behaves like a native title bar. */
+  header {
+    background: rgba(8, 11, 20, .96)
+  }
+
+  .install-prompt {
+    display: none !important
+  }
+}
+
+/* ── Install prompt ────────────────────────────────────────── */
+.install-prompt {
+  position: fixed;
+  z-index: var(--z-fab);
+  left: max(14px, var(--safe-l));
+  right: max(14px, var(--safe-r));
+  bottom: calc(14px + var(--tabbar-h) + var(--safe-b));
+  margin-inline: auto;
+  max-width: 440px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(var(--blur));
+  backdrop-filter: blur(var(--blur));
+  box-shadow: var(--shadow-lg);
+  transform: translate3d(0, 140%, 0);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform var(--dur-4) var(--ease-out), opacity var(--dur-3) var(--ease), visibility var(--dur-3) var(--ease);
+}
+
+.install-prompt.show {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  visibility: visible
+}
+
+.install-prompt img {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  flex-shrink: 0
+}
+
+.install-prompt .ip-text {
+  flex: 1;
+  min-width: 0;
+  text-align: left
+}
+
+.install-prompt .ip-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text)
+}
+
+.install-prompt .ip-sub {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted)
+}
+
+.install-prompt button {
+  flex-shrink: 0;
+  padding: 9px 16px;
+  min-height: 38px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.install-prompt .ip-install {
+  background: var(--primary);
+  color: #fff
+}
+
+.install-prompt .ip-close {
+  color: var(--text-faint);
+  padding: 9px 10px
+}
+
+/* ── Offline banner ────────────────────────────────────────── */
+/* Sits directly beneath the header. It must be genuinely inert when
+   online: the header is translucent (rgba .72 + backdrop blur), so
+   merely translating the banner behind it left a red smear bleeding
+   through the glass. `visibility` and `opacity` remove it for real,
+   and `content-visibility` keeps it out of rendering entirely. */
+.offline-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: calc(var(--header-h) + var(--safe-t));
+  z-index: calc(var(--z-header) - 1);
+  padding: 9px var(--gutter);
+  background: var(--danger);
+  color: #fff;
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transform: translate3d(0, -100%, 0);
+  opacity: 0;
+  visibility: hidden;
+  content-visibility: hidden;
+  pointer-events: none;
+  transition: transform var(--dur-3) var(--ease-out),
+    opacity var(--dur-2) var(--ease),
+    visibility var(--dur-3) var(--ease);
+}
+
+body.is-offline .offline-banner {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  visibility: visible;
+  content-visibility: visible;
+  pointer-events: auto;
+}

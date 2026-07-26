@@ -1,0 +1,29 @@
+/*
+═══════════════════════════════════════════════════
+  NOVA UI · STYLE MANIFEST
+  Import order matters - later files rely on tokens
+  and base rules declared by earlier ones.
+
+  1. warna.css      design tokens (colour/type/motion)
+  2. gaya.css       base + shared components
+  3. gerak.css      all animation & performance modes
+  4. aplikasi.css   app shell: drawer, tab bar, sheets
+  5. responsif.css  breakpoints & platform tweaks
+═══════════════════════════════════════════════════
+*/
+
+/* 1 · Tokens */
+@import "lainnya/warna.css";
+
+/* 2 · Base layout and components */
+@import "gaya.css";
+
+/* 3 · Motion layer (must precede the shell so shell
+       transitions can override the defaults) */
+@import "sperpart/gerak.css";
+
+/* 4 · App shell: loader, drawer, tab bar, sheets, footer */
+@import "sperpart/aplikasi.css";
+
+/* 5 · Responsive + platform layer, always last */
+@import "lainnya/responsif.css";

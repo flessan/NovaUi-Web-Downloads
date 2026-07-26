@@ -1,0 +1,163 @@
+/* ═══════════════════════════════════════════════════════════════
+   NOVA UI · DESIGN TOKENS
+   Colour, typography, spacing, elevation, motion and layout scales.
+   Every value here is consumed by the rest of the stylesheets, so
+   re-theming the whole site only requires touching this file.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand ─────────────────────────────────────────────── */
+  --primary: #7c5cfc;
+  --primary-light: #a394ff;
+  --primary-bright: #8f74ff;
+  --primary-dim: rgba(124, 92, 252, .14);
+  --primary-glow: rgba(124, 92, 252, .34);
+
+  --secondary: #19dcc6;
+  --secondary-light: #5cf0dd;
+  --secondary-dim: rgba(25, 220, 198, .13);
+
+  --accent: #f7bb3a;
+  --accent-light: #ffd478;
+  --accent-dim: rgba(247, 187, 58, .14);
+
+  --danger: #ff5f6d;
+  --danger-dim: rgba(255, 95, 109, .12);
+  --info: #4d94ff;
+  --info-dim: rgba(77, 148, 255, .12);
+  --success: #22d39a;
+  --success-dim: rgba(34, 211, 154, .12);
+
+  /* ── Surfaces ──────────────────────────────────────────── */
+  --bg: #070a12;
+  --bg-deep: #04060c;
+  --surface: #0d1220;
+  --surface-2: #141b2c;
+  --surface-3: #1c2438;
+
+  /* Translucent “glass” layers - tuned so a single blur pass reads
+     well over the animated shader without needing heavy filters. */
+  --glass: rgba(16, 22, 38, .72);
+  --glass-strong: rgba(13, 18, 32, .88);
+  --glass-soft: rgba(255, 255, 255, .038);
+  --glass-softer: rgba(255, 255, 255, .022);
+
+  /* ── Text ──────────────────────────────────────────────── */
+  --text: #eaeefa;
+  --text-sec: #b3bed4;
+  --text-muted: #8896b0;
+  --text-faint: #61708c;
+  /* Aliases used by newer components */
+  --text-primary: var(--text);
+  --text-secondary: var(--text-sec);
+
+  /* ── Lines & edges ─────────────────────────────────────── */
+  --border: rgba(158, 170, 255, .12);
+  --border-soft: rgba(255, 255, 255, .06);
+  --border-hover: rgba(124, 92, 252, .36);
+  --ring: rgba(124, 92, 252, .45);
+
+  /* ── Gradients ─────────────────────────────────────────── */
+  --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+  --gradient-warm: linear-gradient(135deg, var(--accent), var(--primary));
+  --gradient-text: linear-gradient(120deg, #fff 0%, #cfc6ff 42%, #8ff3e6 100%);
+  --gradient-line: linear-gradient(90deg, transparent, var(--border-hover), transparent);
+
+  /* ── Radii ─────────────────────────────────────────────── */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 30px;
+  --radius-full: 9999px;
+
+  /* ── Elevation ─────────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, .28);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, .26);
+  --shadow: 0 8px 28px rgba(0, 0, 0, .34);
+  --shadow-lg: 0 18px 48px rgba(0, 0, 0, .44);
+  --shadow-glow: 0 10px 34px rgba(124, 92, 252, .24);
+
+  /* ── Fluid type scale (clamp: min / preferred / max) ───── */
+  --fs-2xs: clamp(.62rem, .58rem + .18vw, .7rem);
+  --fs-xs: clamp(.7rem, .66rem + .2vw, .78rem);
+  --fs-sm: clamp(.78rem, .74rem + .22vw, .86rem);
+  --fs-md: clamp(.86rem, .82rem + .26vw, .95rem);
+  --fs-lg: clamp(1rem, .94rem + .35vw, 1.14rem);
+  --fs-xl: clamp(1.18rem, 1.06rem + .6vw, 1.45rem);
+  --fs-2xl: clamp(1.45rem, 1.2rem + 1.2vw, 2rem);
+  --fs-3xl: clamp(1.85rem, 1.35rem + 2.4vw, 3.1rem);
+
+  /* ── Spacing scale ─────────────────────────────────────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --gutter: clamp(16px, 4vw, 28px);
+  --section-y: clamp(40px, 7vw, 84px);
+
+  /* ── Layout ────────────────────────────────────────────── */
+  --shell: 1200px;
+  --shell-wide: 1440px;
+  --shell-narrow: 820px;
+  --header-h: 62px;
+  --tabbar-h: 0px;
+  /* becomes real height on mobile */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+
+  /* ── Motion ────────────────────────────────────────────── */
+  --ease: cubic-bezier(.4, 0, .2, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  /* native “settle” curve */
+  --ease-spring: cubic-bezier(.34, 1.4, .5, 1);
+  /* subtle overshoot      */
+  --dur-1: .12s;
+  --dur-2: .2s;
+  --dur-3: .3s;
+  --dur-4: .45s;
+  --dur-5: .65s;
+
+  /* ── Blur tiers (dialled down on weak devices, see gerak.css) ── */
+  --blur-sm: 8px;
+  --blur: 14px;
+  --blur-lg: 20px;
+
+  /* ── Stacking order ────────────────────────────────────── */
+  --z-canvas: 0;
+  --z-overlay: 1;
+  --z-content: 10;
+  --z-header: 100;
+  --z-tabbar: 120;
+  --z-fab: 140;
+  --z-progress: 200;
+  --z-sheet: 300;
+  --z-toast: 400;
+  --z-loader: 900;
+}
+
+/* Devices that cannot render backdrop-filter cheaply (most low-end
+   Android GPUs report no hover) get solid surfaces instead of glass. */
+@media (hover:none) {
+  :root {
+    --blur-sm: 6px;
+    --blur: 10px;
+    --blur-lg: 14px;
+  }
+}
+
+/* The bottom tab bar only exists on compact viewports; reserving the
+   space here keeps footers and FABs clear of it without JS. */
+@media (max-width:860px) {
+  :root {
+    --tabbar-h: 64px;
+  }
+}

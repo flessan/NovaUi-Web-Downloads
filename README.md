@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="/gudang/icon_logo/nova_logo.png" alt="Nova Ui Logo" width="180" height="180">
+    <img src="website/gudang/icon_logo/nova_logo.png" alt="Nova Ui Logo" width="180" height="180">
 </p>
 
 <h3 align="center"><b>Nova UI</b> is a name derived from the word innovation, which means developing ideas in a field</h3>
@@ -24,3 +24,93 @@ If you have any other questions or need help, be sure to join my [Discord Server
 * Background > [Slr - Graphite Background](https://www.youtube.com/watch?v=ag13IgTauU8)
 * Background Player > [The Deli Background](https://www.youtube.com/watch?v=SU0CCJbHYYk&list=PLBP4wY8Toya-QvSwVIRpALhO_qiYqE0fh)
 * Editor Asset > [Alkatreize](https://www.youtube.com/channel/UCKGhzag0So06pzIqwAeTP-Q)
+
+---
+
+## Website
+
+The `website/` folder is the static site published at
+[novaui-id.pages.dev](https://novaui-id.pages.dev). It is a plain
+HTML/CSS/ES-module project - no build step, no bundler. Open
+`website/app/index.html` through any static server and it runs.
+
+### Structure
+
+```
+website/
+├── app/                      pages (index, pack, guide, changelog, support, credit)
+├── manifest.webmanifest      PWA manifest
+├── sw.js                     service worker (offline + instant repeat loads)
+├── offline.html              offline fallback page
+└── gudang/web/
+    ├── css/
+    │   ├── dohan.config.css      manifest - imports everything in order
+    │   ├── lainnya/warna.css     design tokens (colour, type, spacing, motion)
+    │   ├── gaya.css              base + shared components
+    │   ├── sperpart/gerak.css    all animation + performance modes
+    │   ├── sperpart/aplikasi.css app shell: drawer, tab bar, sheets, loader
+    │   ├── lainnya/responsif.css breakpoints + platform tweaks
+    │   ├── releases.css          GitHub release/changelog/support pages
+    │   └── kredit.css            credits page
+    └── js/
+        ├── dohan.config.js   entry point, boots the modules in order
+        ├── gerak.js          motion engine - owns the single scroll loop
+        ├── aplikasi.js       app shell - drawer, sheets, toasts, PWA
+        ├── app.js            pack browser - search, filter, download
+        ├── jawa.js           pack data (Google Sheets CSV + cache)
+        ├── webgl.js          background shader (reads its GLSL from the
+        │                     inline <script id="vs"/"fs"> tags on each page)
+        └── github-releases.js  GitHub releases API client
+```
+
+### Performance rules
+
+The site targets a smooth 60 fps on low-end Android. Three rules keep it
+there - please preserve them when editing:
+
+1. **One scroll listener.** `gerak.js` owns it. It records `scrollY` and
+   nothing else, then batches every DOM write into a single
+   `requestAnimationFrame`. Adding a listener that reads layout
+   (`scrollHeight`, `getBoundingClientRect`, `offsetTop`…) during scroll
+   causes a forced synchronous reflow on every event - the exact cause of
+   the stutter this architecture fixed. Subscribe via `onScrollFrame()`.
+2. **Animate only `transform` and `opacity`.** Never `width`, `height`,
+   `top` or `left`. The scroll progress bar uses `transform: scaleX()`,
+   the drawer uses `translate3d`, the FAQ uses `grid-template-rows`.
+3. **`will-change` is temporary.** Apply it immediately before a tween and
+   remove it when the tween ends - `withLayer()` in `gerak.js` does both.
+   A permanent hint creates a composited layer per element and exhausts
+   GPU memory.
+
+`html.perf-lite` (set automatically on weak devices, Data Saver or a low
+battery) drops blur and ambient animation while keeping the layout
+identical. `prefers-reduced-motion` is honoured throughout.
+
+### Background shader
+
+`webgl.js` is kept close to the original. It expects two inline
+`<script>` tags - `id="vs"` and `id="fs"` - to be present on the page and
+reads its GLSL from them, so those tags must stay in any page that
+renders `#glcanvas`.
+
+Two mobile-specific guards were added on top of the original:
+
+- **Resize is debounced (120ms), and height-only changes are ignored.**
+  Every resize reallocates the GPU drawing buffer. On phones the URL bar
+  collapsing fires a resize storm mid-scroll, and reallocating per event
+  is what made scrolling feel rough. A height-only change with an
+  unchanged width is treated as the URL bar and skipped; rotation, which
+  changes width, still resizes normally.
+- **The render loop pauses on `visibilitychange`.** No reason to drive
+  the GPU for a tab nobody is looking at.
+
+`jalankanWebGL()` returns `{ mulai, berhenti }` so the on-screen toggle
+can genuinely stop the loop rather than just hiding the canvas in CSS
+while it keeps drawing underneath.
+
+It is started from `dohan.config.js` on an idle callback, and is skipped
+entirely when the user has toggled the background off or has
+`prefers-reduced-motion` set. When it does not run, the CSS gradient on
+`#glcanvas` is what you see, so the background is never blank. The
+on-screen toggle lives in `aplikasi.js` (`initShaderToggle`) rather than
+in `webgl.js`, purely so that file stays untouched.

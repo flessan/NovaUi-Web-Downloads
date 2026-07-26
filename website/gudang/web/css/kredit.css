@@ -1,0 +1,646 @@
+/* ═══════════════════════════════════════════════════════════════
+   NOVA UI · CREDITS PAGE
+   Previously this page carried its own private palette (--c-*),
+   which drifted out of sync with the rest of the site. The custom
+   names are kept as thin aliases onto the global tokens so the page
+   inherits every future theme change for free.
+   ═══════════════════════════════════════════════════════════════ */
+
+.credits-page {
+  /* Accent aliases - the only page-specific values that remain. */
+  --c-accent: var(--primary-light);
+  --c-accent-dim: var(--primary-dim);
+  --c-cyan: var(--secondary);
+  --c-cyan-dim: var(--secondary-dim);
+  --c-amber: var(--accent);
+  --c-amber-dim: var(--accent-dim);
+  --c-emerald: var(--success);
+  --c-emerald-dim: var(--success-dim);
+  --c-rose: var(--danger);
+  --c-rose-dim: var(--danger-dim);
+  --c-violet: #a78bfa;
+  --c-violet-dim: rgba(167, 139, 250, .12);
+  --c-blue: var(--info);
+  --c-blue-dim: var(--info-dim);
+}
+
+/* ── Hero ──────────────────────────────────────────────────── */
+.credits-hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: clamp(48px, 8vw, 88px) var(--gutter) clamp(32px, 5vw, 56px);
+}
+
+.credits-hero>* {
+  position: relative;
+  z-index: 2
+}
+
+.credits-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  width: min(600px, 140vw);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(124, 92, 252, .12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.credits-hero::after {
+  content: '';
+  position: absolute;
+  top: 18%;
+  right: 8%;
+  width: min(320px, 60vw);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(25, 220, 198, .08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.credits-hero-icon {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto var(--sp-6);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--c-accent-dim), var(--c-cyan-dim));
+  border: 1px solid var(--border);
+  animation: iconFloat 6s var(--ease) infinite;
+}
+
+@keyframes iconFloat {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0)
+  }
+
+  50% {
+    transform: translate3d(0, -8px, 0)
+  }
+}
+
+.credits-hero-icon i {
+  font-size: 1.9rem;
+  background: linear-gradient(135deg, var(--c-accent), var(--c-cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.credits-hero h1 {
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 14px;
+  letter-spacing: -.025em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.credits-hero h1 span {
+  background: linear-gradient(135deg, var(--c-accent), var(--c-cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.credits-hero p {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: 0 auto;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+
+/* Drifting particles - pure transform, so effectively free. */
+.credits-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1
+}
+
+.credits-particles span {
+  position: absolute;
+  bottom: -10px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  opacity: 0;
+  animation: particleDrift linear infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes particleDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0);
+    opacity: 0
+  }
+
+  10% {
+    opacity: .28
+  }
+
+  90% {
+    opacity: .28
+  }
+
+  100% {
+    transform: translate3d(0, -100vh, 0) scale(1);
+    opacity: 0
+  }
+}
+
+html.perf-lite .credits-particles {
+  display: none
+}
+
+/* ── Groups ────────────────────────────────────────────────── */
+.credits-section {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 var(--gutter) var(--sp-10)
+}
+
+.credits-group {
+  margin-bottom: clamp(32px, 5vw, 52px)
+}
+
+.credits-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-5);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.credits-group-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: .95rem;
+}
+
+.credits-group-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text)
+}
+
+.credits-group-count {
+  margin-left: auto;
+  padding: 4px 11px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  color: var(--text-faint);
+  background: var(--glass-soft);
+  border: 1px solid var(--border-soft);
+}
+
+/* ── Credit card ───────────────────────────────────────────── */
+.credit-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  min-height: 64px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  background: var(--glass-soft);
+  border: 1px solid var(--border-soft);
+  transition: background-color var(--dur-3) var(--ease), border-color var(--dur-3) var(--ease),
+    transform var(--dur-3) var(--ease-out);
+}
+
+.credit-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  opacity: 0;
+  transition: opacity var(--dur-3) var(--ease);
+}
+
+.credit-card:hover {
+  background: rgba(255, 255, 255, .06);
+  transform: translateX(4px)
+}
+
+.credit-card:hover::before {
+  opacity: 1
+}
+
+.credit-card:active {
+  transform: scale(.99)
+}
+
+.credit-card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  overflow: hidden;
+  transition: transform var(--dur-3) var(--ease-out);
+}
+
+.credit-card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover
+}
+
+.credit-card:hover .credit-card-avatar {
+  transform: scale(1.07)
+}
+
+.credit-card-body {
+  flex: 1;
+  min-width: 0
+}
+
+.credit-card-name {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.credit-card-role {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  line-height: 1.5
+}
+
+.credit-card-role code {
+  font-family: ui-monospace, 'SF Mono', 'Courier New', monospace;
+  font-size: .9em;
+  background: var(--glass-soft);
+  padding: 2px 7px;
+  border-radius: 5px;
+  color: var(--text-faint);
+}
+
+.credit-card-arrow {
+  flex-shrink: 0;
+  color: var(--text-faint);
+  font-size: .78rem;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity var(--dur-3) var(--ease), transform var(--dur-3) var(--ease-out), color var(--dur-3) var(--ease);
+}
+
+.credit-card:hover .credit-card-arrow {
+  opacity: 1;
+  transform: translateX(0)
+}
+
+@media (hover:none) {
+  .credit-card:hover {
+    transform: none
+  }
+
+  .credit-card-arrow {
+    opacity: .55;
+    transform: none
+  }
+}
+
+/* Per-accent variants */
+.credit-card[data-color="accent"]::before {
+  background: var(--c-accent)
+}
+
+.credit-card[data-color="accent"] .credit-card-avatar {
+  background: var(--c-accent-dim);
+  color: var(--c-accent)
+}
+
+.credit-card[data-color="accent"]:hover {
+  border-color: rgba(124, 92, 252, .28)
+}
+
+.credit-card[data-color="accent"]:hover .credit-card-arrow {
+  color: var(--c-accent)
+}
+
+.credit-card[data-color="cyan"]::before {
+  background: var(--c-cyan)
+}
+
+.credit-card[data-color="cyan"] .credit-card-avatar {
+  background: var(--c-cyan-dim);
+  color: var(--c-cyan)
+}
+
+.credit-card[data-color="cyan"]:hover {
+  border-color: rgba(25, 220, 198, .28)
+}
+
+.credit-card[data-color="cyan"]:hover .credit-card-arrow {
+  color: var(--c-cyan)
+}
+
+.credit-card[data-color="amber"]::before {
+  background: var(--c-amber)
+}
+
+.credit-card[data-color="amber"] .credit-card-avatar {
+  background: var(--c-amber-dim);
+  color: var(--c-amber)
+}
+
+.credit-card[data-color="amber"]:hover {
+  border-color: rgba(247, 187, 58, .28)
+}
+
+.credit-card[data-color="amber"]:hover .credit-card-arrow {
+  color: var(--c-amber)
+}
+
+.credit-card[data-color="emerald"]::before {
+  background: var(--c-emerald)
+}
+
+.credit-card[data-color="emerald"] .credit-card-avatar {
+  background: var(--c-emerald-dim);
+  color: var(--c-emerald)
+}
+
+.credit-card[data-color="emerald"]:hover {
+  border-color: rgba(34, 211, 154, .28)
+}
+
+.credit-card[data-color="emerald"]:hover .credit-card-arrow {
+  color: var(--c-emerald)
+}
+
+.credit-card[data-color="rose"]::before {
+  background: var(--c-rose)
+}
+
+.credit-card[data-color="rose"] .credit-card-avatar {
+  background: var(--c-rose-dim);
+  color: var(--c-rose)
+}
+
+.credit-card[data-color="rose"]:hover {
+  border-color: rgba(255, 95, 109, .28)
+}
+
+.credit-card[data-color="rose"]:hover .credit-card-arrow {
+  color: var(--c-rose)
+}
+
+.credit-card[data-color="violet"]::before {
+  background: var(--c-violet)
+}
+
+.credit-card[data-color="violet"] .credit-card-avatar {
+  background: var(--c-violet-dim);
+  color: var(--c-violet)
+}
+
+.credit-card[data-color="violet"]:hover {
+  border-color: rgba(167, 139, 250, .28)
+}
+
+.credit-card[data-color="violet"]:hover .credit-card-arrow {
+  color: var(--c-violet)
+}
+
+.credit-card[data-color="blue"]::before {
+  background: var(--c-blue)
+}
+
+.credit-card[data-color="blue"] .credit-card-avatar {
+  background: var(--c-blue-dim);
+  color: var(--c-blue)
+}
+
+.credit-card[data-color="blue"]:hover {
+  border-color: rgba(77, 148, 255, .28)
+}
+
+.credit-card[data-color="blue"]:hover .credit-card-arrow {
+  color: var(--c-blue)
+}
+
+/* ── Built-with strip ──────────────────────────────────────── */
+.built-with-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: var(--sp-6) 0;
+  margin-bottom: var(--sp-8);
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.built-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-full);
+  background: var(--glass-soft);
+  border: 1px solid var(--border-soft);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  color: var(--text-sec);
+  transition: background-color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease-out);
+}
+
+.built-tag:hover {
+  background: rgba(255, 255, 255, .07);
+  border-color: var(--border-hover);
+  transform: translateY(-2px)
+}
+
+.built-tag i {
+  font-size: .95rem
+}
+
+/* ── Special thanks ────────────────────────────────────────── */
+.special-thanks {
+  text-align: center;
+  margin-bottom: var(--sp-10)
+}
+
+.special-thanks-label {
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: var(--sp-5);
+}
+
+.special-thanks-avatars {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: var(--sp-4);
+}
+
+.thanks-avatar {
+  position: relative;
+  width: 56px;
+  height: 56px
+}
+
+.thanks-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  transition: transform var(--dur-3) var(--ease-out), border-color var(--dur-3) var(--ease);
+}
+
+.thanks-avatar:hover img {
+  transform: scale(1.08);
+  border-color: var(--c-accent)
+}
+
+.thanks-avatar-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 5px 11px;
+  border-radius: 7px;
+  white-space: nowrap;
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  font-size: var(--fs-2xs);
+  color: var(--text-sec);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease-out);
+}
+
+.thanks-avatar-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--border);
+}
+
+.thanks-avatar:hover .thanks-avatar-tip,
+.thanks-avatar:focus-within .thanks-avatar-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0)
+}
+
+.special-thanks-note {
+  font-size: var(--fs-2xs);
+  color: var(--text-faint);
+  line-height: 1.7;
+  max-width: 60ch;
+  margin: 0 auto
+}
+
+/* ── Closing ───────────────────────────────────────────────── */
+.credits-closing {
+  text-align: center;
+  padding: var(--sp-8) var(--gutter);
+  border-top: 1px solid var(--border-soft);
+}
+
+.credits-closing p {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  max-width: 60ch;
+  margin: 0 auto var(--sp-5);
+  line-height: 1.8;
+}
+
+.credits-closing-links {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap
+}
+
+.credits-footer {
+  text-align: center;
+  padding: var(--sp-6) var(--gutter) calc(var(--sp-8) + var(--safe-b));
+  border-top: 1px solid var(--border-soft);
+}
+
+.credits-footer p {
+  font-size: var(--fs-2xs);
+  color: var(--text-faint);
+  line-height: 1.8
+}
+
+.credits-footer a {
+  color: var(--primary-light);
+  text-decoration: none;
+  font-weight: 600
+}
+
+.credits-footer a:hover {
+  color: var(--secondary)
+}
+
+/* ── Mobile ────────────────────────────────────────────────── */
+@media (max-width:640px) {
+  .credit-card {
+    padding: 16px;
+    gap: 13px
+  }
+
+  .credit-card-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 1rem
+  }
+
+  .credits-group-count {
+    margin-left: 0;
+    order: 3
+  }
+
+  .built-with-strip {
+    gap: 8px
+  }
+
+  .credits-closing-links .cta-btn {
+    width: 100%
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "name": "Nova UI - Geometry Dash Texture Packs",
+  "short_name": "Nova UI",
+  "description": "High-quality Geometry Dash texture packs for the Geode mod loader. Free, safe, and installable.",
+  "id": "/app",
+  "start_url": "/app?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#070a12",
+  "theme_color": "#070a12",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "games",
+    "entertainment",
+    "utilities"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/gudang/icon_app/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/gudang/icon_app/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/gudang/icon_app/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/gudang/icon_app/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/gudang/icon_app/icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/gudang/icon_app/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/gudang/icon_app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/gudang/icon_app/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Nova UI texture pack collection"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse packs",
+      "short_name": "Packs",
+      "description": "See every available texture pack",
+      "url": "/app/pack.html",
+      "icons": [
+        {
+          "src": "/gudang/icon_app/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Installation guide",
+      "short_name": "Guide",
+      "description": "Step-by-step Geode and pack setup",
+      "url": "/app/guide.html",
+      "icons": [
+        {
+          "src": "/gudang/icon_app/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Changelog",
+      "short_name": "Changelog",
+      "description": "Latest Nova UI releases",
+      "url": "/app/changelog.html",
+      "icons": [
+        {
+          "src": "/gudang/icon_app/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
