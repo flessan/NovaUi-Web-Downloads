@@ -304,6 +304,7 @@
   .nav-links a,
   .footer-links a,
   .filter-tag,
+  .refresh-packs,
   .guide-tab,
   .pagination button,
   .copy-btn,
@@ -411,5 +412,104 @@ html {
   .tip-card,
   .step-card {
     background: var(--glass-strong)
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE-FIRST REFINEMENTS
+   The base styles already start from a phone-friendly default and the
+   breakpoints above adjust layout at genuine change points. The rules
+   here only tune spacing and density on the smallest screens, where a
+   single column should still feel generous rather than airy.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── ≤ 380px · the narrowest handsets ─────────────────────────── */
+@media (max-width:380px) {
+
+  .hero {
+    padding-top: clamp(18px, 5vw, 28px)
+  }
+
+  .hero h1 {
+    letter-spacing: -.03em
+  }
+
+  /* A little more density per card so a single column needs less scrolling. */
+  .pack-card {
+    padding: 20px 16px
+  }
+
+  .pack-img {
+    width: 76px;
+    height: 76px
+  }
+
+  .info-card,
+  .step-card,
+  .tip-card {
+    padding: 18px 16px
+  }
+
+  .nova-mod-item,
+  .nova-credit-row {
+    padding: 12px 13px
+  }
+
+  /* The tag row scrolls sideways; trimming it keeps more tags visible. */
+  .filter-tag {
+    padding: 8px 12px
+  }
+
+  .section-title {
+    padding-top: 28px
+  }
+
+  .scroll-top,
+  .shader-toggle {
+    width: 42px;
+    height: 42px
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DESKTOP BALANCE
+   "A little for desktop" - the unified navigation carries eight
+   destinations, which is too many for a top bar at full size on a
+   mid-width laptop. The items are condensed through this band; above
+   1120px the generous spacing returns. On mobile the same items live
+   in the drawer and the bottom tab bar, which are unaffected here.
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width:861px) and (max-width:1120px) {
+
+  .nav-links {
+    gap: 0
+  }
+
+  .nav-links a {
+    padding: 8px 9px;
+    font-size: var(--fs-2xs);
+    gap: 5px
+  }
+
+  .nav-links a i {
+    font-size: .78em
+  }
+
+  .logo {
+    gap: 8px
+  }
+
+  .logo img {
+    height: 30px;
+    width: 30px
+  }
+}
+
+/* Keep long-form pages readable and centred on very wide monitors
+   without the content stretching edge to edge. */
+@media (min-width:1600px) {
+  .release-shell,
+  .filter-shell {
+    max-width: min(var(--shell), 92vw)
   }
 }

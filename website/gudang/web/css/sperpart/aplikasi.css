@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    NOVA UI · APP SHELL
    The pieces that make the site feel like an installed application:
-   navigation drawer, bottom tab bar, bottom sheets, pull-to-refresh
+   navigation drawer, bottom tab bar, bottom sheets, download dialogs
    and the standalone-display adjustments.
    ═══════════════════════════════════════════════════════════════ */
 
@@ -143,9 +143,10 @@ body.menu-open .nav-scrim {
 /* ── Bottom tab bar (native-app primary navigation) ────────── */
 .app-tabbar {
   position: fixed;
-  left: 0;
-  right: 0;
+  left: 50%;
   bottom: 0;
+  width: 100%;
+  max-width: 480px;
   z-index: var(--z-tabbar);
   display: none;
   align-items: stretch;
@@ -156,15 +157,24 @@ body.menu-open .nav-scrim {
   backdrop-filter: blur(var(--blur-lg)) saturate(1.3);
   border-top: 1px solid var(--border);
   /* Slides away while scrolling down, returns on scroll up. */
-  transform: translate3d(0, 0, 0);
+  transform: translate3d(-50%, 0, 0);
   transition: transform var(--dur-3) var(--ease-out);
   /* `layout` only - `paint` would clip any future fixed-position child,
      the same trap that broke the nav drawer inside the header. */
   contain: layout;
 }
 
+@media (min-width: 481px) {
+  .app-tabbar {
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
+  }
+}
+
 .app-tabbar.hidden {
-  transform: translate3d(0, calc(100% + 2px), 0)
+  transform: translate3d(-50%, calc(100% + 2px), 0)
 }
 
 .app-tabbar a {
@@ -364,11 +374,29 @@ body.menu-open .nav-scrim {
   font-weight: 700
 }
 
-.popup-box .popup-meta {
+.popup-box .popup-creator {
+  margin-bottom: 12px;
+  color: var(--secondary);
   font-size: var(--fs-2xs);
-  color: var(--text-muted);
+  font-weight: 600
+}
+
+.popup-box .popup-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
   margin-bottom: 22px;
-  line-height: 1.6
+  font-size: .68rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  text-align: left
+}
+
+.popup-box .popup-meta span {
+  padding: 7px 9px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--glass-softer)
 }
 
 .popup-btns {
@@ -437,36 +465,6 @@ body.menu-open .nav-scrim {
   border-radius: 5px;
   color: var(--primary-light);
   font-family: ui-monospace, monospace
-}
-
-/* ── Pull to refresh ───────────────────────────────────────── */
-.ptr-indicator {
-  position: fixed;
-  left: 50%;
-  top: calc(var(--header-h) + var(--safe-t) + 6px);
-  z-index: calc(var(--z-header) - 1);
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--glass-strong);
-  border: 1px solid var(--border);
-  color: var(--primary-light);
-  font-size: .85rem;
-  box-shadow: var(--shadow-sm);
-  /* Driven entirely by transform from JS - no layout per frame. */
-  transform: translate3d(-50%, -64px, 0) scale(.7);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.ptr-indicator.settling {
-  transition: transform var(--dur-3) var(--ease-out), opacity var(--dur-2) var(--ease)
-}
-
-.ptr-indicator.spinning i {
-  animation: spin .8s linear infinite
 }
 
 /* ── Loader ────────────────────────────────────────────────── */

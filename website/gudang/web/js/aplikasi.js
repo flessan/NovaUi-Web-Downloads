@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    NOVA UI · APP SHELL
-   Navigation drawer, bottom sheets, toasts, pull-to-refresh, the
+   Navigation drawer, bottom sheets, toasts, network state, the
    install prompt and offline handling - the behaviours that make a
    website feel like an installed app.
 
@@ -335,82 +335,6 @@ export function closeSheet() {
   sheet.close();
 }
 
-/* ── Pull to refresh ─────────────────────────────────────────── */
-
-export function initPullToRefresh(onRefresh) {
-  if (typeof onRefresh !== 'function') return;
-  if (!matchMedia('(hover: none)').matches || prefersReducedMotion()) return;
-
-  const indicator = document.createElement('div');
-  indicator.className = 'ptr-indicator';
-  indicator.innerHTML = '<i class="fas fa-arrow-down"></i>';
-  document.body.appendChild(indicator);
-
-  const THRESHOLD = 76;
-  let startY = 0;
-  let pull = 0;
-  let active = false;
-  let busy = false;
-  let frame = 0;
-
-  const paint = () => {
-    frame = 0;
-    // Resistance curve: the further you pull, the slower it moves.
-    const eased = Math.min(THRESHOLD * 1.5, pull * 0.5);
-    indicator.style.transform =
-      `translate3d(-50%, ${eased - 20}px, 0) scale(${Math.min(1, 0.7 + eased / 140)}) rotate(${eased * 2.4}deg)`;
-    indicator.style.opacity = String(Math.min(1, eased / 46));
-  };
-
-  const reset = () => {
-    indicator.classList.add('settling');
-    indicator.classList.remove('spinning');
-    indicator.style.transform = 'translate3d(-50%,-64px,0) scale(.7)';
-    indicator.style.opacity = '0';
-    setTimeout(() => indicator.classList.remove('settling'), 320);
-  };
-
-  document.addEventListener('touchstart', (event) => {
-    if (busy || window.scrollY > 0 || event.touches.length !== 1) return;
-    if (document.body.classList.contains('menu-open')) return;
-    startY = event.touches[0].clientY;
-    pull = 0;
-    active = true;
-    indicator.classList.remove('settling');
-  }, { passive: true });
-
-  document.addEventListener('touchmove', (event) => {
-    if (!active) return;
-    pull = event.touches[0].clientY - startY;
-    if (pull <= 0) { active = false; reset(); return; }
-    if (frame) return;
-    frame = requestAnimationFrame(paint);
-  }, { passive: true });
-
-  const finish = async () => {
-    if (!active) return;
-    active = false;
-    if (frame) { cancelAnimationFrame(frame); frame = 0; }
-    if (pull * 0.5 < THRESHOLD * 0.55) { reset(); return; }
-
-    busy = true;
-    indicator.classList.add('settling', 'spinning');
-    indicator.innerHTML = '<i class="fas fa-arrows-rotate"></i>';
-    indicator.style.transform = 'translate3d(-50%,10px,0) scale(1)';
-    indicator.style.opacity = '1';
-    tap([10, 40, 10]);
-    try { await onRefresh(); }
-    catch (err) { console.error('[aplikasi] refresh failed', err); }
-    finally {
-      busy = false;
-      indicator.innerHTML = '<i class="fas fa-arrow-down"></i>';
-      reset();
-    }
-  };
-  document.addEventListener('touchend', finish, { passive: true });
-  document.addEventListener('touchcancel', () => { active = false; reset(); }, { passive: true });
-}
-
 /* ── Bottom tab bar active state ─────────────────────────────── */
 
 function initTabbar() {
@@ -610,5 +534,5 @@ export function jalankanAplikasi() {
 
 export default {
   jalankanAplikasi, showToast, openSheet, closeSheet,
-  initPullToRefresh, hideLoader, tap, initShaderToggle, shaderDisabled,
+  hideLoader, tap, initShaderToggle, shaderDisabled,
 };

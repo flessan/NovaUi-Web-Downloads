@@ -57,7 +57,11 @@ export async function getReleases({ force = false } = {}) {
   try {
     response = await fetch(
       `https://api.github.com/repos/${encodeURIComponent(target.owner)}/${encodeURIComponent(target.repo)}/releases?per_page=100`,
-      { headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal }
+      {
+        headers: { Accept: 'application/vnd.github+json' },
+        signal: controller.signal,
+        cache: force ? 'no-store' : 'default',
+      }
     );
   } catch (cause) {
     throw Object.assign(
@@ -171,7 +175,7 @@ export function markdownToHtml(source = '') {
   text = text.replace(/^[-*] (.+)$/gm, '<li>$1</li>').replace(/(<li>[\s\S]*?<\/li>)(?:\n(?!<li>))/g, '$1');
   text = text.replace(/(^|\n)(?!<[hlupri])([^\n]+)(?=\n|$)/g, '$1<p>$2</p>');
   text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
-  return text.replace(/(<li>[\s\S]*?<\/li>)+/g, (list) => `<ul>${list}</ul>`);
+  return text.replace(/(<li>[\s\S]*?<\/li>)+/g, (list) => `<ul style="list-style: none; padding-left: 0;">${list}</ul>`);
 }
 
 /* ── Changelog ───────────────────────────────────────────────── */

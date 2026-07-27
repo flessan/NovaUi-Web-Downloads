@@ -1427,7 +1427,48 @@ nav {
 .filter-right {
   display: flex;
   align-items: center;
-  gap: 12px
+  gap: 12px;
+  flex-wrap: wrap
+}
+
+.refresh-packs {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: var(--primary-dim);
+  color: var(--primary-light);
+  font-family: inherit;
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  touch-action: manipulation;
+  transition: transform var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease);
+}
+
+.refresh-packs:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: rgba(124, 92, 252, .22);
+  color: #fff
+}
+
+.refresh-packs:active:not(:disabled) {
+  transform: scale(.96)
+}
+
+.refresh-packs:disabled {
+  cursor: wait;
+  opacity: .72
+}
+
+.refresh-packs[aria-busy="true"] i {
+  animation: spin .8s linear infinite
 }
 
 .filter-sort {
@@ -1626,26 +1667,54 @@ nav {
 }
 
 .pack-meta {
-  display: flex;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: auto 0 18px;
+  text-align: left
+}
+
+.pack-meta-item {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--glass-softer)
+}
+
+.pack-meta-item i {
+  color: var(--primary-light);
+  font-size: .72rem;
+  text-align: center
+}
+
+.pack-meta-label,
+.pack-meta-value {
+  display: block
+}
+
+.pack-meta-label {
+  color: var(--text-faint);
+  font-size: .58rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: .045em
+}
+
+.pack-meta-value {
+  overflow: hidden;
+  margin-top: 2px;
+  color: var(--text-sec);
   font-size: var(--fs-2xs);
-  color: var(--text-muted);
-  margin-bottom: 18px;
-  margin-top: auto;
-}
-
-.pack-meta span {
-  display: flex;
-  align-items: center;
-  gap: 5px
-}
-
-.pack-meta i {
-  font-size: .9em;
-  color: var(--primary-light)
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis
 }
 
 .pack-dl-btn {

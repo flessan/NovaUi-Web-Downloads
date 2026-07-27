@@ -6,8 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Texture Packs - Nova UI</title>
   <meta name="description"
-    content="Browse and download every Nova UI Geometry Dash texture pack. Anime themes, UI overhauls and backgrounds for the Geode mod loader.">
+    content="Browse and download every Nova UI Geometry Dash texture pack. UI releases come from GitHub and Background Anime releases come from the official catalogue.">
   <meta name="robots" content="index,follow">
+  <meta name="github-owner" content="DANZGAME-GD">
+  <meta name="github-repo" content="NovaUI">
   <link rel="canonical" href="https://novaui-id.pages.dev/app/pack.html">
 
   <meta property="og:type" content="website">
@@ -16,20 +18,10 @@
   <meta property="og:description" content="Browse and download every Nova UI Geometry Dash texture pack.">
   <meta property="og:image" content="https://novaui-id.pages.dev/og-image.png">
 
-  <meta name="theme-color" content="#070a12">
-  <meta name="color-scheme" content="dark">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Nova UI">
-  <meta name="mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="/gudang/icon_app/apple-touch-icon.png">
-  <link rel="icon" href="../gudang/icon_logo/nova_logo.png" type="image/png">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link rel="dns-prefetch" href="https://docs.google.com">
+  <!-- The shell module (cangkang.js) injects the PWA meta, manifest/icon
+       and resource hints, and owns the shared navigation, footer and tab
+       bar - one source of truth for every page. Render-blocking, no flash. -->
+  <script src="../gudang/web/js/cangkang.js"></script>
 
   <link rel="stylesheet" href="../gudang/web/css/dohan.config.css">
   <link
@@ -41,143 +33,69 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </noscript>
 
-  <script>
-    try { if (localStorage.getItem('shader-off') === '1') document.documentElement.classList.add('shader-disabled'); } catch (e) { }
-  </script>
+  <!-- cangkang.js also applies the saved shader-off class before paint. -->
 </head>
 
 <body>
 
-  <a class="skip-link" href="#packs-section">Skip to packs</a>
+  <!-- Shared app shell from cangkang.js: skip link, loader, floating
+       controls, background canvas and header/navigation. -->
+  <script>document.write(window.NOVA ? NOVA.shellBefore({ skip: '#packs-section', loader: 'Loading packs' }) : '')</script>
 
-  <div id="loader" class="loader" role="status" aria-label="Loading texture packs">
-    <div class="loader-gem">
-      <img src="../gudang/icon_logo/dohan.png" alt="" width="76" height="76">
-      <span>Loading packs</span>
-    </div>
-    <div class="loader-bar">
-      <div class="loader-bar-inner"></div>
-    </div>
-  </div>
-
-  <div class="scroll-progress" id="scrollProgress" role="progressbar" aria-label="Page scroll progress"></div>
-  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
-
-  <button class="scroll-top" id="scrollTop" type="button" aria-label="Scroll back to top">
-    <i class="fas fa-chevron-up" aria-hidden="true"></i>
-  </button>
-  <button class="shader-toggle" id="shaderToggle" type="button" aria-label="Toggle animated background"
-    data-label="Background: on">
-    <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
-  </button>
-
-  <canvas id="glcanvas" aria-hidden="true"></canvas>
-  <div class="shader-overlay" aria-hidden="true"></div>
-
-  <div class="content">
-
-    <header>
-      <nav aria-label="Primary">
-        <a class="logo" href="./index.html">
-          <img src="https://avatars.githubusercontent.com/u/215277622?v=4" alt="" width="34" height="34">
-          <span>DANZGAME<span class="logo-dot">-GD</span></span>
-        </a>
-        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation menu">
-          <i class="fas fa-bars" aria-hidden="true"></i>
-        </button>
-        <ul class="nav-links" id="navLinks">
-          <li><a href="./index.html"><i class="fas fa-house" aria-hidden="true"></i> Home</a></li>
-          <li><a href="./guide.html"><i class="fas fa-book-open" aria-hidden="true"></i> Guide</a></li>
-          <li><a href="./pack.html" class="active" aria-current="page"><i class="fas fa-th-large"
-                aria-hidden="true"></i> Packs</a></li>
-          <li><a href="./index.html#faq-section"><i class="fas fa-question-circle" aria-hidden="true"></i> FAQ</a></li>
-          <li><a href="./changelog.html"><i class="fas fa-clock-rotate-left" aria-hidden="true"></i> Changelog</a></li>
-          <li><a href="./support.html"><i class="fas fa-life-ring" aria-hidden="true"></i> Support</a></li>
-          <li><a href="./credit.html"><i class="fas fa-heart" aria-hidden="true"></i> Credits</a></li>
-          <li><a href="https://github.com/geode-sdk/geode" target="_blank" rel="noopener"><i class="fab fa-github"
-                aria-hidden="true"></i> Geode SDK</a></li>
-        </ul>
-      </nav>
-    </header>
-
-    <main>
-      <section id="packs-section" aria-labelledby="packs-title">
-        <div class="section-title">
-          <div class="section-tag"><i class="fas fa-th-large" aria-hidden="true"></i> Collection</div>
-          <h1 id="packs-title">Texture packs</h1>
-          <p>Pick your favourite pack and download it - free, for PC and mobile.</p>
-        </div>
-
-        <div class="filter-shell">
-          <input id="search" type="search" placeholder="Search by pack name or creator…"
-            aria-label="Search texture packs" autocomplete="off">
-        </div>
-
-        <div class="filter-bar">
-          <div class="filter-tags" role="group" aria-label="Filter packs by category">
-            <button class="filter-tag active" type="button" data-filter="all" aria-pressed="true"
-              onclick="setFilter('all',this)">All</button>
-            <button class="filter-tag" type="button" data-filter="featured" aria-pressed="false"
-              onclick="setFilter('featured',this)"><i class="fas fa-star" aria-hidden="true"
-                style="font-size:.65em"></i> Featured</button>
-            <button class="filter-tag" type="button" data-filter="ui" aria-pressed="false"
-              onclick="setFilter('ui',this)">UI</button>
-            <button class="filter-tag" type="button" data-filter="background" aria-pressed="false"
-              onclick="setFilter('background',this)">Background</button>
-          </div>
-          <div class="filter-right">
-            <span class="search-count" id="searchCount" aria-live="polite"></span>
-            <label class="visually-hidden" for="sortSelect">Sort packs</label>
-            <select class="filter-sort" id="sortSelect" onchange="applySort()">
-              <option value="featured">Featured first</option>
-              <option value="name">Name A–Z</option>
-              <option value="updated">Recently updated</option>
-              <option value="downloads">Most downloaded</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="packs" class="packs-grid" aria-live="polite" aria-busy="true"></div>
-        <nav id="pagination" class="pagination" aria-label="Pack list pages"></nav>
-      </section>
-    </main>
-
-    <footer>
-      <div class="footer-links">
-        <a href="./index.html"><i class="fas fa-house" aria-hidden="true"></i> Home</a>
-        <a href="./guide.html"><i class="fas fa-book-open" aria-hidden="true"></i> Guide</a>
-        <a href="https://discord.gg/WJgFhSpTz5" target="_blank" rel="noopener"><i class="fab fa-discord"
-            aria-hidden="true"></i> Discord</a>
-        <a href="https://github.com/DANZGAME-GD/NovaUI" target="_blank" rel="noopener"><i class="fab fa-github"
-            aria-hidden="true"></i> GitHub</a>
+  <main>
+    <section id="packs-section" aria-labelledby="packs-title">
+      <div class="section-title">
+        <div class="section-tag"><i class="fas fa-th-large" aria-hidden="true"></i> Collection</div>
+        <h1 id="packs-title">Texture packs</h1>
+        <p>Nova UI downloads are fetched from GitHub Releases. Background Anime downloads remain in the official
+          Spreadsheet catalogue.</p>
       </div>
-      <p class="footer-copy">Made with <span class="heart"><i class="fas fa-heart" aria-hidden="true"></i></span> by
-        DANZGAME - <a href="./index.html">GD texture packs 2026</a></p>
-    </footer>
 
-  </div>
+      <div class="filter-shell">
+        <input id="search" type="search" placeholder="Search by pack name or creator…" aria-label="Search texture packs"
+          autocomplete="off">
+      </div>
 
-  <nav class="app-tabbar" aria-label="Primary mobile navigation">
-    <a href="./index.html"><i class="fas fa-house" aria-hidden="true"></i><span>Home</span></a>
-    <a href="./pack.html"><i class="fas fa-th-large" aria-hidden="true"></i><span>Packs</span></a>
-    <a href="./guide.html"><i class="fas fa-book-open" aria-hidden="true"></i><span>Guide</span></a>
-    <a href="./changelog.html"><i class="fas fa-clock-rotate-left" aria-hidden="true"></i><span>Updates</span></a>
-    <a href="./support.html"><i class="fas fa-life-ring" aria-hidden="true"></i><span>Support</span></a>
-  </nav>
+      <div class="filter-bar">
+        <div class="filter-tags" role="group" aria-label="Filter packs by category">
+          <button class="filter-tag active" type="button" data-filter="all" aria-pressed="true"
+            onclick="setFilter('all',this)">All</button>
+          <button class="filter-tag" type="button" data-filter="featured" aria-pressed="false"
+            onclick="setFilter('featured',this)"><i class="fas fa-star" aria-hidden="true" style="font-size:.65em"></i>
+            Featured</button>
+          <button class="filter-tag" type="button" data-filter="ui" aria-pressed="false"
+            onclick="setFilter('ui',this)">UI</button>
+          <button class="filter-tag" type="button" data-filter="background" aria-pressed="false"
+            onclick="setFilter('background',this)">Background Anime</button>
+        </div>
+        <div class="filter-right">
+          <span class="search-count" id="searchCount" aria-live="polite"></span>
+          <label class="visually-hidden" for="sortSelect">Sort packs</label>
+          <select class="filter-sort" id="sortSelect" onchange="applySort()">
+            <option value="featured">Featured first</option>
+            <option value="name">Name A–Z</option>
+            <option value="updated">Recently updated</option>
+            <option value="downloads">Most downloaded</option>
+          </select>
+          <button class="refresh-packs" id="refreshPacks" type="button" aria-busy="false"
+            aria-label="Refresh download data from GitHub Releases and the Background Anime Spreadsheet">
+            <i class="fas fa-rotate-right" aria-hidden="true"></i>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="packs" class="packs-grid" aria-live="polite" aria-busy="true"></div>
+      <nav id="pagination" class="pagination" aria-label="Pack list pages"></nav>
+    </section>
+  </main>
+
+  <!-- Shared footer and bottom tab bar, also from cangkang.js. -->
+  <script>document.write(window.NOVA ? NOVA.shellAfter() : '')</script>
 
 
-  <!-- Shader source read by webgl.js via getElementById -->
-  <script id="vs" type="x-shader/x-vertex">attribute vec4 a_position;void main(){gl_Position=a_position;}</script>
-  <script id="fs" type="x-shader/x-fragment">
-precision highp float;uniform vec3 iResolution;uniform float iTime;
-const int POINTS=16;const float WO=12000.0;const float SP=1.0/12.0;const float CS=1.0/4.0;const float BR=1.1;
-void voronoi(vec2 uv,inout vec3 col){vec3 v=vec3(0.0);float t=(iTime+WO)*SP;float bd=999.0;float lb=bd;
-for(int i=0;i<POINTS;i++){float fi=float(i);vec2 p=vec2(mod(fi,1.0)*0.1+sin(fi),-0.05+0.15*floor(fi/10.0)+cos(fi+t*cos(uv.x*0.025)));
-float d=distance(uv,p);if(d<bd){lb=bd;bd=d;v.x=p.x;v.yz=vec2(p.x*0.4+p.y,p.y)*vec2(0.9,0.87);}}
-col*=vec3(0.68)+0.19*v;col+=vec3(smoothstep(0.99,1.05,1.0-abs(bd-lb))*0.85);col+=smoothstep(0.95,1.01,1.0-abs(bd-lb))*0.1*col;col+=v*0.1*smoothstep(0.5,1.0,1.0-abs(bd-lb));}
-void mainImage(out vec4 f,in vec2 fc){vec2 uv=fc/iResolution.xy;vec3 c=vec3(0.5)+0.5*cos(iTime*CS+uv.xyx+vec3(0.0,2.0,4.0));voronoi(uv*4.0-vec2(1.0),c);f=vec4(c,1.0)*BR;}
-void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}
-</script>
+  <!-- The background shader GLSL is compiled inside webgl.js, so the
+       page needs no inline shader source. -->
   <script type="module" src="../gudang/web/js/dohan.config.js"></script>
 </body>
 

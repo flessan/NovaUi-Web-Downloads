@@ -2,20 +2,19 @@
    NOVA UI · PACK BROWSER
    Search, filter, sort, paginate and download the texture packs.
 
-   Notable changes from the previous version:
+   Notable implementation details:
      • cards are built with real DOM nodes instead of interpolated
-       HTML strings, so a pack name containing a quote or a tag can
-       no longer break the markup or inject script;
+       HTML strings, so catalogue content cannot inject markup;
      • the download dialog is a proper focus-trapped bottom sheet;
-     • search is debounced and rendering is batched into a fragment,
-       so typing never causes a long frame;
+     • search is debounced and rendering is batched into a fragment;
      • skeleton cards are shown while the catalogue loads;
-     • pull-to-refresh re-fetches the catalogue on touch devices.
+     • the dedicated Refresh button asynchronously refreshes GitHub
+       UI releases and Spreadsheet Background Anime releases.
    ═══════════════════════════════════════════════════════════════ */
 
-import { packs as sourcePacks, perPage, jalankanJawa } from './jawa.js';
+import { packs as sourcePacks, providerStatus, perPage, jalankanJawa } from './jawa.js';
 import { animateNumber, initScrollReveal, prefersReducedMotion } from './gerak.js';
-import { showToast, openSheet, closeSheet, initPullToRefresh, hideLoader, tap } from './aplikasi.js';
+import { showToast, openSheet, closeSheet, hideLoader, tap } from './aplikasi.js';
 
 /* ── State ───────────────────────────────────────────────────── */
 
@@ -48,8 +47,18 @@ export function relativeDate(input) {
   return `${Math.floor(days / 365)} years ago`;
 }
 
+export function releaseDate(input) {
+  const parsed = new Date(input);
+  if (Number.isNaN(parsed.getTime())) return 'Unknown date';
+  return new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(parsed);
+}
+
 export function categoryLabel(category) {
-  return category === 'ui' ? 'UI' : 'Background';
+  return category === 'ui' ? 'UI' : 'Background Anime';
 }
 
 function isRecent(input, days = 30) {
@@ -159,10 +168,23 @@ function buildCard(pack, index) {
     isRecent(pack.lastUpdated) ? el('span', { class: 'pack-badge badge-new', text: 'New' }) : null,
   );
 
-  const meta = el('div', { class: 'pack-meta' },
-    el('span', {}, icon('download'), ` ${fmtD(pack.downloads)}`),
-    el('span', {}, icon('code-branch'), ` v${pack.version}`),
-    pack.lastUpdated ? el('span', {}, icon('clock'), ` ${relativeDate(pack.lastUpdated)}`) : null,
+  const metadata = [
+    { label: 'File Size', icon: 'hard-drive', value: pack.size || '-' },
+    pack.category === 'ui'
+      ? { label: 'Download Count', icon: 'download', value: fmtD(pack.downloads) }
+      : null,
+    { label: 'Version', icon: 'code-branch', value: pack.version === '-' ? '-' : `v${pack.version}` },
+    { label: 'Release Date', icon: 'calendar-days', value: releaseDate(pack.lastUpdated) },
+  ].filter(Boolean);
+
+  const meta = el('div', { class: 'pack-meta', 'aria-label': `${pack.name} release metadata` },
+    metadata.map((item) => el('div', { class: 'pack-meta-item' },
+      icon(item.icon),
+      el('div', {},
+        el('span', { class: 'pack-meta-label', text: item.label }),
+        el('span', { class: 'pack-meta-value', text: item.value }),
+      ),
+    )),
   );
 
   const button = el('button', {
@@ -385,10 +407,20 @@ export function openDownload(pack) {
     note.append('Place the downloaded file in ', el('code', { text: INSTALL_PATH }), ' and restart the game.');
   }
 
+  const popupMetadata = [
+    `File Size: ${pack.size || '-'}`,
+    isUI ? `Download Count: ${fmtD(pack.downloads)}` : null,
+    `Version: ${pack.version === '-' ? '-' : `v${pack.version}`}`,
+    `Release Date: ${releaseDate(pack.lastUpdated)}`,
+  ].filter(Boolean);
+
   panel.append(
     avatar,
     el('h2', { text: pack.name, style: isUI ? 'color:var(--primary-light)' : '' }),
-    el('div', { class: 'popup-meta', text: `v${pack.version} · by ${pack.creator} · ${pack.size}` }),
+    el('div', { class: 'popup-creator', text: `by ${pack.creator}` }),
+    el('div', { class: 'popup-meta' },
+      popupMetadata.map((item) => el('span', { text: item })),
+    ),
     buttons,
     note,
   );
@@ -534,8 +566,15 @@ function animateStats() {
 /* ── Catalogue boot ──────────────────────────────────────────── */
 
 async function loadCatalogue({ force = false } = {}) {
-  const hasGrid = Boolean(document.getElementById('packs'));
+  const grid = document.getElementById('packs');
+  const refreshButton = document.getElementById('refreshPacks');
+  const hasGrid = Boolean(grid);
   if (hasGrid && !state.data.length) renderSkeletons();
+  grid?.setAttribute('aria-busy', 'true');
+  if (refreshButton) {
+    refreshButton.disabled = true;
+    refreshButton.setAttribute('aria-busy', 'true');
+  }
 
   try {
     await jalankanJawa({
@@ -550,18 +589,48 @@ async function loadCatalogue({ force = false } = {}) {
     state.data = sourcePacks.length ? sourcePacks : state.data;
     if (hasGrid) render();
     animateStats();
-    if (force) showToast('Pack list updated', 'success');
+    if (force) {
+      const unavailable = [
+        providerStatus.github === 'rejected' ? 'GitHub Releases' : null,
+        providerStatus.spreadsheet === 'rejected' ? 'Background Spreadsheet' : null,
+      ].filter(Boolean);
+      if (unavailable.length) {
+        showToast(`Could not refresh ${unavailable.join(' and ')}`, 'warn');
+      } else {
+        showToast('Latest download data fetched', 'success');
+      }
+    }
+    return true;
   } catch {
     if (hasGrid && !state.data.length) {
-      document.getElementById('packs')?.replaceChildren(
+      grid.replaceChildren(
         el('div', { class: 'empty-state' },
           icon('cloud-arrow-down'),
           el('p', { text: 'Could not load the pack list' }),
-          el('p', { class: 'sub', text: 'Check your connection and try again' }))
+          el('p', { class: 'sub', text: 'Check your connection and use Refresh' }))
       );
     }
-    if (force) showToast('Could not refresh the pack list', 'error');
+    if (force) showToast('Could not refresh the download data', 'error');
+    return false;
+  } finally {
+    grid?.setAttribute('aria-busy', 'false');
+    if (refreshButton) {
+      refreshButton.disabled = false;
+      refreshButton.setAttribute('aria-busy', 'false');
+    }
   }
+}
+
+function initRefreshButton() {
+  const button = document.getElementById('refreshPacks');
+  if (!button || button.dataset.ready) return;
+  button.dataset.ready = '1';
+
+  button.addEventListener('click', async () => {
+    if (button.disabled) return;
+    tap();
+    await loadCatalogue({ force: true });
+  });
 }
 
 /* ── Init ────────────────────────────────────────────────────── */
@@ -575,13 +644,23 @@ export function jalankanApp() {
   initSearch();
   initFaq();
   initTabs();
+  initRefreshButton();
 
   // The loader hides as soon as the document is usable - it must never
-  // wait on the network, or a slow sheet blocks the whole page.
+  // wait on either remote provider.
   hideLoader();
 
-  loadCatalogue().then(() => initScrollReveal());
-  initPullToRefresh(() => loadCatalogue({ force: true }));
+  // The catalogue is only needed where it is actually shown: the pack
+  // grid, or the home page's "texture packs" counter. Without this guard
+  // the changelog, support, credits and guide pages would fetch GitHub
+  // and the Google Sheet for nothing on every visit.
+  const needsCatalogue =
+    document.getElementById('packs') || document.getElementById('totalPacks');
+  if (needsCatalogue) {
+    loadCatalogue().then(() => initScrollReveal());
+  } else {
+    initScrollReveal();
+  }
 }
 
 /* ── Global bridge for inline handlers in the HTML ───────────── */

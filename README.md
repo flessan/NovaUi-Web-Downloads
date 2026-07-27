@@ -53,15 +53,67 @@ website/
     │   ├── releases.css          GitHub release/changelog/support pages
     │   └── kredit.css            credits page
     └── js/
+        ├── cangkang.js     shared app shell - one source of truth for the
+        │                     header/nav, footer, tab bar, loader, floating
+        │                     controls, PWA <head> meta and the shader-off
+        │                     first-paint class. Render-blocking, no flash.
         ├── dohan.config.js   entry point, boots the modules in order
         ├── gerak.js          motion engine - owns the single scroll loop
-        ├── aplikasi.js       app shell - drawer, sheets, toasts, PWA
-        ├── app.js            pack browser - search, filter, download
-        ├── jawa.js           pack data (Google Sheets CSV + cache)
-        ├── webgl.js          background shader (reads its GLSL from the
-        │                     inline <script id="vs"/"fs"> tags on each page)
+        ├── aplikasi.js       app shell behaviour - drawer, sheets, toasts, PWA
+        ├── app.js            pack browser - search, filter, async refresh, download
+        ├── jawa.js           split catalogue (GitHub UI + Sheets backgrounds + cache)
+        ├── webgl.js          background shader (GLSL compiled inside the module)
         └── github-releases.js  GitHub releases API client
 ```
+
+### Shared app shell (`cangkang.js`)
+
+Every page shares the same chrome - the skip link, loader, floating
+controls (scroll-to-top, shader toggle), the background canvas, the
+primary `<header>` navigation, the `<footer>` and the bottom tab bar.
+That chrome is **defined once** in `gudang/web/js/cangkang.js` and
+injected into each page at parse time, so editing the nav, footer or
+tab bar is a single change instead of six.
+
+`cangkang.js` is a plain (non-module) script loaded with an ordinary
+`<script src>` in `<head>`, which makes it render-blocking. That lets it
+do two things before first paint with no flash:
+
+- apply the saved `shader-off` class to `<html>` so a disabled background
+  never flashes on, and
+- inject the common PWA `<head>` meta (theme-color, manifest, icons,
+  apple-mobile-web-app-*, preconnects).
+
+It then exposes `window.NOVA`, and each page body renders its shell with
+two synchronous calls:
+
+```html
+<script>document.write(window.NOVA ? NOVA.shellBefore({ skip:'#main', loader:'Loading' }) : '')</script>
+<main> ... unique page content ... </main>
+<script>document.write(window.NOVA ? NOVA.shellAfter() : '')</script>
+```
+
+Because the writes happen during parse (before the module graph boots),
+the header and canvas are laid out immediately - no layout shift. The
+`window.NOVA ?` guard means a missing script degrades to an empty write
+rather than throwing. The active nav/tab item is detected automatically
+from `location.pathname`, so no page has to mark itself active.
+
+### Download data sources
+
+The pack catalogue intentionally combines two providers in `jawa.js`:
+
+- **Nova UI** uses the latest downloadable release from
+  `DANZGAME-GD/NovaUI` on GitHub. Version, publication date, asset sizes,
+  display-only download totals, and both download URLs are mapped from the
+  GitHub Releases API.
+- **Background Anime** continues to use the published Google Sheets CSV.
+  UI rows in that sheet are ignored so stale Spreadsheet URLs can never
+  override GitHub release assets.
+
+The Packs page's **Refresh** button bypasses both short-lived caches and
+updates the existing cards asynchronously. It does not reload or navigate
+away from the page.
 
 ### Performance rules
 
@@ -88,10 +140,11 @@ identical. `prefers-reduced-motion` is honoured throughout.
 
 ### Background shader
 
-`webgl.js` is kept close to the original. It expects two inline
-`<script>` tags - `id="vs"` and `id="fs"` - to be present on the page and
-reads its GLSL from them, so those tags must stay in any page that
-renders `#glcanvas`.
+`webgl.js` is kept close to the original. Its vertex and fragment
+shaders are compiled from GLSL **hardcoded inside the module**, so pages
+do not need to ship any inline shader source. (An earlier build carried
+`<script id="vs">` / `<script id="fs">` blocks on every page, but
+nothing read them - they were dead weight and have been removed.)
 
 Two mobile-specific guards were added on top of the original:
 
