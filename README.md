@@ -30,7 +30,7 @@ If you have any other questions or need help, be sure to join my [Discord Server
 ## Website
 
 The `website/` folder is the static site published at
-[novaui-id.pages.dev](https://novaui-id.pages.dev). It is a plain
+[novaui-id.pages.dev](https://nova-ai-dev.pages.dev). It is a plain
 HTML/CSS/ES-module project - no build step, no bundler. Open
 `website/app/index.html` through any static server and it runs.
 

@@ -14,11 +14,34 @@ import { jalankanGerak } from './gerak.js';
 import { jalankanAplikasi, showToast, shaderDisabled } from './aplikasi.js';
 import { jalankanApp } from './app.js';
 import { jalankanWebGL } from './webgl.js';
+import { purgeAllCaches, consumeHardRefreshFlag } from './cache.js';
+import { jalankanSplash, completeSplash } from './splash.js';
 
-// Expose the toast helper early so any inline script can use it.
+// Expose helpers globally for inline scripts and power users.
 window.showToast = showToast;
+window.novaPurgeCache = async () => {
+  await purgeAllCaches();
+  showToast('All cached data cleared', 'success');
+  location.reload();
+};
 
 function boot() {
+  // URL flags: ?nocache / ?hard=1 force a full purge before any data load.
+  const params = new URLSearchParams(location.search);
+  const urlHardRefresh = params.has('nocache') || params.has('hard') || params.has('purge');
+  if (urlHardRefresh) {
+    purgeAllCaches();
+    // Strip the flag from the URL so reloads/share links stay clean.
+    const clean = new URL(location.href);
+    ['nocache', 'hard', 'purge'].forEach((k) => clean.searchParams.delete(k));
+    history.replaceState(null, '', clean.pathname + (clean.search || '') + clean.hash);
+  }
+
+  // Premium splash is first – GPU accelerated, particles, progress
+  try { jalankanSplash(); } catch {}
+  // Expose globally so hideLoader can complete elegantly even before module is fully ready
+  window.__novaSplash = { complete: completeSplash };
+
   jalankanGerak();
   jalankanAplikasi();
   jalankanApp();

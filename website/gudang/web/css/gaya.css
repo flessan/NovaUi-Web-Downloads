@@ -745,12 +745,50 @@ nav {
   line-height: 1.6
 }
 
-/* Comparison columns (old vs new method) */
+/* Base layout for comparison grid (Mobile First: Stacked) */
 .compare-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-  gap: 12px;
-  margin-top: var(--sp-4)
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* Desktop layout: Left Column | Center Badge | Right Column */
+@media (min-width: 768px) {
+  .compare-grid {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    /* Vertically centers the release badge */
+  }
+}
+
+/* The Center Release Date Block */
+.compare-release-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  background: var(--glass-softer, rgba(255, 255, 255, 0.05));
+  /* Fallback added */
+  border: 1px dashed var(--border-soft, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius-sm, 8px);
+  text-align: center;
+  white-space: nowrap;
+  /* Prevents text from wrapping awkwardly */
+}
+
+.release-date-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary, #fff);
+}
+
+.release-date-badge i {
+  font-size: 1.5rem;
+  color: var(--accent-color, #4ade80);
+  /* Fallback green */
 }
 
 .compare-col {
@@ -1579,7 +1617,7 @@ nav {
 .pack-img {
   width: 88px;
   height: 88px;
-  border-radius: 24px;
+  border-radius: 14%;
   overflow: hidden;
   margin-bottom: 16px;
   border: 2px solid rgba(255, 255, 255, .12);
@@ -1715,6 +1753,41 @@ nav {
   font-weight: 600;
   line-height: 1.25;
   text-overflow: ellipsis
+}
+
+/* Standalone release date section between the metadata grid and the download button */
+.pack-release-date {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, rgba(124, 92, 252, .08), rgba(247, 187, 58, .08));
+  border: 1px solid var(--border-soft);
+  text-align: center
+}
+
+.pack-release-date i {
+  color: var(--primary-light);
+  font-size: .8rem;
+  flex-shrink: 0
+}
+
+.pack-release-date-label {
+  color: var(--text-faint);
+  font-size: .65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em
+}
+
+.pack-release-date-value {
+  color: var(--text-sec);
+  font-size: var(--fs-2xs);
+  font-weight: 700
 }
 
 .pack-dl-btn {
@@ -2347,4 +2420,821 @@ html.shader-disabled .shader-overlay {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+}
+
+/* ── Pack download: responsive (replaces rigid table) ─────────
+   Mobile-first: stacked cards, full-width buttons.
+   Inline CSS in JS provides fallback when external CSS fails,
+   external CSS upgrades layout on larger screens. */
+
+.pack-download-table-box {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-softer);
+  border: 1px solid var(--border-soft);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Legacy table kept for fallback but hidden in favor of responsive */
+.pack-download-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-2xs);
+  text-align: left;
+  display: none;
+  /* replaced by responsive cards */
+}
+
+.pack-download-table th,
+.pack-download-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.pack-download-table th {
+  background: rgba(124, 92, 252, 0.1);
+  color: var(--primary-light);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+}
+
+.pack-download-table tr:last-child td {
+  border-bottom: none;
+}
+
+.pack-download-table td {
+  color: var(--text-sec);
+}
+
+/* New responsive download rows */
+.pack-download-responsive {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+.pack-download-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .02);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  text-align: left;
+}
+
+.pack-download-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: .02em;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.pack-download-row-head span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.pack-download-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  background: var(--primary-dim);
+  color: var(--primary-light);
+  white-space: nowrap;
+}
+
+.dl-table-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: var(--accent);
+  color: #1a1206 !important;
+  font-weight: 700;
+  border-radius: var(--radius-xs);
+  text-decoration: none;
+  transition: opacity var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease-out),
+    filter var(--dur-2) var(--ease),
+    background-color var(--dur-2) var(--ease);
+}
+
+.dl-table-link:hover {
+  opacity: 0.9;
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.dl-table-link.dl-table-accent {
+  background: rgba(247, 187, 58, .16);
+  color: var(--accent) !important;
+  box-shadow: inset 0 0 0 1px rgba(247, 187, 58, .3);
+}
+
+.dl-table-link.dl-table-accent:hover {
+  background: rgba(247, 187, 58, .24);
+  opacity: 1;
+}
+
+/* ── Pack actions: mobile-first stacking, desktop horizontal ── */
+.pack-actions-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  margin-top: auto;
+  box-sizing: border-box;
+}
+
+.pack-actions-responsive {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.pack-actions-responsive .cta-btn,
+.pack-actions-responsive .pack-dl-btn {
+  width: 100%;
+  min-height: 48px;
+  justify-content: center;
+  padding: 12px 18px;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  border-radius: 9999px;
+  box-sizing: border-box;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.25;
+  touch-action: manipulation;
+}
+
+.pack-actions-responsive .cta-btn i,
+.pack-actions-responsive .pack-dl-btn i {
+  flex-shrink: 0;
+}
+
+.pack-updater-desc {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid var(--border-soft);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  text-align: left;
+}
+
+.pack-updater-desc i {
+  color: var(--info);
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.pack-install-note {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  line-height: 1.5;
+  margin-top: 2px;
+  overflow-wrap: break-word;
+}
+
+/* Desktop overrides */
+@media (min-width: 600px) {
+  .pack-actions-responsive {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .pack-actions-responsive .cta-btn,
+  .pack-actions-responsive .pack-dl-btn {
+    flex: 1 1 calc(50% - 5px);
+    width: auto;
+  }
+
+  .pack-download-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 640px) {
+  .pack-download-responsive {
+    padding: 14px;
+  }
+}
+
+/* ── Nova Ext Updater section ───────────────────────────────── */
+.nova-ext-updater {
+  position: relative;
+  max-width: var(--shell);
+  margin: 0 auto var(--sp-8);
+  padding: 0 var(--gutter);
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.ext-updater-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: clamp(20px, 3vw, 28px);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(124, 92, 252, .18), transparent 60%),
+    radial-gradient(120% 140% at 100% 100%, rgba(25, 220, 198, .14), transparent 60%),
+    var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  -webkit-backdrop-filter: blur(var(--blur));
+  backdrop-filter: blur(var(--blur));
+  box-shadow: var(--shadow-glow);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.ext-updater-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ext-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: var(--primary-dim);
+  border: 1px solid var(--border);
+  color: var(--primary-light);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ext-updater-title {
+  font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  text-wrap: balance;
+}
+
+.ext-updater-desc {
+  font-size: 0.85rem;
+  color: var(--text-sec);
+  line-height: 1.7;
+  margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 70ch;
+}
+
+.ext-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ext-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ext-actions .cta-btn {
+  width: 100%;
+  min-height: 48px;
+  justify-content: center;
+  box-sizing: border-box;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.ext-state {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+  .ext-meta-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ext-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .ext-actions .cta-btn {
+    flex: 1 1 auto;
+    width: auto;
+  }
+}
+
+@media (min-width: 720px) {
+  .ext-updater-header {
+    max-width: 75ch;
+  }
+}
+
+/* Ensure images/icons scale responsively everywhere in packs */
+#packs-section img,
+#novaFeatured img,
+#novaExtUpdater img,
+#packs-highlights img,
+.pack-card img,
+.ext-updater-card img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Prevent any horizontal scroll */
+#packs-section,
+.nova-featured,
+.nova-ext-updater,
+#packs-highlights,
+.packs-grid,
+.filter-bar,
+.filter-shell {
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Light / dark theme support: respects existing dark base but adds
+   light overrides if user prefers light or site toggles class */
+@media (prefers-color-scheme: light) {
+
+  .ext-updater-card,
+  .pack-card,
+  .pack-download-row,
+  .pack-updater-desc {
+    /* keep dark glass readable even in light OS theme – Nova UI is dark-first */
+  }
+}
+
+html.light-theme .ext-updater-card,
+html.light-theme .pack-card {
+  background: rgba(255, 255, 255, .85);
+  border-color: rgba(0, 0, 0, .08);
+  color: #1a1a2e;
+  --text: #1a1a2e;
+  --text-sec: #4a4a6a;
+  --text-muted: #6a6a8a;
+}
+
+/* Focus states for accessibility */
+.pack-actions-responsive .cta-btn:focus-visible,
+.ext-actions .cta-btn:focus-visible,
+.pack-dl-btn:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 3px;
+}
+
+/* ── Highlights grid (announcements) ──────────────────────── */
+#packs-highlights {
+  margin-top: var(--section-y);
+  padding-bottom: clamp(40px, 7vw, 72px);
+}
+
+.highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--sp-5);
+  padding: 0 var(--gutter);
+  max-width: var(--shell);
+  margin: 0 auto;
+}
+
+.highlight-card {
+  position: relative;
+  padding: 22px 20px 20px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  -webkit-backdrop-filter: blur(var(--blur));
+  backdrop-filter: blur(var(--blur));
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--dur-3) var(--ease-out),
+    border-color var(--dur-2) var(--ease),
+    box-shadow var(--dur-3) var(--ease-out);
+  overflow: hidden;
+}
+
+.highlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient);
+  opacity: 0;
+  transition: opacity var(--dur-3) var(--ease);
+  pointer-events: none;
+}
+
+.highlight-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-glow);
+}
+
+.highlight-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--primary-dim);
+  color: var(--primary-light);
+  margin-bottom: 14px;
+  font-size: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.highlight-card:nth-child(2) .highlight-icon {
+  background: var(--secondary-dim);
+  color: var(--secondary-light);
+}
+
+.highlight-card:nth-child(3) .highlight-icon {
+  background: var(--success-dim);
+  color: var(--success);
+}
+
+.highlight-card:nth-child(4) .highlight-icon {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.highlight-card h3 {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+}
+
+.highlight-date {
+  display: inline-block;
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.highlight-card p {
+  font-size: var(--fs-sm);
+  color: var(--text-sec);
+  line-height: 1.65;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Cache controls ───────────────────────────────────────── */
+.cache-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.refresh-packs {
+  position: relative;
+}
+
+.refresh-packs[aria-busy="true"] i {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Smooth focus ring for everything interactive ─────────── */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Featured Nova UI hero (packs page) ───────────────────── */
+.nova-featured {
+  position: relative;
+  overflow: hidden;
+  max-width: var(--shell);
+  margin: 0 auto var(--sp-8);
+  padding: 0 var(--gutter);
+}
+
+.nova-featured .nf-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-6);
+  padding: clamp(22px, 3vw, 34px);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(124, 92, 252, .22), transparent 60%),
+    radial-gradient(120% 140% at 100% 100%, rgba(25, 220, 198, .16), transparent 60%),
+    var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  -webkit-backdrop-filter: blur(var(--blur));
+  backdrop-filter: blur(var(--blur));
+  box-shadow: var(--shadow-glow);
+  z-index: 1;
+}
+
+.nova-featured .nf-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--gradient);
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.nova-featured .nf-bg::before,
+.nova-featured .nf-bg::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+}
+
+.nova-featured .nf-bg::before {
+  width: 260px;
+  height: 260px;
+  background: var(--primary);
+  top: -80px;
+  left: -60px;
+}
+
+.nova-featured .nf-bg::after {
+  width: 220px;
+  height: 220px;
+  background: var(--secondary);
+  bottom: -80px;
+  right: -40px;
+}
+
+.nova-featured .nf-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.nova-featured .nf-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-glow);
+  background: linear-gradient(135deg, var(--primary-dim), var(--secondary-dim));
+  padding: 6px;
+}
+
+.nova-featured .nf-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nova-featured .nf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: var(--glass-softer);
+  border: 1px solid var(--border-soft);
+  color: var(--text-sec);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+}
+
+.nova-featured .nf-badge-primary {
+  background: var(--gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 20px -6px rgba(124, 92, 252, .55);
+}
+
+.nova-featured .nf-copy h2 {
+  font-size: clamp(1.6rem, 2vw + 1rem, 2.2rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.02em;
+  margin: 14px 0 4px;
+  text-wrap: balance;
+}
+
+.nova-featured .nf-by {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+
+.nova-featured .nf-desc {
+  font-size: var(--fs-sm);
+  color: var(--text-sec);
+  line-height: 1.75;
+  max-width: 70ch;
+  margin: 0 0 18px;
+}
+
+.nova-featured .nf-desc strong {
+  color: #fff;
+}
+
+.nova-featured .nf-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: var(--glass-softer);
+  border: 1px solid var(--border-soft);
+  margin-bottom: 18px;
+}
+
+.nova-featured .nf-stat {
+  min-width: 0;
+}
+
+.nova-featured .nf-stat-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 4px;
+}
+
+.nova-featured .nf-stat-value {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nova-featured .nf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.nova-featured .nf-footnote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid var(--border-soft);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.nova-featured .nf-footnote i {
+  color: var(--info);
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.nova-featured .nf-footnote a {
+  color: var(--primary-light);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.nova-featured .nf-footnote a:hover {
+  text-decoration: underline;
+}
+
+.nova-featured .nf-actions .cta-btn {
+  min-width: 0;
+}
+
+.nova-featured .cta-btn[aria-disabled="true"],
+.nova-featured .cta-btn.is-disabled {
+  opacity: .45;
+  pointer-events: none;
+}
+
+@media (min-width: 720px) {
+  .nova-featured .nf-inner {
+    grid-template-columns: 240px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .nova-featured .nf-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .nova-featured .nf-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+  }
+
+  .nova-featured .nf-actions .cta-btn {
+    flex: 1 1 calc(50% - 5px);
+  }
+
+  .nova-featured .nf-actions .cta-btn:first-child {
+    flex-basis: 100%;
+  }
 }

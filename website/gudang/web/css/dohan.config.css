@@ -8,6 +8,7 @@
   2. gaya.css       base + shared components
   3. gerak.css      all animation & performance modes
   4. aplikasi.css   app shell: drawer, tab bar, sheets
+  4.5 splash.css    premium splash screen
   5. responsif.css  breakpoints & platform tweaks
 ═══════════════════════════════════════════════════
 */
@@ -24,6 +25,9 @@
 
 /* 4 · App shell: loader, drawer, tab bar, sheets, footer */
 @import "sperpart/aplikasi.css";
+
+/* 4.5 · Premium splash screen – before responsive overrides */
+@import "sperpart/splash.css";
 
 /* 5 · Responsive + platform layer, always last */
 @import "lainnya/responsif.css";

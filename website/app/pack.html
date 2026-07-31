@@ -6,16 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Texture Packs - Nova UI</title>
   <meta name="description"
-    content="Browse and download every Nova UI Geometry Dash texture pack. UI releases come from GitHub and Background Anime releases come from the official catalogue.">
+    content="Browse and download every Nova UI Geometry Dash texture pack. UI releases come from GitHub and Background Anime releases come from the official catalogue. Includes Extension Updater that auto-updates from GitHub.">
   <meta name="robots" content="index,follow">
   <meta name="github-owner" content="DANZGAME-GD">
   <meta name="github-repo" content="NovaUI">
+  <meta name="github-ext-owner" content="DANZGAME-GD">
+  <meta name="github-ext-repo" content="NovaUI-exten">
   <link rel="canonical" href="https://novaui-id.pages.dev/app/pack.html">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://novaui-id.pages.dev/app/pack.html">
   <meta property="og:title" content="Texture Packs - Nova UI">
-  <meta property="og:description" content="Browse and download every Nova UI Geometry Dash texture pack.">
+  <meta property="og:description"
+    content="Browse and download every Nova UI Geometry Dash texture pack with auto-updater support.">
   <meta property="og:image" content="https://novaui-id.pages.dev/og-image.png">
 
   <!-- The shell module (cangkang.js) injects the PWA meta, manifest/icon
@@ -33,6 +36,262 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </noscript>
 
+  <!-- Critical responsive inline CSS for packs – mobile-first, no horizontal scroll -->
+  <style>
+    /* Mobile-first base: ensures readability without horizontal scrolling */
+    #packs-section,
+    #novaFeatured,
+    #novaExtUpdater,
+    #packs-highlights,
+    #packs,
+    .filter-bar,
+    .filter-shell {
+      max-width: 100%;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    #packs-section {
+      width: 100%;
+      padding-bottom: clamp(24px, 4vw, 40px);
+    }
+
+    /* Packs grid: 1 col mobile, 2 tablet, 3 desktop – fully responsive */
+    .packs-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(14px, 2vw, 22px);
+      width: 100%;
+      max-width: var(--shell);
+      margin: 0 auto;
+      padding-inline: var(--gutter);
+      align-items: stretch;
+      box-sizing: border-box;
+    }
+
+    @media (min-width: 640px) {
+      .packs-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .packs-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    /* Cards: ensure text wraps, images scale, buttons full-width mobile */
+    .pack-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 22px 18px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      min-height: 380px;
+    }
+
+    .pack-card h3,
+    .pack-card .pack-desc,
+    .pack-card .pack-creator {
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      text-wrap: balance;
+    }
+
+    .pack-img,
+    .pack-img img {
+      max-width: 100%;
+      height: auto;
+      box-sizing: border-box;
+    }
+
+    /* Actions: vertical stack on mobile, horizontal on desktop, touch-friendly */
+    .pack-actions-wrapper,
+    .pack-actions-responsive,
+    .ext-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .pack-actions-responsive .cta-btn,
+    .pack-actions-responsive .pack-dl-btn,
+    .ext-actions .cta-btn {
+      width: 100%;
+      min-height: 48px;
+      justify-content: center;
+      padding: 12px 18px;
+      font-weight: 700;
+      border-radius: 9999px;
+      box-sizing: border-box;
+      white-space: normal;
+      line-height: 1.25;
+      text-align: center;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      touch-action: manipulation;
+    }
+
+    .pack-updater-desc {
+      font-size: 0.72rem;
+      line-height: 1.6;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid var(--border-soft);
+      width: 100%;
+      box-sizing: border-box;
+      overflow-wrap: break-word;
+    }
+
+    @media (min-width: 600px) {
+
+      .pack-actions-responsive,
+      .ext-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .pack-actions-responsive .cta-btn,
+      .pack-actions-responsive .pack-dl-btn,
+      .ext-actions .cta-btn {
+        flex: 1 1 calc(50% - 5px);
+        width: auto;
+      }
+    }
+
+    /* Nova Ext Updater – mobile-first card */
+    .nova-ext-updater {
+      position: relative;
+      max-width: var(--shell);
+      margin: 0 auto var(--sp-8);
+      padding: 0 var(--gutter);
+      box-sizing: border-box;
+    }
+
+    .ext-updater-card {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: clamp(20px, 3vw, 28px);
+      background:
+        radial-gradient(120% 140% at 0% 0%, rgba(124, 92, 252, .18), transparent 60%),
+        radial-gradient(120% 140% at 100% 100%, rgba(25, 220, 198, .14), transparent 60%),
+        var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow-glow);
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+      overflow-wrap: break-word;
+    }
+
+    .ext-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    @media (min-width: 600px) {
+      .ext-meta-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    /* Filter bar: mobile scroll tags, desktop row */
+    .filter-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: var(--shell);
+      margin: 0 auto var(--sp-6);
+      padding-inline: var(--gutter);
+      box-sizing: border-box;
+    }
+
+    .filter-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-tags::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-right {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    @media (min-width: 861px) {
+      .filter-bar {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .filter-tags {
+        flex-wrap: wrap;
+        overflow: visible;
+      }
+
+      .filter-right {
+        width: auto;
+        justify-content: flex-end;
+      }
+    }
+
+    /* Light/dark theme support – inherits dark tokens, but allows light override */
+    @media (prefers-color-scheme: light) {
+
+      .pack-card,
+      .ext-updater-card {
+        /* Nova UI is dark-first, keep glass but ensure contrast */
+      }
+    }
+
+    /* Focus visible for accessibility */
+    .pack-actions-responsive .cta-btn:focus-visible,
+    .ext-actions .cta-btn:focus-visible,
+    .filter-tag:focus-visible,
+    .refresh-packs:focus-visible {
+      outline: 2px solid var(--primary-light);
+      outline-offset: 3px;
+    }
+  </style>
+
   <!-- cangkang.js also applies the saved shader-off class before paint. -->
 </head>
 
@@ -43,60 +302,293 @@
   <script>document.write(window.NOVA ? NOVA.shellBefore({ skip: '#packs-section', loader: 'Loading packs' }) : '')</script>
 
   <main>
-    <section id="packs-section" aria-labelledby="packs-title">
-      <div class="section-title">
+    <section id="packs-section" aria-labelledby="packs-title"
+      style="width:100%;max-width:100%;box-sizing:border-box;overflow-x:hidden">
+      <div class="section-title" style="max-width:100%;box-sizing:border-box;overflow-wrap:break-word">
         <div class="section-tag"><i class="fas fa-th-large" aria-hidden="true"></i> Collection</div>
         <h1 id="packs-title">Texture packs</h1>
         <p>Nova UI downloads are fetched from GitHub Releases. Background Anime downloads remain in the official
-          Spreadsheet catalogue.</p>
+          Spreadsheet catalogue. Use the Extension Updater for automatic future updates.</p>
       </div>
 
-      <div class="filter-shell">
+      <!-- ═══ FEATURED · NOVA UI HERO ═══ -->
+      <section id="novaFeatured" class="nova-featured reveal" aria-labelledby="nova-featured-title"
+        style="max-width:1200px;margin:0 auto 32px;padding:0 var(--gutter);box-sizing:border-box;overflow:hidden">
+        <div class="nf-bg" aria-hidden="true"></div>
+        <div class="nf-inner"
+          style="display:grid;grid-template-columns:minmax(0,1fr);gap:24px;padding:clamp(22px,3vw,34px);background:radial-gradient(120% 140% at 0% 0%, rgba(124,92,252,.22), transparent 60%), radial-gradient(120% 140% at 100% 100%, rgba(25,220,198,.16), transparent 60%), var(--glass);border:1px solid var(--border);border-radius:24px;backdrop-filter:blur(var(--blur));box-shadow:var(--shadow-glow);width:100%;max-width:100%;box-sizing:border-box;overflow:hidden;overflow-wrap:break-word">
+          <div class="nf-brand" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:100%">
+            <img class="nf-logo" src="/gudang/icon_logo/nova.png" alt="" width="76" height="76" loading="eager"
+              decoding="async"
+              style="width:72px;height:72px;border-radius:20px;max-width:100%;height:auto;display:block;object-fit:cover">
+            <div class="nf-badges" style="display:flex;gap:8px;flex-wrap:wrap;max-width:100%">
+              <span class="nf-badge nf-badge-primary"
+                style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9999px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-size:0.7rem;font-weight:600"><i
+                  class="fas fa-star" aria-hidden="true"></i> Featured</span>
+              <span class="nf-badge"
+                style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9999px;background:var(--glass-softer);border:1px solid var(--border-soft);color:var(--text-sec);font-size:0.7rem"><i
+                  class="fas fa-puzzle-piece" aria-hidden="true"></i> Geode Mod</span>
+              <span class="nf-badge"
+                style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9999px;background:var(--glass-softer);border:1px solid var(--border-soft);color:var(--text-sec);font-size:0.7rem"><i
+                  class="fas fa-shield-halved" aria-hidden="true"></i> Safe &amp; Free</span>
+            </div>
+          </div>
+
+          <div class="nf-copy"
+            style="display:flex;flex-direction:column;gap:12px;max-width:100%;box-sizing:border-box;overflow-wrap:break-word">
+            <h2 id="nova-featured-title"
+              style="font-size:clamp(1.6rem,2vw + 1rem,2.2rem);font-weight:800;color:#fff;margin:0;line-height:1.2;overflow-wrap:break-word">
+              Nova UI</h2>
+            <p class="nf-by" style="font-size:0.8rem;color:var(--text-muted);margin:0;overflow-wrap:break-word">by
+              DANZGAME-GD · Geode texture pack</p>
+            <p class="nf-desc"
+              style="font-size:0.9rem;color:var(--text-sec);line-height:1.75;max-width:70ch;margin:0 0 8px;overflow-wrap:break-word">
+              The complete menu UI overhaul that started the collection. Transforms Geometry Dash's in-game
+              menus into a modern, cohesive experience through the Geode mod loader - no original game
+              files are touched. Install this <strong>first</strong>, then add Background Anime packs
+              below.
+            </p>
+
+            <div class="nf-stats" aria-label="Nova UI release statistics"
+              style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;padding:14px;border-radius:16px;background:var(--glass-softer);border:1px solid var(--border-soft);width:100%;max-width:100%;box-sizing:border-box">
+              <div class="nf-stat" style="min-width:0">
+                <div class="nf-stat-label"
+                  style="display:flex;align-items:center;gap:6px;font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">
+                  <i class="fas fa-code-branch" aria-hidden="true"></i> Version
+                </div>
+                <div class="nf-stat-value" id="nfVersion"
+                  style="font-size:1.05rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  —</div>
+              </div>
+              <div class="nf-stat" style="min-width:0">
+                <div class="nf-stat-label"
+                  style="display:flex;align-items:center;gap:6px;font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">
+                  <i class="fas fa-download" aria-hidden="true"></i> Downloads
+                </div>
+                <div class="nf-stat-value" id="totalDownloads"
+                  style="font-size:1.05rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  —</div>
+              </div>
+              <div class="nf-stat" style="min-width:0">
+                <div class="nf-stat-label"
+                  style="display:flex;align-items:center;gap:6px;font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">
+                  <i class="fas fa-calendar-days" aria-hidden="true"></i> Updated
+                </div>
+                <div class="nf-stat-value" id="nfUpdated"
+                  style="font-size:0.85rem;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                  —</div>
+              </div>
+              <div class="nf-stat" style="min-width:0">
+                <div class="nf-stat-label"
+                  style="display:flex;align-items:center;gap:6px;font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">
+                  <i class="fas fa-hard-drive" aria-hidden="true"></i> Size
+                </div>
+                <div class="nf-stat-value" id="nfSize"
+                  style="font-size:0.9rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  —</div>
+              </div>
+            </div>
+
+            <div class="nf-actions"
+              style="display:flex;flex-wrap:wrap;gap:10px;width:100%;max-width:100%;box-sizing:border-box">
+              <a id="nfDlStable" class="cta-btn cta-primary is-disabled" href="#" aria-disabled="true" rel="noopener"
+                style="display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:9999px;width:100%;box-sizing:border-box;text-decoration:none;flex:1 1 100%">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                <span class="nf-cta-text">Download Stable</span>
+              </a>
+              <a id="nfDlExtension" class="cta-btn cta-secondary is-disabled" href="#" aria-disabled="true"
+                rel="noopener"
+                style="display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:9999px;width:100%;box-sizing:border-box;text-decoration:none;flex:1 1 calc(50% - 5px)">
+                <i class="fas fa-puzzle-piece" aria-hidden="true"></i>
+                <span class="nf-cta-text">Get Extension</span>
+              </a>
+              <a id="nfChangelog" class="cta-btn cta-secondary" href="./changelog.html"
+                style="display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:9999px;border:1px solid var(--border);background:var(--glass-soft);color:var(--text);text-decoration:none;flex:1 1 calc(50% - 5px)">
+                <i class="fas fa-clock-rotate-left" aria-hidden="true"></i> Changelog
+              </a>
+              <a id="nfGuide" class="cta-btn cta-secondary" href="./guide.html"
+                style="display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:9999px;border:1px solid var(--border);background:var(--glass-soft);color:var(--text);text-decoration:none;flex:1 1 100%">
+                <i class="fas fa-book-open" aria-hidden="true"></i> Install guide
+              </a>
+            </div>
+
+            <p class="nf-footnote"
+              style="display:flex;align-items:flex-start;gap:8px;margin:8px 0 0;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border-soft);font-size:0.8rem;color:var(--text-muted);line-height:1.6;overflow-wrap:break-word">
+              <i class="fas fa-circle-info" aria-hidden="true"
+                style="color:var(--info);margin-top:3px;flex-shrink:0"></i>
+              <span>Install the Stable pack first, then add the Extension on top if you want the extra
+                Geode-powered widgets. See the <a href="./guide.html"
+                  style="color:var(--primary-light);font-weight:600;text-decoration:none">install guide</a> for
+                step-by-step
+                instructions.</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ NOVA UI EXTENSION UPDATER – GitHub Releases Integration ═══
+           Fetches from https://api.github.com/repos/DANZGAME-GD/NovaUI-exten/releases
+           Shows version, release date, direct download, handles loading/error, cached. -->
+      <section id="novaExtUpdater" class="nova-ext-updater reveal" aria-labelledby="ext-updater-title"
+        style="position:relative;max-width:1200px;margin:0 auto 32px;padding:0 var(--gutter);box-sizing:border-box;overflow:hidden">
+        <div class="ext-updater-card"
+          style="display:flex;flex-direction:column;gap:18px;padding:clamp(20px,3vw,28px);background:radial-gradient(120% 140% at 0% 0%, rgba(124,92,252,.18), transparent 60%), radial-gradient(120% 140% at 100% 100%, rgba(25,220,198,.14), transparent 60%), var(--glass);border:1px solid var(--border);border-radius:24px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 34px rgba(124,92,252,.24);width:100%;max-width:100%;box-sizing:border-box;overflow:hidden;overflow-wrap:break-word">
+
+          <div class="ext-updater-header"
+            style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:100%;box-sizing:border-box">
+            <div class="ext-badge"
+              style="display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:9999px;background:var(--primary-dim);border:1px solid var(--border);color:var(--primary-light);font-size:0.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;width:fit-content;max-width:100%">
+              <i class="fas fa-bolt" aria-hidden="true"></i> Auto-Updater Recommended
+            </div>
+            <h2 id="ext-updater-title" class="ext-updater-title"
+              style="font-size:clamp(1.2rem,1rem + 1vw,1.6rem);font-weight:800;color:#fff;margin:0;line-height:1.25;overflow-wrap:break-word;text-wrap:balance">
+              Nova UI Extension Updater
+            </h2>
+            <p class="ext-updater-desc"
+              style="font-size:0.88rem;color:var(--text-sec);line-height:1.7;margin:0;max-width:70ch;overflow-wrap:break-word">
+              Recommend using the Nova UI Extension updater after the initial manual installation.
+              It <strong style="color:#fff">automatically checks for and installs future updates directly from
+                GitHub</strong> -
+              no need to revisit the website or manually download new versions.
+            </p>
+          </div>
+
+          <!-- Dynamic content populated from GitHub Releases API -->
+          <div id="extUpdaterContent" aria-live="polite" aria-busy="true"
+            style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:100%;box-sizing:border-box">
+            <div class="ext-loading"
+              style="display:flex;align-items:center;gap:12px;padding:16px;border:1px dashed var(--border);border-radius:12px;color:var(--text-muted);background:var(--glass-softer);width:100%;box-sizing:border-box">
+              <i class="fas fa-circle-notch fa-spin" aria-hidden="true"
+                style="font-size:1.2rem;color:var(--primary-light)"></i>
+              <span style="font-size:0.85rem;overflow-wrap:break-word">Loading latest updater release from
+                GitHub…</span>
+            </div>
+          </div>
+
+          <div class="ext-howto"
+            style="display:flex;flex-direction:column;gap:10px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid var(--border-soft);border-radius:12px;width:100%;max-width:100%;box-sizing:border-box">
+            <div
+              style="display:flex;align-items:center;gap:8px;font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:2px">
+              <i class="fas fa-list-ol" aria-hidden="true" style="color:var(--accent)"></i> How it works
+            </div>
+            <ol
+              style="margin:0;padding-left:18px;font-size:0.8rem;color:var(--text-sec);line-height:1.7;display:flex;flex-direction:column;gap:6px;overflow-wrap:break-word">
+              <li><strong style="color:var(--text)">Install Manually</strong> first - download the Stable pack from this
+                site and place it in <code
+                  style="background:var(--primary-dim);padding:2px 6px;border-radius:5px;color:var(--primary-light);font-family:ui-monospace,monospace;font-size:0.78em">geode/config/geode.texture-loader/packs</code>.
+              </li>
+              <li><strong style="color:var(--text)">Add the Extension</strong> - install the <em>Updater for Nova
+                  UI</em> extension on top.</li>
+              <li><strong style="color:var(--text)">Stay updated automatically</strong> - the extension checks <code
+                  style="background:var(--primary-dim);padding:2px 6px;border-radius:5px;color:var(--primary-light)">api.github.com/repos/DANZGAME-GD/NovaUI-exten/releases</code>
+                and installs new releases without manual steps.</li>
+            </ol>
+            <div
+              style="display:flex;gap:8px;align-items:flex-start;font-size:0.75rem;color:var(--text-muted);line-height:1.6;margin-top:4px;overflow-wrap:break-word">
+              <i class="fas fa-circle-info" aria-hidden="true"
+                style="color:var(--info);margin-top:3px;flex-shrink:0"></i>
+              <span>Responses are cached for 10 minutes to avoid rate limits. If GitHub is slow or unavailable, you'll
+                see cached data with a refresh option. Supports keyboard navigation, focus rings, and works in both
+                light and dark themes.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="filter-shell"
+        style="width:100%;max-width:1200px;margin:0 auto;padding-inline:var(--gutter);box-sizing:border-box">
+        <label class="visually-hidden" for="search">Search texture packs</label>
         <input id="search" type="search" placeholder="Search by pack name or creator…" aria-label="Search texture packs"
-          autocomplete="off">
+          autocomplete="off" spellcheck="false"
+          style="width:100%;max-width:440px;display:block;margin:0 auto 20px;padding:14px 20px;min-height:50px;border-radius:9999px;border:1px solid var(--border);background:var(--glass);color:var(--text);font-size:0.9rem;box-sizing:border-box;overflow-wrap:break-word">
       </div>
 
-      <div class="filter-bar">
-        <div class="filter-tags" role="group" aria-label="Filter packs by category">
+      <div class="filter-bar" role="search" aria-label="Pack filters"
+        style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:1200px;margin:0 auto 24px;padding-inline:var(--gutter);box-sizing:border-box">
+        <div class="filter-tags" role="group" aria-label="Filter packs by category"
+          style="display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;max-width:100%;box-sizing:border-box">
           <button class="filter-tag active" type="button" data-filter="all" aria-pressed="true"
-            onclick="setFilter('all',this)">All</button>
+            onclick="setFilter('all',this)"
+            style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;min-height:40px;border-radius:9999px;font-size:0.7rem;font-weight:600;border:1px solid var(--border-soft);background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;white-space:nowrap;flex:0 0 auto;touch-action:manipulation">All</button>
           <button class="filter-tag" type="button" data-filter="featured" aria-pressed="false"
-            onclick="setFilter('featured',this)"><i class="fas fa-star" aria-hidden="true" style="font-size:.65em"></i>
+            onclick="setFilter('featured',this)"
+            style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;min-height:40px;border-radius:9999px;font-size:0.7rem;font-weight:600;border:1px solid var(--border-soft);background:var(--glass-softer);color:var(--text-muted);white-space:nowrap;flex:0 0 auto;touch-action:manipulation"><i
+              class="fas fa-star" aria-hidden="true" style="font-size:.65em"></i>
             Featured</button>
-          <button class="filter-tag" type="button" data-filter="ui" aria-pressed="false"
-            onclick="setFilter('ui',this)">UI</button>
+          <button class="filter-tag" type="button" data-filter="ui" aria-pressed="false" onclick="setFilter('ui',this)"
+            style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;min-height:40px;border-radius:9999px;font-size:0.7rem;font-weight:600;border:1px solid var(--border-soft);background:var(--glass-softer);color:var(--text-muted);white-space:nowrap;flex:0 0 auto;touch-action:manipulation">UI</button>
           <button class="filter-tag" type="button" data-filter="background" aria-pressed="false"
-            onclick="setFilter('background',this)">Background Anime</button>
+            onclick="setFilter('background',this)"
+            style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;min-height:40px;border-radius:9999px;font-size:0.7rem;font-weight:600;border:1px solid var(--border-soft);background:var(--glass-softer);color:var(--text-muted);white-space:nowrap;flex:0 0 auto;touch-action:manipulation">Background
+            Anime</button>
         </div>
-        <div class="filter-right">
-          <span class="search-count" id="searchCount" aria-live="polite"></span>
-          <label class="visually-hidden" for="sortSelect">Sort packs</label>
-          <select class="filter-sort" id="sortSelect" onchange="applySort()">
-            <option value="featured">Featured first</option>
-            <option value="name">Name A–Z</option>
-            <option value="updated">Recently updated</option>
-            <option value="downloads">Most downloaded</option>
-          </select>
-          <button class="refresh-packs" id="refreshPacks" type="button" aria-busy="false"
-            aria-label="Refresh download data from GitHub Releases and the Background Anime Spreadsheet">
-            <i class="fas fa-rotate-right" aria-hidden="true"></i>
-            <span>Refresh</span>
-          </button>
+        <div class="filter-right"
+          style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;width:100%;max-width:100%;box-sizing:border-box">
+          <span class="search-count" id="searchCount" aria-live="polite"
+            style="font-size:0.7rem;color:var(--text-muted);white-space:nowrap"></span>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <label class="visually-hidden" for="sortSelect">Sort packs</label>
+            <select class="filter-sort" id="sortSelect" onchange="applySort()"
+              style="padding:9px 34px 9px 14px;min-height:40px;border-radius:10px;border:1px solid var(--border-soft);background-color:var(--glass-softer);color:var(--text-sec);font-size:0.7rem;max-width:100%;box-sizing:border-box">
+              <option value="featured">Featured first</option>
+              <option value="name">Name A–Z</option>
+              <option value="updated">Recently updated</option>
+              <option value="downloads">Most downloaded</option>
+            </select>
+            <button class="refresh-packs" id="refreshPacks" type="button" aria-busy="false"
+              aria-label="Refresh download data from GitHub Releases and the Background Anime Spreadsheet"
+              style="min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 15px;border-radius:10px;border:1px solid var(--border-soft);background:var(--primary-dim);color:var(--primary-light);font-size:0.7rem;font-weight:600;white-space:nowrap;touch-action:manipulation">
+              <i class="fas fa-rotate-right" aria-hidden="true"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div id="packs" class="packs-grid" aria-live="polite" aria-busy="true"></div>
-      <nav id="pagination" class="pagination" aria-label="Pack list pages"></nav>
+      <div id="packs" class="packs-grid" aria-live="polite" aria-busy="true"
+        style="display:grid;grid-template-columns:1fr;gap:clamp(14px,2vw,22px);max-width:1200px;margin:0 auto;padding-inline:var(--gutter);box-sizing:border-box;align-items:stretch;width:100%">
+        <!-- Pack cards are rendered from live data (GitHub + official catalogue). Responsive, semantic, accessible. -->
+      </div>
+      <nav id="pagination" class="pagination" aria-label="Pack list pages"
+        style="display:flex;align-items:center;justify-content:center;gap:12px;padding:32px var(--gutter) 48px;width:100%;max-width:100%;box-sizing:border-box;flex-wrap:wrap">
+      </nav>
+    </section>
+
+    <!-- Highlights / announcements -->
+    <section id="packs-highlights" class="reveal" aria-labelledby="highlights-title"
+      style="max-width:100%;box-sizing:border-box;overflow:hidden;margin-top:clamp(40px,7vw,84px);padding-bottom:clamp(40px,7vw,72px)">
+      <div class="section-title" style="max-width:100%;box-sizing:border-box">
+        <div class="section-tag"><i class="fas fa-bullhorn" aria-hidden="true"></i> Announcements</div>
+        <h2 id="highlights-title">Upcoming packs &amp; updates</h2>
+        <p>Stay tuned for new UI themes, custom shaders, and community releases.</p>
+      </div>
+      <div class="highlights-grid"
+        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:20px;padding:0 var(--gutter);max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box">
+        <!-- Highlights rendered via JS -->
+      </div>
     </section>
   </main>
 
   <!-- Shared footer and bottom tab bar, also from cangkang.js. -->
   <script>document.write(window.NOVA ? NOVA.shellAfter() : '')</script>
 
-
-  <!-- The background shader GLSL is compiled inside webgl.js, so the
-       page needs no inline shader source. -->
+  <!-- Background shader + app boot -->
   <script type="module" src="../gudang/web/js/dohan.config.js"></script>
+  <!-- GitHub Releases Integration for NovaUI-exten updater -->
+  <script type="module">
+    import { renderExtUpdater } from '../gudang/web/js/nova-ext-updater.js';
+    const extContainer = document.getElementById('extUpdaterContent');
+    if (extContainer) {
+      renderExtUpdater(extContainer).catch(() => { });
+    }
+    // Also refresh ext updater when user hard-refreshes catalogue
+    const refreshBtn = document.getElementById('refreshPacks');
+    refreshBtn?.addEventListener('click', () => {
+      setTimeout(() => {
+        if (extContainer) renderExtUpdater(extContainer, { force: true }).catch(() => { });
+      }, 300);
+    });
+  </script>
 </body>
 
 </html>

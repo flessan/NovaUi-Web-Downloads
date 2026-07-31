@@ -238,6 +238,50 @@
   }
 }
 
+/* ── ≤ 480px · compact phones ──────────────────────────────── */
+@media (max-width: 480px) {
+
+  /* 1. Scale down loading elements */
+  .loader-gem img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .loader-bar {
+    width: 120px;
+    /* Slightly wider so it doesn't look too tiny */
+  }
+
+  /* 2. Fix horizontal scrollbar overflow globally */
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 3. Ensure main content respects safe areas */
+  main,
+  .content {
+    width: 100%;
+    max-width: 100%;
+    /* var(--sp-2) fallback */
+    box-sizing: border-box;
+  }
+
+  .compare-release-center {
+    order: -1;
+    /* Optional: Puts the release date at the TOP on mobile */
+    margin-bottom: 1rem;
+  }
+
+  .req-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Landscape phones ──────────────────────────────────────── */
 /* Vertical space is scarce; trim the hero rather than the content. */
 @media (max-height:520px) and (orientation:landscape) {
@@ -508,8 +552,106 @@ html {
 /* Keep long-form pages readable and centred on very wide monitors
    without the content stretching edge to edge. */
 @media (min-width:1600px) {
+
   .release-shell,
   .filter-shell {
     max-width: min(var(--shell), 92vw)
+  }
+}
+
+/* ── Nova Extension Updater & Pack Actions – Mobile First ───── */
+@media (max-width: 640px) {
+  .nova-ext-updater,
+  #novaExtUpdater {
+    padding-inline: clamp(12px, 4vw, 20px);
+  }
+  .ext-updater-card,
+  .pack-card {
+    border-radius: 20px;
+  }
+  .ext-actions .cta-btn,
+  .pack-actions-responsive .cta-btn,
+  .pack-actions-responsive .pack-dl-btn {
+    width: 100% !important;
+    min-height: 48px;
+  }
+  .ext-meta-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .pack-download-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .pack-download-row-head {
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 860px) {
+  .packs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ext-meta-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Ensure no horizontal scroll ever – critical for mobile */
+html, body, main, #packs-section, .nova-ext-updater, .packs-grid, .filter-bar, .filter-shell, .pack-card, .ext-updater-card {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (max-width: 480px) {
+  .pack-card,
+  .ext-updater-card,
+  .nova-featured .nf-inner {
+    padding: 18px 14px;
+  }
+  .pack-actions-responsive,
+  .ext-actions {
+    gap: 10px;
+  }
+  /* Buttons become full-width on mobile – requirement */
+  .pack-actions-responsive .cta-btn,
+  .ext-actions .cta-btn,
+  .nf-actions .cta-btn {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+}
+
+/* Images and icons scale responsively – always */
+.pack-card img,
+.ext-updater-card img,
+.nf-logo,
+.pack-img img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+/* Text wrapping ensures readability on all screens */
+.pack-card h3, .pack-card p, .pack-desc, .pack-creator,
+.ext-updater-title, .ext-updater-desc, .nf-desc, .nf-by,
+.pack-updater-desc, .pack-download-row, .ext-state {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* Touch device spacing */
+@media (pointer: coarse) {
+  .pack-actions-responsive .cta-btn,
+  .ext-actions .cta-btn,
+  .pack-dl-btn {
+    min-height: 48px;
+    padding: 14px 18px;
+  }
+  .pack-card {
+    padding: 20px 16px;
   }
 }

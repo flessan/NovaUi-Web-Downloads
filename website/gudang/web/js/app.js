@@ -12,9 +12,11 @@
        UI releases and Spreadsheet Background Anime releases.
    ═══════════════════════════════════════════════════════════════ */
 
-import { packs as sourcePacks, providerStatus, perPage, jalankanJawa } from './jawa.js';
+import { packs as sourcePacks, providerStatus, perPage, jalankanJawa, refreshCatalogue } from './jawa.js';
 import { animateNumber, initScrollReveal, prefersReducedMotion } from './gerak.js';
 import { showToast, openSheet, closeSheet, hideLoader, tap } from './aplikasi.js';
+import { getReleases, formatBytes } from './github-releases.js';
+import { consumeHardRefreshFlag } from './cache.js';
 
 /* ── State ───────────────────────────────────────────────────── */
 
@@ -122,7 +124,7 @@ function renderSkeletons(count = 6) {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < count; i++) {
     fragment.appendChild(
-      el('div', { class: 'pack-skeleton', 'aria-hidden': 'true' },
+      el('div', { class: 'pack-skeleton pack-card-dynamic', 'aria-hidden': 'true' },
         el('div', { class: 'sk-line sk-circle' }),
         el('div', { class: 'sk-line sk-title' }),
         el('div', { class: 'sk-line sk-sub' }),
@@ -131,19 +133,21 @@ function renderSkeletons(count = 6) {
         el('div', { class: 'sk-line sk-btn' }))
     );
   }
-  container.replaceChildren(fragment);
+  const oldDynamics = container.querySelectorAll('.pack-card-dynamic, .empty-state');
+  oldDynamics.forEach(card => card.remove());
+  container.appendChild(fragment);
 }
 
 /* ── Card ────────────────────────────────────────────────────── */
 
 function buildCard(pack, index) {
   const card = el('article', {
-    class: `pack-card${pack.featured ? ' featured' : ''}${prefersReducedMotion() ? '' : ' card-in'}`,
-    style: `--i:${index}`,
+    class: `pack-card pack-card-dynamic${pack.featured ? ' featured' : ''}${prefersReducedMotion() ? '' : ' card-in'}`,
+    style: `--i:${index};max-width:100%;box-sizing:border-box;overflow-wrap:break-word;word-break:break-word`,
   });
 
   /* Thumbnail with a graceful fallback if the image 404s. */
-  const thumb = el('div', { class: 'pack-img' });
+  const thumb = el('div', { class: 'pack-img', style: 'max-width:100%;box-sizing:border-box' });
   const placeholder = el('div', { class: 'placeholder', style: 'display:none' }, icon('image'));
   if (pack.icon) {
     const img = el('img', {
@@ -151,6 +155,7 @@ function buildCard(pack, index) {
       alt: `${pack.name} icon`,
       loading: 'lazy',
       decoding: 'async',
+      style: 'max-width:100%;height:auto;display:block;object-fit:cover',
     });
     img.addEventListener('error', () => {
       img.remove();
@@ -162,7 +167,7 @@ function buildCard(pack, index) {
   }
   thumb.append(placeholder);
 
-  const badges = el('div', { class: 'pack-badges' },
+  const badges = el('div', { class: 'pack-badges', style: 'display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:100%;box-sizing:border-box' },
     el('span', { class: 'pack-badge badge-cat', text: categoryLabel(pack.category) }),
     pack.featured ? el('span', { class: 'pack-badge badge-featured', text: 'Featured' }) : null,
     isRecent(pack.lastUpdated) ? el('span', { class: 'pack-badge badge-new', text: 'New' }) : null,
@@ -174,35 +179,258 @@ function buildCard(pack, index) {
       ? { label: 'Download Count', icon: 'download', value: fmtD(pack.downloads) }
       : null,
     { label: 'Version', icon: 'code-branch', value: pack.version === '-' ? '-' : `v${pack.version}` },
-    { label: 'Release Date', icon: 'calendar-days', value: releaseDate(pack.lastUpdated) },
   ].filter(Boolean);
 
-  const meta = el('div', { class: 'pack-meta', 'aria-label': `${pack.name} release metadata` },
-    metadata.map((item) => el('div', { class: 'pack-meta-item' },
+  const meta = el('div', {
+    class: 'pack-meta',
+    'aria-label': `${pack.name} release metadata`,
+    style: 'width:100%;max-width:100%;box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:auto 0 12px;text-align:left'
+  },
+    metadata.map((item) => el('div', {
+      class: 'pack-meta-item',
+      style: 'min-width:0;display:grid;grid-template-columns:18px minmax(0,1fr);align-items:center;gap:6px;padding:8px;border:1px solid var(--border-soft);border-radius:10px;background:var(--glass-softer);box-sizing:border-box;overflow:hidden;overflow-wrap:break-word'
+    },
       icon(item.icon),
-      el('div', {},
+      el('div', { style: 'min-width:0;overflow:hidden' },
         el('span', { class: 'pack-meta-label', text: item.label }),
         el('span', { class: 'pack-meta-value', text: item.value }),
       ),
     )),
   );
 
-  const button = el('button', {
-    class: 'pack-dl-btn',
+  /* Standalone release date section between the metadata grid and actions */
+  const releaseDateEl = el('div', {
+    class: 'pack-release-date',
+    style: 'width:100%;max-width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;margin-bottom:14px;border-radius:10px;background:linear-gradient(135deg, rgba(124,92,252,.08), rgba(247,187,58,.08));border:1px solid var(--border-soft);text-align:center;box-sizing:border-box;overflow-wrap:break-word;word-break:break-word'
+  },
+    icon('calendar-days'),
+    el('span', { class: 'pack-release-date-label', text: 'Latest Update' }),
+    el('span', { class: 'pack-release-date-value', text: releaseDate(pack.lastUpdated) }),
+  );
+
+  // ── Responsive installation actions (replaces rigid table) ──
+  // Mobile-first: buttons stack vertically, full-width, proper spacing for touch
+  // Desktop: buttons align horizontally with wrap
+  // Uses inline CSS for max compatibility + external classes for polish
+
+  const actionsWrapper = el('div', {
+    class: 'pack-actions-wrapper',
+    style: 'display:flex;flex-direction:column;gap:12px;width:100%;max-width:100%;margin-top:auto;box-sizing:border-box'
+  });
+
+  const updaterDesc = el('div', {
+    class: 'pack-updater-desc',
+    style: 'display:flex;gap:8px;align-items:flex-start;font-size:0.72rem;line-height:1.6;color:var(--text-muted);margin:0;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border-soft);width:100%;max-width:100%;box-sizing:border-box;overflow-wrap:break-word;word-break:break-word;text-align:left'
+  },
+    icon('circle-info'),
+    el('span', { text: 'After initial manual installation, use the Nova UI Extension updater - it automatically checks for and installs future updates directly from GitHub.' })
+  );
+
+  if (pack.category === 'ui') {
+    // UI pack: show both Stable and Extension in responsive cards, not a <table>
+    const responsiveBox = el('div', {
+      class: 'pack-download-table-box',
+      style: 'width:100%;max-width:100%;margin-top:4px;border-radius:12px;background:var(--glass-softer);border:1px solid var(--border-soft);overflow:hidden;box-sizing:border-box'
+    });
+    const responsiveList = el('div', {
+      class: 'pack-download-responsive',
+      style: 'display:flex;flex-direction:column;gap:10px;width:100%;max-width:100%;box-sizing:border-box;padding:12px'
+    });
+
+    // Stable row
+    if (pack.download_pc) {
+      const stableRow = el('div', {
+        class: 'pack-download-row',
+        style: 'display:flex;flex-direction:column;gap:10px;padding:14px 14px;border:1px solid var(--border-soft);border-radius:12px;background:rgba(255,255,255,.02);width:100%;max-width:100%;box-sizing:border-box;overflow:hidden'
+      });
+      const stableHead = el('div', {
+        class: 'pack-download-row-head',
+        style: 'display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;font-size:0.72rem;font-weight:700;color:var(--text);overflow-wrap:break-word;word-break:break-word'
+      },
+        el('span', {}, icon('circle-check'), ' Stable Pack'),
+        el('span', { class: 'pack-download-badge', text: pack.version && pack.version !== '-' ? `v${pack.version}` : 'Stable' })
+      );
+
+      const stableActions = el('div', {
+        class: 'pack-actions-responsive',
+        style: 'display:flex;flex-direction:column;gap:10px;width:100%;max-width:100%;box-sizing:border-box'
+      });
+
+      const installManualStable = el('a', {
+        class: 'cta-btn cta-primary pack-dl-btn',
+        href: pack.download_pc,
+        target: '_blank',
+        rel: 'noopener',
+        'aria-label': `Install ${pack.name} stable manually`,
+        style: 'display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:9999px;background:var(--accent);color:#1a1206;font-size:0.85rem;font-weight:700;width:100%;box-sizing:border-box;text-decoration:none;overflow-wrap:break-word;word-break:break-word;text-align:center'
+      }, icon('download'), 'Install Manually');
+      installManualStable.addEventListener('click', () => {
+        tap();
+        showToast(`Downloading ${pack.name} Stable`, 'success');
+      });
+
+      const guideLink = el('a', {
+        class: 'cta-btn cta-secondary',
+        href: './guide.html#tab-pack',
+        'aria-label': `View manual installation instructions for ${pack.name}`,
+        style: 'display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:9999px;background:var(--glass-soft);border:1px solid var(--border);color:var(--text);font-size:0.85rem;font-weight:600;width:100%;box-sizing:border-box;text-decoration:none;overflow-wrap:break-word;word-break:break-word;text-align:center'
+      }, icon('book-open'), 'Guide');
+
+      stableActions.append(installManualStable, guideLink);
+      stableRow.append(stableHead, stableActions);
+      responsiveList.append(stableRow);
+    }
+
+    // Extension / Updater row
+    const extRow = el('div', {
+      class: 'pack-download-row',
+      style: 'display:flex;flex-direction:column;gap:10px;padding:14px 14px;border:1px solid var(--border-soft);border-radius:12px;background:linear-gradient(135deg, rgba(124,92,252,.06), rgba(247,187,58,.06));width:100%;max-width:100%;box-sizing:border-box;overflow:hidden'
+    });
+    const extHead = el('div', {
+      class: 'pack-download-row-head',
+      style: 'display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;font-size:0.72rem;font-weight:700;color:var(--text);overflow-wrap:break-word;word-break:break-word'
+    },
+      el('span', {}, icon('puzzle-piece'), ' Extension Updater'),
+      el('span', { class: 'pack-download-badge', style: 'background:rgba(247,187,58,.16);color:var(--accent)', text: 'Auto Updates' })
+    );
+
+    const extActions = el('div', {
+      class: 'pack-actions-responsive',
+      style: 'display:flex;flex-direction:column;gap:10px;width:100%;max-width:100%;box-sizing:border-box'
+    });
+
+    const updaterBtn = pack.download_mobile
+      ? el('a', {
+        class: 'cta-btn cta-secondary',
+        href: pack.download_mobile,
+        target: '_blank',
+        rel: 'noopener',
+        'aria-label': `Get Nova UI Extension updater for ${pack.name}`,
+        style: 'display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:9999px;background:rgba(247,187,58,.16);color:var(--accent);border:1px solid rgba(247,187,58,.28);font-size:0.85rem;font-weight:700;width:100%;box-sizing:border-box;text-decoration:none;overflow-wrap:break-word;word-break:break-word;text-align:center'
+      }, icon('sync'), 'Updater for Nova UI')
+      : el('a', {
+        class: 'cta-btn cta-secondary',
+        href: '#novaExtUpdater',
+        'aria-label': 'Go to Nova UI Extension updater section',
+        style: 'display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:9999px;background:rgba(247,187,58,.16);color:var(--accent);border:1px solid rgba(247,187,58,.28);font-size:0.85rem;font-weight:700;width:100%;box-sizing:border-box;text-decoration:none;overflow-wrap:break-word;word-break:break-word;text-align:center'
+      }, icon('sync'), 'Updater for Nova UI');
+
+    if (pack.download_mobile) {
+      updaterBtn.addEventListener('click', () => {
+        tap();
+        showToast(`Downloading ${pack.name} Extension updater`, 'success');
+      });
+    } else {
+      updaterBtn.addEventListener('click', (e) => {
+        // smooth scroll to updater
+        e.preventDefault();
+        tap();
+        document.getElementById('novaExtUpdater')?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+      });
+    }
+
+    const extViewBtn = el('a', {
+      class: 'cta-btn cta-secondary',
+      href: '#novaExtUpdater',
+      'aria-label': 'Learn more about Nova UI auto updater',
+      style: 'display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:9999px;background:var(--glass-soft);border:1px solid var(--border);color:var(--text-sec);font-size:0.85rem;font-weight:600;width:100%;box-sizing:border-box;text-decoration:none;text-align:center'
+    }, icon('circle-info'), 'How it works');
+
+    extViewBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      tap();
+      document.getElementById('novaExtUpdater')?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+    });
+
+    extActions.append(updaterBtn, extViewBtn);
+
+    const extDesc = el('div', {
+      class: 'pack-updater-desc',
+      style: 'display:flex;gap:8px;align-items:flex-start;font-size:0.72rem;line-height:1.6;color:var(--text-muted);padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border-soft);width:100%;max-width:100%;box-sizing:border-box;overflow-wrap:break-word;word-break:break-word;text-align:left'
+    },
+      icon('bolt'),
+      el('span', { text: 'Recommended: after first manual install, the Extension automatically checks GitHub for updates and installs them. No need to revisit the site.' })
+    );
+
+    extRow.append(extHead, extActions, extDesc);
+    responsiveList.append(extRow);
+
+    responsiveBox.append(responsiveList);
+
+    // Also add generic two-button wrapper for consistency + description
+    const genericActions = el('div', {
+      class: 'pack-actions-responsive',
+      style: 'display:flex;flex-direction:column;gap:10px;width:100%;max-width:100%;box-sizing:border-box;margin-top:10px'
+    });
+
+    card.append(
+      thumb, badges,
+      el('h3', { text: pack.name, style: 'font-size:1.05rem;color:#fff;margin-bottom:3px;font-weight:700;line-height:1.3;overflow-wrap:break-word;word-break:break-word;max-width:100%' }),
+      el('div', { class: 'pack-creator', text: `by ${pack.creator}`, style: 'font-size:0.7rem;color:var(--secondary);margin-bottom:10px;font-weight:600;overflow-wrap:break-word;word-break:break-word;max-width:100%' }),
+      pack.description ? el('p', { class: 'pack-desc', text: pack.description, style: 'font-size:0.8rem;color:var(--text-sec);margin-bottom:16px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:break-word;word-break:break-word;max-width:100%' }) : null,
+      meta, releaseDateEl, responsiveBox, updaterDesc);
+
+    // Semantic structure for accessibility
+    card.setAttribute('role', 'article');
+    card.setAttribute('aria-label', `${pack.name} by ${pack.creator}`);
+    return card;
+  }
+
+  // Background Anime and other packs: two clear actions
+  const bgActions = el('div', {
+    class: 'pack-actions-responsive',
+    role: 'group',
+    'aria-label': `${pack.name} installation actions`,
+    style: 'display:flex;flex-direction:column;gap:10px;width:100%;max-width:100%;box-sizing:border-box;margin-top:auto'
+  });
+
+  const installManuallyBtn = el('button', {
+    class: 'cta-btn cta-primary pack-dl-btn',
     type: 'button',
-    'aria-label': `Download ${pack.name}`,
-  }, icon('download'), 'Download');
-  button.addEventListener('click', () => openDownload(pack));
+    'aria-label': `Install ${pack.name} manually`,
+    style: 'display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:9999px;background:var(--accent);color:#1a1206;font-size:0.85rem;font-weight:700;width:100%;box-sizing:border-box;overflow-wrap:break-word;word-break:break-word;text-align:center;white-space:normal;line-height:1.25'
+  }, icon('download'), 'Install Manually');
+  installManuallyBtn.addEventListener('click', () => {
+    tap();
+    openDownload(pack);
+  });
+
+  const updaterForBtn = el('a', {
+    class: 'cta-btn cta-secondary',
+    href: '#novaExtUpdater',
+    'aria-label': `Use Nova UI Extension updater for ${pack.name}`,
+    style: 'display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:9999px;background:var(--glass-soft);border:1px solid var(--border);color:var(--text);font-size:0.85rem;font-weight:600;width:100%;box-sizing:border-box;text-decoration:none;overflow-wrap:break-word;word-break:break-word;text-align:center;white-space:normal;line-height:1.25'
+  }, icon('sync'), 'Updater for Nova UI');
+
+  updaterForBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    tap();
+    const target = document.getElementById('novaExtUpdater');
+    if (target) {
+      target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+      // focus for keyboard users
+      setTimeout(() => target.querySelector('a, button')?.focus({ preventScroll: true }), 400);
+    }
+    showToast('Check the Extension Updater for automatic updates', 'info');
+  });
+
+  bgActions.append(installManuallyBtn, updaterForBtn);
 
   card.append(
     thumb,
     badges,
-    el('h3', { text: pack.name }),
-    el('div', { class: 'pack-creator', text: `by ${pack.creator}` }),
-    pack.description ? el('p', { class: 'pack-desc', text: pack.description }) : null,
+    el('h3', { text: pack.name, style: 'font-size:1.05rem;color:#fff;margin-bottom:3px;font-weight:700;line-height:1.3;overflow-wrap:break-word;word-break:break-word;max-width:100%' }),
+    el('div', { class: 'pack-creator', text: `by ${pack.creator}`, style: 'font-size:0.7rem;color:var(--secondary);margin-bottom:10px;font-weight:600;overflow-wrap:break-word;word-break:break-word;max-width:100%' }),
+    pack.description ? el('p', { class: 'pack-desc', text: pack.description, style: 'font-size:0.8rem;color:var(--text-sec);margin-bottom:16px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:break-word;word-break:break-word;max-width:100%' }) : null,
     meta,
-    button,
+    releaseDateEl,
+    bgActions,
+    updaterDesc,
   );
+
+  card.setAttribute('role', 'article');
+  card.setAttribute('aria-label', `${pack.name} by ${pack.creator}`);
+
   return card;
 }
 
@@ -212,30 +440,227 @@ export function render(list = getFilteredSorted()) {
   const container = document.getElementById('packs');
   if (!container) return;
 
-  const countEl = document.getElementById('searchCount');
-  if (countEl) countEl.textContent = `${list.length} pack${list.length === 1 ? '' : 's'}`;
+  // When the featured Nova UI hero is rendered, dedupe the Nova UI pack
+  // from the grid in the default/"All"/"Featured" view so the same
+  // content isn't shown twice. When the user explicitly picks the "UI"
+  // filter or searches for "nova", include the regular card so the
+  // result set is never confusingly empty.
+  const featuredPresent = Boolean(document.getElementById('novaFeatured'));
+  const filterIsAll = state.filter === 'all' || state.filter === 'featured';
+  const queryMatch = state.query.trim().toLowerCase();
+  const novaQueried = queryMatch && ('nova ui'.includes(queryMatch) || 'nova'.includes(queryMatch));
+  const hideNovaInGrid = featuredPresent && filterIsAll && !novaQueried;
+  const visible = hideNovaInGrid
+    ? list.filter((p) => !(p.category === 'ui' && p.source === 'github'))
+    : list;
 
-  const totalPages = Math.max(1, Math.ceil(list.length / perPage));
+  const countEl = document.getElementById('searchCount');
+  if (countEl) {
+    const total = visible.length;
+    countEl.textContent = `${total} pack${total === 1 ? '' : 's'}`;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(visible.length / perPage));
   state.page = Math.min(state.page, totalPages);
-  const items = list.slice((state.page - 1) * perPage, state.page * perPage);
+  const items = visible.slice((state.page - 1) * perPage, state.page * perPage);
 
   if (!items.length) {
-    container.replaceChildren(
-      el('div', { class: 'empty-state' },
+    const oldDynamics = container.querySelectorAll('.pack-card-dynamic, .empty-state');
+    oldDynamics.forEach(card => card.remove());
+    container.appendChild(
+      el('div', { class: 'empty-state pack-card-dynamic' },
         icon('magnifying-glass'),
         el('p', { text: 'No packs found' }),
         el('p', { class: 'sub', text: 'Try a different keyword or clear the filters' }))
     );
-    renderPagination(list);
+    renderPagination(visible);
     return;
   }
 
   // Build off-document, then swap in one go: a single layout pass.
   const fragment = document.createDocumentFragment();
   items.forEach((pack, i) => fragment.appendChild(buildCard(pack, i)));
+
+  const oldDynamics = container.querySelectorAll('.pack-card-dynamic, .empty-state');
+  oldDynamics.forEach(card => card.remove());
+  container.appendChild(fragment);
+
+  renderPagination(visible);
+}
+
+/** Renders the highlights / announcements section with real content. */
+export function renderHighlightsSection() {
+  const container = document.querySelector('.highlights-grid');
+  if (!container) return;
+
+  const highlights = [
+    {
+      icon: 'rocket',
+      title: 'Always up to date',
+      date: 'Live from GitHub',
+      desc: 'Every Nova UI download links straight to the latest GitHub release – no manual updates needed.',
+    },
+    {
+      icon: 'wand-magic-sparkles',
+      title: 'Animated shader background',
+      date: 'Toggle with B',
+      desc: 'Press B or use the sparkle button in the corner to enable or disable the WebGL background.',
+    },
+    {
+      icon: 'mobile-screen',
+      title: 'Works on mobile',
+      date: 'Android 8.0+',
+      desc: 'Geode on Android is fully supported – grab the mobile-resolution pack and follow the guide.',
+    },
+    {
+      icon: 'shield-halved',
+      title: '100% safe & free',
+      date: 'No paywalls',
+      desc: 'Every pack is free, installs without touching original game files, and works offline once cached.',
+    },
+  ];
+
+  const fragment = document.createDocumentFragment();
+  highlights.forEach((item) => {
+    const card = el('article', { class: 'highlight-card reveal' },
+      el('div', { class: 'highlight-icon' }, icon(item.icon)),
+      el('h3', { text: item.title }),
+      el('span', { class: 'highlight-date', text: item.date }),
+      el('p', { text: item.desc }),
+    );
+    fragment.appendChild(card);
+  });
   container.replaceChildren(fragment);
 
-  renderPagination(list);
+  // Reveal newly added cards.
+  initScrollReveal(container);
+}
+
+/* ── Featured Nova UI hero (packs page) ────────────────────── */
+
+let featuredRendered = false;
+let featuredDownloadsTo = -1;
+
+function renderFeaturedNova(pack) {
+  const section = document.getElementById('novaFeatured');
+  if (!section) return;
+
+  const versionEl = document.getElementById('nfVersion');
+  const downloadsEl = document.getElementById('nfDownloads');
+  const updatedEl = document.getElementById('nfUpdated');
+  const sizeEl = document.getElementById('nfSize');
+  const stableBtn = document.getElementById('nfDlStable');
+  const extBtn = document.getElementById('nfDlExtension');
+
+  if (versionEl && pack.version) {
+    versionEl.textContent = pack.version === '-' ? '—' : `v${pack.version}`;
+  }
+  if (updatedEl) updatedEl.textContent = releaseDate(pack.lastUpdated);
+  if (sizeEl) sizeEl.textContent = pack.size || '—';
+
+  // Downloads counter animates in just like the hero on the home page.
+  if (downloadsEl && typeof pack.downloads === 'number') {
+    animateNumber(downloadsEl, pack.downloads, {
+      duration: 1200,
+      from: featuredDownloadsTo < 0 ? 0 : featuredDownloadsTo,
+      format: fmtD,
+    });
+    featuredDownloadsTo = pack.downloads;
+  }
+
+  if (stableBtn) {
+    if (pack.download_pc) {
+      stableBtn.href = pack.download_pc;
+      stableBtn.setAttribute('target', '_blank');
+      stableBtn.setAttribute('rel', 'noopener');
+      stableBtn.classList.remove('is-disabled');
+      stableBtn.removeAttribute('aria-disabled');
+      if (!stableBtn.dataset.bound) {
+        stableBtn.dataset.bound = '1';
+        stableBtn.addEventListener('click', (e) => {
+          if (stableBtn.classList.contains('is-disabled')) { e.preventDefault(); return; }
+          tap();
+          showToast('Downloading Nova UI (Stable)', 'success');
+        });
+      }
+    } else {
+      stableBtn.classList.add('is-disabled');
+      stableBtn.setAttribute('aria-disabled', 'true');
+      stableBtn.removeAttribute('href');
+    }
+  }
+  if (extBtn) {
+    if (pack.download_mobile) {
+      extBtn.href = pack.download_mobile;
+      extBtn.setAttribute('target', '_blank');
+      extBtn.setAttribute('rel', 'noopener');
+      extBtn.classList.remove('is-disabled');
+      extBtn.removeAttribute('aria-disabled');
+      if (!extBtn.dataset.bound) {
+        extBtn.dataset.bound = '1';
+        extBtn.addEventListener('click', (e) => {
+          if (extBtn.classList.contains('is-disabled')) { e.preventDefault(); return; }
+          tap();
+          showToast('Downloading Nova UI Extension', 'success');
+        });
+      }
+    } else {
+      extBtn.classList.add('is-disabled');
+      extBtn.setAttribute('aria-disabled', 'true');
+      extBtn.removeAttribute('href');
+    }
+  }
+
+  if (!featuredRendered) {
+    featuredRendered = true;
+    // Reveal animation on first paint only.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      section.classList.add('revealed', 'visible');
+      initScrollReveal(section);
+    }));
+  }
+}
+
+/**
+ * Populates the featured Nova UI hero from catalogue data. Falls back
+ * to direct GitHub data if the catalogue hasn't mapped UI yet. */
+function populateFeatured() {
+  const section = document.getElementById('novaFeatured');
+  if (!section) return;
+
+  const fromCatalogue = state.data.find((p) => p.category === 'ui' && p.source === 'github');
+  if (fromCatalogue) {
+    renderFeaturedNova(fromCatalogue);
+    return;
+  }
+
+  // Loading placeholders until GitHub responds.
+  getReleases()
+    .then((releases) => {
+      const release = releases.find((r) => !r.prerelease) || releases[0];
+      if (!release) return;
+      const assets = release.assets || [];
+      const isExtension = (a) => /extension/i.test(a?.name || '');
+      const isZip = (a) => /\.zip$/i.test(a?.name || '');
+      const stable = assets.find((a) => isZip(a) && !isExtension(a)) || assets.find(isZip);
+      const ext = assets.find((a) => a !== stable && isZip(a) && isExtension(a)) || null;
+      const totalSize = assets.reduce((s, a) => s + (a.size || 0), 0);
+      const totalDownloads = assets.reduce((s, a) => s + (a.download_count || 0), 0);
+      const tag = (release.tag_name || '').replace(/^v/i, '');
+
+      renderFeaturedNova({
+        name: 'Nova UI',
+        version: tag || '-',
+        size: stable?.size ? formatBytes(stable.size) : (totalSize ? formatBytes(totalSize) : '—'),
+        downloads: totalDownloads,
+        lastUpdated: release.published_at,
+        download_pc: stable?.browser_download_url || '',
+        download_mobile: ext?.browser_download_url || '',
+      });
+    })
+    .catch(() => {
+      // Leave placeholders as "—" - the card will populate on next refresh.
+    });
 }
 
 export function renderPagination(list) {
@@ -552,20 +977,45 @@ export async function copyPath(id) {
 
 /* ── Stats ───────────────────────────────────────────────────── */
 
+let packsAnimatedTo = -1;
+let downloadsAnimatedTo = -1;
+
 function animateStats() {
   const total = document.getElementById('totalPacks');
-  if (total && state.data.length) animateNumber(total, state.data.length, { duration: 1100 });
+  if (total && state.data.length && state.data.length !== packsAnimatedTo) {
+    animateNumber(total, state.data.length, {
+      duration: 1100,
+      from: packsAnimatedTo < 0 ? 0 : packsAnimatedTo,
+    });
+    packsAnimatedTo = state.data.length;
+  }
 
   const downloads = document.getElementById('totalDownloads');
-  if (downloads) {
-    const sum = state.data.reduce((acc, pack) => acc + (pack.downloads || 0), 0);
-    animateNumber(downloads, sum, { duration: 1400, format: fmtD });
+  if (downloads && downloadsAnimatedTo < 0) {
+    // Sum every asset download_count across ALL GitHub releases
+    // (the same data the changelog page renders).
+    getReleases().then((releases) => {
+      const sum = releases.reduce((acc, release) =>
+        acc + (release.assets || []).reduce((s, a) => s + (a.download_count || 0), 0),
+        0);
+      if (sum !== downloadsAnimatedTo) {
+        animateNumber(downloads, sum, { duration: 1400, from: 0, format: fmtD });
+        downloadsAnimatedTo = sum;
+      }
+    }).catch(() => {
+      // Fallback: use catalogue pack downloads if GitHub API fails.
+      const sum = state.data.reduce((acc, pack) => acc + (pack.downloads || 0), 0);
+      if (sum !== downloadsAnimatedTo) {
+        animateNumber(downloads, sum, { duration: 1400, from: 0, format: fmtD });
+        downloadsAnimatedTo = sum;
+      }
+    });
   }
 }
 
 /* ── Catalogue boot ──────────────────────────────────────────── */
 
-async function loadCatalogue({ force = false } = {}) {
+async function loadCatalogue({ force = false, hardPurge = false } = {}) {
   const grid = document.getElementById('packs');
   const refreshButton = document.getElementById('refreshPacks');
   const hasGrid = Boolean(grid);
@@ -577,19 +1027,21 @@ async function loadCatalogue({ force = false } = {}) {
   }
 
   try {
-    await jalankanJawa({
+    const loader = hardPurge ? refreshCatalogue : jalankanJawa;
+    await loader({
       force,
-      // Paint cached rows the moment they are available.
       onCache: (cached) => {
         state.data = cached;
+        populateFeatured();
         if (hasGrid) render();
         animateStats();
       },
     });
     state.data = sourcePacks.length ? sourcePacks : state.data;
+    populateFeatured();
     if (hasGrid) render();
     animateStats();
-    if (force) {
+    if (force || hardPurge) {
       const unavailable = [
         providerStatus.github === 'rejected' ? 'GitHub Releases' : null,
         providerStatus.spreadsheet === 'rejected' ? 'Background Spreadsheet' : null,
@@ -597,7 +1049,7 @@ async function loadCatalogue({ force = false } = {}) {
       if (unavailable.length) {
         showToast(`Could not refresh ${unavailable.join(' and ')}`, 'warn');
       } else {
-        showToast('Latest download data fetched', 'success');
+        showToast(hardPurge ? 'Cache purged - fresh data loaded' : 'Latest download data fetched', 'success');
       }
     }
     return true;
@@ -610,7 +1062,7 @@ async function loadCatalogue({ force = false } = {}) {
           el('p', { class: 'sub', text: 'Check your connection and use Refresh' }))
       );
     }
-    if (force) showToast('Could not refresh the download data', 'error');
+    if (force || hardPurge) showToast('Could not refresh the download data', 'error');
     return false;
   } finally {
     grid?.setAttribute('aria-busy', 'false');
@@ -626,11 +1078,33 @@ function initRefreshButton() {
   if (!button || button.dataset.ready) return;
   button.dataset.ready = '1';
 
-  button.addEventListener('click', async () => {
+  button.setAttribute('title', 'Click to refresh · Shift-click for a hard refresh (purges cache)');
+
+  button.addEventListener('click', async (event) => {
     if (button.disabled) return;
     tap();
-    await loadCatalogue({ force: true });
+    const hard = event.shiftKey || event.altKey;
+    await loadCatalogue({ force: true, hardPurge: hard });
   });
+
+  // Long-press triggers a hard refresh on touch devices.
+  let pressTimer = 0;
+  const startPress = () => {
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => {
+      pressTimer = 0;
+      if (!button.disabled) {
+        tap();
+        showToast('Hard refresh - purging all cache', 'info');
+        loadCatalogue({ force: true, hardPurge: true });
+      }
+    }, 650);
+  };
+  const cancelPress = () => clearTimeout(pressTimer);
+  button.addEventListener('pointerdown', startPress);
+  button.addEventListener('pointerup', cancelPress);
+  button.addEventListener('pointerleave', cancelPress);
+  button.addEventListener('pointercancel', cancelPress);
 }
 
 /* ── Init ────────────────────────────────────────────────────── */
@@ -646,9 +1120,21 @@ export function jalankanApp() {
   initTabs();
   initRefreshButton();
 
+  // Highlights don't need remote data - paint them immediately.
+  renderHighlightsSection();
+
+  // Featured hero can start loading GitHub data immediately even before
+  // the full catalogue settles, so the marquee pack never appears empty.
+  populateFeatured();
+
   // The loader hides as soon as the document is usable - it must never
   // wait on either remote provider.
   hideLoader();
+
+  // If this page load followed a hard refresh, tell the user it worked.
+  if (consumeHardRefreshFlag()) {
+    setTimeout(() => showToast('Cache cleared - fresh data loaded', 'success'), 300);
+  }
 
   // The catalogue is only needed where it is actually shown: the pack
   // grid, or the home page's "texture packs" counter. Without this guard
@@ -679,6 +1165,7 @@ Object.assign(window, {
   showToast,
   render,
   renderPagination,
+  renderHighlightsSection,
 });
 
-export default { jalankanApp, render, setFilter, applySort, openDownload, toggleFaq, switchTab, copyPath };
+export default { jalankanApp, render, setFilter, applySort, openDownload, toggleFaq, switchTab, copyPath, renderHighlightsSection };

@@ -1,9 +1,11 @@
 /** ═══════════════════════════════════════════════════════════════
  *  NOVA UI · GITHUB RELEASES
  *  Reads release data straight from the public GitHub API.
- *  Cached in sessionStorage so navigating between pages does not
- *  burn through the unauthenticated rate limit.
+ *  Cached through the shared cache helper so navigating between
+ *  pages never burns through the unauthenticated rate limit.
  *  ═══════════════════════════════════════════════════════════════ */
+
+import { cacheRead, cacheWrite, cacheRemove, KEYS, purgeAllCaches } from './cache.js';
 
 const DEFAULT_REPOSITORY = Object.freeze({ owner: 'DANZGAME-GD', repo: 'NovaUI' });
 const CACHE_TTL = 5 * 60 * 1000;
@@ -17,7 +19,7 @@ function repository() {
   };
 }
 
-const cacheKey = ({ owner, repo }) => `nova-releases:${owner}/${repo}`;
+const cacheKeyFor = ({ owner, repo }) => KEYS.github(owner, repo);
 
 /** Escapes a value for safe interpolation into an HTML string. */
 function escaped(value = '') {
@@ -39,15 +41,26 @@ export function formatBytes(bytes) {
   return `${(bytes / 1024 ** exponent).toFixed(exponent ? 1 : 0)} ${units[exponent]}`;
 }
 
-export async function getReleases({ force = false } = {}) {
+/**
+ * Fetch releases from GitHub with a short-lived session cache.
+ *
+ * @param {object}  options
+ * @param {boolean} options.force      skip the cache and re-fetch
+ * @param {boolean} options.hardPurge  wipe every Nova UI cache, then fetch
+ */
+export async function getReleases({ force = false, hardPurge = false } = {}) {
   const target = repository();
-  const key = cacheKey(target);
+  const key = cacheKeyFor(target);
 
-  if (!force) {
-    try {
-      const cached = JSON.parse(sessionStorage.getItem(key));
-      if (cached && Date.now() - cached.at < CACHE_TTL) return cached.data;
-    } catch { /* storage unavailable */ }
+  if (hardPurge) await purgeAllCaches();
+
+  if (!force && !hardPurge) {
+    const cached = cacheRead(key, { ttl: CACHE_TTL, persistent: false });
+    if (cached) return cached.data;
+  } else {
+    // A "soft" force (Refresh button) drops the entry for this repo
+    // only, so stale data from another repo can't leak through.
+    cacheRemove(key);
   }
 
   const controller = new AbortController();
@@ -60,7 +73,7 @@ export async function getReleases({ force = false } = {}) {
       {
         headers: { Accept: 'application/vnd.github+json' },
         signal: controller.signal,
-        cache: force ? 'no-store' : 'default',
+        cache: (force || hardPurge) ? 'no-store' : 'default',
       }
     );
   } catch (cause) {
@@ -80,6 +93,10 @@ export async function getReleases({ force = false } = {}) {
       404: 'This releases repository could not be found.',
     };
     const kinds = { 403: 'rate-limit', 404: 'not-found' };
+    // When rate-limited, serve whatever's left in session/local cache
+    // so the UI doesn't collapse for a transient 403.
+    const stale = cacheRead(key, { persistent: false }) || cacheRead(key, { persistent: true });
+    if (stale) return stale.data;
     throw Object.assign(
       new Error(messages[response.status] || `GitHub could not load releases (${response.status}).`),
       { kind: kinds[response.status] || 'api', status: response.status }
@@ -92,8 +109,11 @@ export async function getReleases({ force = false } = {}) {
   }
 
   const releases = data.filter((release) => !release.draft);
-  try { sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), data: releases })); }
-  catch { /* cache is optional */ }
+  // Write to session for the normal fast TTL, and persist a copy so
+  // the next visit (new tab / cold boot) can still show data while
+  // the background refresh lands.
+  cacheWrite(key, releases, { persistent: false });
+  cacheWrite(key, releases, { persistent: true });
   return releases;
 }
 
@@ -145,19 +165,23 @@ export async function renderLatestRelease(container, { force = false } = {}) {
       <div class="release-heading">
         <div>
           <h3>${escaped(release.name || release.tag_name)}</h3>
-          <p><strong>${escaped(release.tag_name)}</strong> · Published ${formatDate(release.published_at)}${totalDownloads ? ` · ${totalDownloads.toLocaleString()} downloads` : ''
-      }</p>
+          <p><strong>${escaped(release.tag_name)}</strong> · Published ${formatDate(release.published_at)}${totalDownloads ? ` · ${totalDownloads.toLocaleString()} downloads` : ''}</p>
         </div>
         <span class="release-version">${escaped(release.tag_name)}</span>
       </div>
       <p class="release-preview">${escaped(preview)}${preview.length >= 260 ? '…' : ''}</p>
       <div class="release-actions">
         ${asset
-        ? `<a class="cta-btn cta-primary" href="${escaped(asset.browser_download_url)}" rel="noopener"><i class="fas fa-download" aria-hidden="true"></i> Download ${escaped(asset.name)}</a>`
-        : '<span class="release-no-assets">No downloadable assets</span>'}
+          ? `<a class="cta-btn cta-primary" href="${escaped(asset.browser_download_url)}" target="_blank" rel="noopener"><i class="fas fa-download" aria-hidden="true"></i> Download ${escaped(asset.name)}</a>`
+          : '<span class="release-no-assets">No downloadable assets</span>'}
         <a class="cta-btn cta-secondary" href="${escaped(release.html_url)}" target="_blank" rel="noopener"><i class="fas fa-code-branch" aria-hidden="true"></i> View full changelog</a>
+        <button type="button" class="cta-btn cta-secondary" data-release-refresh title="Force a fresh fetch from GitHub"><i class="fas fa-rotate-right" aria-hidden="true"></i> Refresh</button>
       </div>
     </article>`;
+
+    container.querySelector('[data-release-refresh]')?.addEventListener('click', () => {
+      renderLatestRelease(container, { force: true });
+    });
   } catch (error) {
     container.innerHTML = releaseError(error);
     bindRetry(container, renderLatestRelease);
@@ -172,7 +196,8 @@ export function markdownToHtml(source = '') {
   text = text.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '<img src="$2" alt="$1" loading="lazy" decoding="async">');
   text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
   text = text.replace(/^### (.+)$/gm, '<h4>$1</h4>').replace(/^## (.+)$/gm, '<h3>$1</h3>').replace(/^# (.+)$/gm, '<h2>$1</h2>');
-  text = text.replace(/^[-*] (.+)$/gm, '<li>$1</li>').replace(/(<li>[\s\S]*?<\/li>)(?:\n(?!<li>))/g, '$1');
+  text = text.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+  text = text.replace(/(<li>[\s\S]*?<\/li>)(?:\n(?!<li>))/g, '$1');
   text = text.replace(/(^|\n)(?!<[hlupri])([^\n]+)(?=\n|$)/g, '$1<p>$2</p>');
   text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
   return text.replace(/(<li>[\s\S]*?<\/li>)+/g, (list) => `<ul style="list-style: none; padding-left: 0;">${list}</ul>`);
@@ -180,7 +205,6 @@ export function markdownToHtml(source = '') {
 
 /* ── Changelog ───────────────────────────────────────────────── */
 
-/** "3 days ago" style label to sit alongside the absolute date. */
 export function relativeTime(value) {
   const then = new Date(value).getTime();
   if (Number.isNaN(then)) return '';
@@ -211,7 +235,6 @@ export async function renderChangelog(container, { force = false } = {}) {
       const downloads = (release.assets || [])
         .reduce((sum, asset) => sum + (asset.download_count || 0), 0);
       const title = release.name || release.tag_name;
-      // Avoid printing the tag twice when the release has no distinct name.
       const showTag = title !== release.tag_name;
       const latest = index === 0;
       const assets = release.assets || [];
@@ -261,9 +284,15 @@ export async function renderChangelog(container, { force = false } = {}) {
     </article>`;
     }).join('');
 
-    container.innerHTML = `<div class="m3-timeline">${cards}</div>`;
+    container.innerHTML = `<div class="m3-timeline">${cards}</div><div class="cache-controls" style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button type="button" class="cta-btn cta-secondary" data-hard-refresh><i class="fas fa-rotate" aria-hidden="true"></i> Hard refresh GitHub data</button>
+    </div>`;
 
-    // Newly injected cards need to join the reveal observer.
+    container.querySelector('[data-hard-refresh]')?.addEventListener('click', async () => {
+      await purgeAllCaches();
+      renderChangelog(container, { force: true });
+    });
+
     const { initScrollReveal } = await import('./gerak.js');
     initScrollReveal(container);
   } catch (error) {

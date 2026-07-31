@@ -1,0 +1,454 @@
+/* ═══════════════════════════════════════════════════════════════
+   NOVA UI · SIMPLE PREMIUM SPLASH (React-inspired, longer)
+   - No glassmorphism, pure minimal, beautiful, fast
+   - Solid dark, subtle grid + moving accent line
+   - GPU only, 60 FPS, respects reduced-motion
+   - Longer duration like React framework splash
+   ═══════════════════════════════════════════════════════════════ */
+
+.nova-splash {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader, 9999);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  padding: env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #06080f;
+  color: #e6e8f0;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+  isolation: isolate;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: opacity 700ms cubic-bezier(.16,1,.3,1), visibility 700ms, transform 700ms cubic-bezier(.16,1,.3,1);
+  will-change: opacity, transform;
+}
+
+.nova-splash.hidden,
+.nova-splash[aria-hidden="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(1.02);
+}
+
+/* Background – simple, fast, beautiful */
+.nova-splash-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(124,92,252,.14) 0%, transparent 60%),
+    radial-gradient(900px 600px at 85% 95%, rgba(25,220,198,.08) 0%, transparent 62%),
+    linear-gradient(180deg, #080b14 0%, #06080f 100%);
+}
+
+/* Subtle dot grid – like React/Next docs, very light */
+.nova-splash-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,.045) 1px, transparent 0);
+  background-size: 24px 24px;
+  opacity: .6;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 82%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 82%);
+  transform: translateZ(0);
+}
+
+/* Thin accent line sweeping – React-like */
+.nova-splash-gradient-mesh {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.nova-splash-gradient-mesh::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124,92,252,.55), rgba(25,220,198,.42), transparent);
+  opacity: .0;
+  transform: translateX(-100%);
+  animation: novaLineSweep 2.8s cubic-bezier(.4,0,.2,1) infinite;
+  animation-delay: .8s;
+}
+
+/* Minimal orbs – hidden, keep DOM but simple */
+.nova-splash-orb { display: none; }
+.nova-splash-grain { display: none; }
+.nova-splash-particles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: .18;
+  pointer-events: none;
+}
+.nova-splash-card { display: none !important; }
+
+/* Content – perfectly centered, simple */
+.nova-splash-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 2.8vw, 22px);
+  width: min(100%, 420px);
+  max-width: calc(100vw - clamp(24px, 6vw, 64px));
+  padding: clamp(20px, 4vw, 32px);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Logo – simple, beautiful, no glass */
+.nova-splash-logo-wrap {
+  position: relative;
+  width: clamp(72px, 11vw, 88px);
+  height: clamp(72px, 11vw, 88px);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  will-change: transform;
+  animation: novaSimpleFloat 5s ease-in-out infinite;
+}
+
+.nova-splash-logo-glow,
+.nova-splash-logo-ring { display: none; }
+
+.nova-splash-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 20px;
+  background: #0f1320;
+  border: 1px solid rgba(255,255,255,.06);
+  box-shadow: 0 10px 30px -12px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.03) inset;
+  padding: 14%;
+  box-sizing: border-box;
+  will-change: transform, opacity;
+  animation: novaSimpleIn 900ms cubic-bezier(.16,1,.3,1) both;
+}
+
+/* React-like spinning subtle ring around logo */
+.nova-splash-logo-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 22px;
+  border: 1px solid transparent;
+  border-top-color: rgba(124,92,252,.5);
+  border-right-color: rgba(25,220,198,.42);
+  opacity: 0;
+  animation: novaRingSpin 2.4s linear infinite, novaFadeIn 600ms ease 800ms both;
+  will-change: transform;
+}
+
+/* Title – simple, strong */
+.nova-splash-title {
+  margin: 0;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: clamp(1.7rem, 3.8vw + .4rem, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1;
+  color: #fff;
+  text-wrap: balance;
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  animation: novaFadeUp 700ms cubic-bezier(.16,1,.3,1) 300ms both;
+  will-change: transform, opacity;
+}
+
+.nova-splash-title span {
+  font-weight: 800;
+  color: #a394ff;
+}
+
+.nova-splash-title-dot {
+  display: inline-block;
+  width: .18em;
+  height: .18em;
+  border-radius: 50%;
+  background: #f7bb3a;
+  margin-left: .1em;
+  vertical-align: super;
+  animation: novaDotPulseSimple 1.6s ease-in-out infinite alternate;
+}
+
+/* Tagline – simple muted */
+.nova-splash-tagline {
+  margin: 0;
+  max-width: 30ch;
+  font-size: clamp(.78rem, .7rem + .32vw, .86rem);
+  font-weight: 400;
+  line-height: 1.6;
+  color: #8a8fa3;
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  animation: novaFadeUp 700ms cubic-bezier(.16,1,.3,1) 420ms both;
+  text-wrap: pretty;
+}
+
+.nova-splash-tagline strong {
+  color: #c4c7d6;
+  font-weight: 600;
+}
+
+/* Loader – simple track, longer feel */
+.nova-splash-loader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(100%, 320px);
+  margin-top: 6px;
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  animation: novaFadeUp 700ms cubic-bezier(.16,1,.3,1) 540ms both;
+}
+
+.nova-splash-progress-track {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,.08);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.nova-splash-progress-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7c5cfc, #a394ff 40%, #19dcc6 100%);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  will-change: transform;
+  transition: transform 650ms cubic-bezier(.16,1,.3,1);
+}
+
+.nova-splash-progress-glow {
+  position: absolute;
+  inset: -6px 0;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, rgba(124,92,252,.28), rgba(25,220,198,.18));
+  filter: blur(8px);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform, opacity;
+  transition: transform 650ms cubic-bezier(.16,1,.3,1), opacity 400ms ease;
+  pointer-events: none;
+}
+
+.nova-splash-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+.nova-splash-task {
+  flex: 1;
+  min-width: 0;
+  font-size: .74rem;
+  font-weight: 400;
+  color: #767b8e;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  will-change: opacity;
+}
+
+.nova-splash-task.is-changing {
+  animation: novaTaskFadeSimple 320ms ease;
+}
+
+.nova-splash-percent {
+  font-size: .74rem;
+  font-weight: 600;
+  color: #a8adc0;
+  min-width: 3ch;
+  text-align: right;
+}
+
+/* Footer – minimal */
+.nova-splash-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px calc(14px + env(safe-area-inset-bottom,0));
+  font-size: .66rem;
+  line-height: 1.4;
+  color: #5a5f73;
+  opacity: 0;
+  animation: novaFadeUp 600ms cubic-bezier(.16,1,.3,1) 800ms both;
+  pointer-events: none;
+}
+
+.nova-splash-version {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  font-weight: 500;
+  color: #7a7f93;
+  white-space: nowrap;
+}
+
+.nova-splash-version::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22d39a;
+  box-shadow: 0 0 8px rgba(34,211,154,.5);
+  animation: novaLiveSimple 1.8s ease-in-out infinite alternate;
+}
+
+.nova-splash-credit {
+  opacity: .7;
+  max-width: 55%;
+  text-align: right;
+  overflow-wrap: break-word;
+}
+
+.nova-splash-credit i { color: #ff5f6d; font-size: .9em; }
+
+/* Simple animations – fast, beautiful */
+@keyframes novaSimpleIn {
+  from { transform: scale(.86) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes novaFadeUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes novaFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes novaSimpleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes novaRingSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes novaLineSweep {
+  0% { transform: translateX(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(200%); opacity: 0; }
+}
+
+@keyframes novaTaskFadeSimple {
+  0% { opacity: 1; transform: translateY(0); }
+  40% { opacity: 0; transform: translateY(-4px); }
+  60% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes novaDotPulseSimple {
+  from { transform: scale(.9); opacity: .7; }
+  to { transform: scale(1.15); opacity: 1; }
+}
+
+@keyframes novaLiveSimple {
+  from { transform: scale(.85); opacity: .6; }
+  to { transform: scale(1.1); opacity: 1; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .nova-splash-logo-wrap,
+  .nova-splash-logo,
+  .nova-splash-title,
+  .nova-splash-tagline,
+  .nova-splash-loader,
+  .nova-splash-footer,
+  .nova-splash-logo-wrap::after,
+  .nova-splash-gradient-mesh::after {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .nova-splash-particles { display: none !important; }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .nova-splash-content { gap: 14px; padding: 20px 16px; }
+  .nova-splash-logo-wrap { width: 68px; height: 68px; }
+  .nova-splash-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom,0));
+  }
+  .nova-splash-credit { max-width: 100%; text-align: center; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .nova-splash-content { gap: 10px; transform: scale(.9); }
+  .nova-splash-logo-wrap { width: 56px; height: 56px; }
+  .nova-splash-title { font-size: 1.4rem; }
+}
+
+/* Light theme – simple */
+@media (prefers-color-scheme: light) {
+  .nova-splash { background: #f5f6f8; color: #1a1a2a; }
+  .nova-splash-bg {
+    background:
+      radial-gradient(1000px 600px at 50% -10%, rgba(124,92,252,.12) 0%, transparent 60%),
+      linear-gradient(180deg, #ffffff 0%, #f5f6f8 100%);
+  }
+  .nova-splash-bg::before { background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,.06) 1px, transparent 0); }
+  .nova-splash-title { color: #12121a; }
+  .nova-splash-title span { color: #6d5bd0; }
+  .nova-splash-tagline { color: #6b6f80; }
+  .nova-splash-tagline strong { color: #3a3a4a; }
+  .nova-splash-task { color: #6b6f80; }
+  .nova-splash-percent { color: #5a5f73; }
+  .nova-splash-progress-track { background: rgba(0,0,0,.08); }
+  .nova-splash-footer { color: #8a8f9e; }
+  .nova-splash-version { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.06); color: #6b6f80; }
+  .nova-splash-logo { background: #fff; border-color: rgba(0,0,0,.06); box-shadow: 0 8px 24px -12px rgba(0,0,0,.12); }
+}
+
+html.light-theme .nova-splash { background: #f5f6f8; }
+
+.nova-splash::-webkit-scrollbar { display: none; }
+.nova-splash { scrollbar-width: none; }

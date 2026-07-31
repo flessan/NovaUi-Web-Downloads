@@ -14,7 +14,7 @@
                       short-lived caches with the right semantics.
    ═══════════════════════════════════════════════════════════════ */
 
-const VERSION = 'v3';
+const VERSION = 'v4';
 const PRECACHE = `nova-precache-${VERSION}`;
 const RUNTIME = `nova-runtime-${VERSION}`;
 const IMAGES = `nova-images-${VERSION}`;
@@ -26,10 +26,14 @@ const PRECACHE_URLS = [
   '/app/index.html',
   '/app/pack.html',
   '/app/guide.html',
+  '/app/changelog.html',
+  '/app/support.html',
+  '/app/credit.html',
   '/offline.html',
   '/gudang/web/css/dohan.config.css',
   '/gudang/web/css/gaya.css',
   '/gudang/web/css/releases.css',
+  '/gudang/web/css/kredit.css',
   '/gudang/web/css/lainnya/warna.css',
   '/gudang/web/css/lainnya/responsif.css',
   '/gudang/web/css/sperpart/gerak.css',
@@ -41,9 +45,11 @@ const PRECACHE_URLS = [
   '/gudang/web/js/app.js',
   '/gudang/web/js/jawa.js',
   '/gudang/web/js/github-releases.js',
+  '/gudang/web/js/cache.js',
   '/gudang/web/js/webgl.js',
   '/gudang/icon_logo/nova_logo.png',
   '/gudang/icon_app/icon-192.png',
+  '/gudang/icon_app/icon-512.png',
   '/manifest.webmanifest',
 ];
 
@@ -165,8 +171,17 @@ self.addEventListener('fetch', (event) => {
 /* ── Messages ────────────────────────────────────────────────── */
 
 self.addEventListener('message', (event) => {
-  if (event.data === 'skip-waiting') self.skipWaiting();
-  if (event.data === 'clear-caches') {
-    event.waitUntil(caches.keys().then((names) => Promise.all(names.map((n) => caches.delete(n)))));
+  const data = typeof event.data === 'string' ? event.data : event.data?.type;
+  if (data === 'skip-waiting') self.skipWaiting();
+  if (data === 'clear-caches' || event.data === 'clear-caches') {
+    event.waitUntil((async () => {
+      const names = await caches.keys();
+      await Promise.all(names.filter((n) => n.startsWith('nova-')).map((n) => caches.delete(n)));
+      // Re-populate the precache so the next navigation is not empty.
+      const cache = await caches.open(PRECACHE);
+      await Promise.allSettled(
+        PRECACHE_URLS.map((url) => cache.add(new Request(url, { cache: 'reload' })))
+      );
+    })());
   }
 });

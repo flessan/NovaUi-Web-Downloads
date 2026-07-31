@@ -1,24 +1,26 @@
 /* ═══════════════════════════════════════════════════════════════
    NOVA UI · DOWNLOAD CATALOGUE DATA
 
-   The catalogue deliberately has two independent sources:
+   The catalogue has two independent sources:
      • Nova UI metadata and downloads come from GitHub Releases;
-     • Background Anime metadata and downloads stay in Google Sheets.
+     • Background Anime metadata and downloads live in Google Sheets.
 
    A short-lived combined cache makes repeat visits instant and keeps
    the last successful catalogue available when either provider is
-   temporarily unreachable. The Refresh button bypasses every cache and
-   re-fetches both providers without navigating or reloading the page.
+   temporarily unreachable. The Refresh button bypasses every cache
+   (session + persistent + service worker) and re-fetches both
+   providers without navigating or reloading the page.
    ═══════════════════════════════════════════════════════════════ */
 
 import { formatBytes, getReleases } from './github-releases.js';
+import { cacheRead, cacheWrite, cacheRemove, KEYS, purgeAllCaches } from './cache.js';
 
 export const SHEET_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vSIWy57PZw5eV1PjxjYC7gX6Haqg9aRgIlATvOCCzns8mcyIRhQkpl1vz40-GK_j4Sxlk4oOBevxBea/pub?output=csv';
 
-const CACHE_KEY = 'nova-download-catalogue-v2';
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 const TIMEOUT = 12000;
+const NOVA_ICON = '/gudang/icon_logo/nova.png';
 
 export let packs = [];
 export let providerStatus = { github: 'idle', spreadsheet: 'idle' };
@@ -57,7 +59,6 @@ export function parseCsv(text) {
   return rows.filter((r) => r.some((cell) => cell.trim() !== ''));
 }
 
-/** Turns "TRUE"/"1"/"yes" and friends into a real boolean. */
 function toBool(value) {
   if (typeof value === 'boolean') return value;
   return ['true', '1', 'yes', 'y'].includes(String(value ?? '').trim().toLowerCase());
@@ -68,19 +69,32 @@ function toNumber(value) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function normalizeIcon(path) {
+  if (!path) return '';
+  const trimmed = String(path).trim();
+  if (!trimmed) return '';
+  // Absolute or full URLs pass through.
+  if (/^(https?:)?\/\//i.test(trimmed) || trimmed.startsWith('/')) return trimmed;
+  // Legacy "asset/x.png" paths → /gudang/icon_pack/x.png
+  if (trimmed.startsWith('asset/')) return `/gudang/icon_pack/${trimmed.slice('asset/'.length)}`;
+  // Bare filenames (e.g. "frieren.png") that match the icon_pack folder.
+  if (!trimmed.includes('/')) return `/gudang/icon_pack/${trimmed}`;
+  return trimmed;
+}
+
 /** Guarantees a consistent shape for a Background Anime sheet row. */
 function normaliseBackground(raw) {
   return {
     name: String(raw.name ?? 'Untitled pack').trim(),
     creator: String(raw.creator ?? 'Unknown').trim(),
     description: String(raw.description ?? '').trim(),
-    icon: String(raw.icon ?? '').trim(),
+    icon: normalizeIcon(raw.icon),
     version: String(raw.version ?? '1.0.0').trim(),
     size: String(raw.size ?? '-').trim(),
     category: 'background',
     source: 'spreadsheet',
     featured: toBool(raw.featured),
-    downloads: 0,
+    downloads: toNumber(raw.downloads),
     lastUpdated: String(raw.lastUpdated ?? raw.last_updated ?? '').trim(),
     download_pc: String(raw.download_pc ?? '').trim(),
     download_mobile: String(raw.download_mobile ?? '').trim(),
@@ -95,8 +109,6 @@ function rowsToBackgrounds(rows) {
     const raw = {};
     headers.forEach((key, index) => { raw[key] = (cells[index] ?? '').trim(); });
 
-    // The sheet still contains a legacy Nova UI row. It must never be
-    // used: every UI field, including its URLs, now comes from GitHub.
     if (String(raw.category ?? '').trim().toLowerCase() !== 'background') return [];
     const pack = normaliseBackground(raw);
     return pack.name && pack.name !== 'Untitled pack' ? [pack] : [];
@@ -106,83 +118,104 @@ function rowsToBackgrounds(rows) {
 /* ── GitHub UI release mapping ───────────────────────────────── */
 
 const isExtension = (asset) => /extension/i.test(asset?.name || '');
+const isZip = (asset) => /\.zip$/i.test(asset?.name || '');
 
-/** Maps the latest downloadable GitHub release to the Nova UI card. */
+function tagToVersion(tag) {
+  if (!tag) return '-';
+  return String(tag).replace(/^v/i, '').trim() || '-';
+}
+
+function pickPrimaryAsset(assets) {
+  return assets.find((a) => isZip(a) && !isExtension(a))
+      || assets.find(isZip)
+      || assets[0]
+      || null;
+}
+
+function pickExtensionAsset(assets, primary) {
+  return assets.find((a) => a !== primary && isZip(a) && isExtension(a))
+      || assets.find((a) => a !== primary && isExtension(a))
+      || null;
+}
+
+/** Maps the latest GitHub release into the Nova UI card shape. */
 export function releaseToUiPack(release) {
   if (!release) return null;
-
-  const assets = Array.isArray(release.assets) ? release.assets : [];
-  const stable = assets.find((asset) => !isExtension(asset)) || assets[0];
-  const extension = assets.find(isExtension)
-    || assets.find((asset) => asset !== stable)
-    || null;
-  const orderedAssets = [stable, extension].filter(
-    (asset, index, list) => asset && list.indexOf(asset) === index
-  );
+  const assets = Array.isArray(release.assets) ? release.assets.filter(Boolean) : [];
+  const stable = pickPrimaryAsset(assets);
+  const extension = pickExtensionAsset(assets, stable);
+  const totalDownloads = assets.reduce((sum, a) => sum + (a.download_count || 0), 0);
+  const totalSize = assets.reduce((sum, a) => sum + (a.size || 0), 0);
 
   return {
-    name: 'Nova UI',
+    id: 'nova-ui',
+    name: release.name && release.name !== release.tag_name ? release.name : 'Nova UI',
     creator: 'DANZGAME-GD',
-    description: 'A complete Geometry Dash UI overhaul with a modern design language, distributed through GitHub Releases.',
-    icon: '../gudang/icon_logo/nova.png',
-    version: String(release.tag_name || release.name || '-').replace(/^v/i, ''),
-    size: orderedAssets.length
-      ? orderedAssets.map((asset) => formatBytes(Number(asset.size))).join(' / ')
-      : '-',
+    description:
+      'A complete Geometry Dash menu UI overhaul with a modern design language, ' +
+      'powered by the Geode mod loader. Installs safely without touching original game files.',
+    icon: NOVA_ICON,
+    version: tagToVersion(release.tag_name),
+    size: stable?.size ? formatBytes(stable.size) : (totalSize ? formatBytes(totalSize) : '-'),
     category: 'ui',
     source: 'github',
     featured: true,
-    // Display-only metadata supplied by GitHub. The site does not
-    // increment, persist, or send its own download analytics.
-    downloads: assets.reduce((sum, asset) => sum + toNumber(asset.download_count), 0),
-    lastUpdated: String(release.published_at || release.created_at || '').trim(),
-    download_pc: String(stable?.browser_download_url || '').trim(),
-    download_mobile: String(extension?.browser_download_url || '').trim(),
-    releaseUrl: String(release.html_url || '').trim(),
-    assets: orderedAssets.map((asset) => ({
-      name: String(asset.name || 'Download'),
-      size: formatBytes(Number(asset.size)),
-      downloads: toNumber(asset.download_count),
-      url: String(asset.browser_download_url || ''),
-    })),
+    downloads: totalDownloads,
+    lastUpdated: release.published_at || release.created_at || '',
+    html_url: release.html_url || '',
+    download_pc: stable?.browser_download_url || '',
+    download_mobile: extension?.browser_download_url || '',
+    prerelease: !!release.prerelease,
   };
 }
 
 async function fetchUiPack({ force = false } = {}) {
   const releases = await getReleases({ force });
-  // Prefer the latest non-prerelease that actually contains a download.
-  const release = releases.find((item) => !item.prerelease && item.assets?.length)
-    || releases.find((item) => item.assets?.length)
-    || releases[0];
-  const ui = releaseToUiPack(release);
-  if (!ui) throw new Error('No published Nova UI release is available.');
-  return [ui];
+  // The latest non-prerelease, falling back to the first entry if all
+  // available releases are prereleases (e.g. during a beta window).
+  const latest = releases.find((r) => !r.prerelease) || releases[0];
+  const pack = releaseToUiPack(latest);
+  return pack ? [pack] : [];
 }
 
 /* ── Cache ───────────────────────────────────────────────────── */
 
 function readCache() {
-  try {
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-    if (!cached?.data?.length) return null;
-    return { data: cached.data, stale: Date.now() - cached.at > CACHE_TTL };
-  } catch { return null; }
+  // Session cache is preferred (lives only for this tab and is always
+  // fresh), then persistent (survives tab closes and is fresh while
+  // inside the TTL).
+  const session = cacheRead(KEYS.catalogue, { ttl: CACHE_TTL, persistent: false });
+  if (session) return { data: session.data, stale: false };
+  const local = cacheRead(KEYS.catalogue, { ttl: CACHE_TTL, persistent: true });
+  if (local) return { data: local.data, stale: false };
+  return null;
 }
 
 function writeCache(data, { stale = false } = {}) {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ at: stale ? 0 : Date.now(), data })); }
-  catch { /* quota or private mode */ }
+  if (stale) {
+    // A partial response is useful now but must be replaced next visit,
+    // so persist it but do NOT keep it in the fast session cache.
+    cacheWrite(KEYS.catalogue, data, { persistent: true });
+    cacheRemove(KEYS.catalogue, { persistent: false });
+  } else {
+    cacheWrite(KEYS.catalogue, data, { persistent: false });
+    cacheWrite(KEYS.catalogue, data, { persistent: true });
+  }
 }
 
 /* ── Spreadsheet fetch ───────────────────────────────────────── */
 
-async function fetchBackgrounds() {
+async function fetchBackgrounds({ force = false } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT);
   try {
-    const response = await fetch(SHEET_URL, { signal: controller.signal, cache: 'no-cache' });
+    const response = await fetch(SHEET_URL, {
+      signal: controller.signal,
+      cache: force ? 'no-store' : 'default',
+    });
     if (!response.ok) throw new Error(`Sheet responded ${response.status}`);
-    const backgrounds = rowsToBackgrounds(parseCsv(await response.text()));
+    const csv = await response.text();
+    const backgrounds = rowsToBackgrounds(parseCsv(csv));
     if (!backgrounds.length) throw new Error('The sheet returned no Background Anime releases.');
     return backgrounds;
   } finally {
@@ -198,10 +231,16 @@ async function fetchBackgrounds() {
  * rows stay visible while fresh data from the other provider is applied.
  *
  * @param {object} options
- * @param {boolean} options.force bypass both the catalogue and provider caches
- * @param {function} options.onCache paints cached rows before the network settles
+ * @param {boolean} options.force       bypass caches and re-fetch
+ * @param {boolean} options.hardPurge   wipe every Nova UI cache, then fetch
+ * @param {function} options.onCache    paints cached rows before the network settles
  */
-export async function jalankanJawa({ force = false, onCache } = {}) {
+export async function jalankanJawa({ force = false, hardPurge = false, onCache } = {}) {
+  if (hardPurge) {
+    await purgeAllCaches();
+    force = true;
+  }
+
   const cached = force ? null : readCache();
 
   if (cached) {
@@ -213,7 +252,7 @@ export async function jalankanJawa({ force = false, onCache } = {}) {
   const previous = packs;
   const [uiResult, backgroundsResult] = await Promise.allSettled([
     fetchUiPack({ force }),
-    fetchBackgrounds(),
+    fetchBackgrounds({ force }),
   ]);
 
   providerStatus = {
@@ -251,8 +290,15 @@ export async function jalankanJawa({ force = false, onCache } = {}) {
   return packs;
 }
 
+/** Hard-refresh entry point used by UI buttons. Purges everything and
+ *  returns a fresh catalogue. */
+export async function refreshCatalogue({ onCache } = {}) {
+  return jalankanJawa({ hardPurge: true, onCache });
+}
+
 export default {
   jalankanJawa,
+  refreshCatalogue,
   get packs() { return packs; },
   get providerStatus() { return providerStatus; },
   perPage,

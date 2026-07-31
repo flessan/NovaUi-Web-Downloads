@@ -93,9 +93,9 @@
      ═══════════════════════════════════════════════════════════════ */
 
   var LOGO = {
-    img: '../gudang/icon_logo/nova_logo.png',
+    img: '/gudang/icon_logo/nova_logo.png',
     /* Trusted constant markup - intentionally not escaped. */
-    text: 'NOVA <span class="logo-dot">UI</span>',
+    text: 'NOVA<span class="logo-dot">UI</span>',
   };
 
   /* `match` lists pathname suffixes that mark this link active. */
@@ -127,7 +127,7 @@
 
   var FOOTER_COPY =
     'Made with <span class="heart"><i class="fas fa-heart" aria-hidden="true"></i></span> ' +
-    'by DANZGAME — not affiliated with RobTop Games — ' +
+    'by DANZGAME - not affiliated with RobTop Games - ' +
     '<a href="./index.html">GD texture packs 2026</a>';
 
   /* ── Active-link detection ──────────────────────────────────── */
@@ -210,16 +210,38 @@
   }
 
   function loader(label) {
-    var text = label || 'Loading';
-    return '<div id="loader" class="loader" role="status" aria-label="' + esc(text) + '">' +
-      '<div class="loader-gem">' +
-      '<img src="../gudang/icon_logo/dohan.png" alt="" width="76" height="76">' +
-      '<span>' + esc(text) + '</span>' +
+    var text = label || 'Loading Nova UI';
+    var safe = esc(text);
+    // Simple, beautiful, fast – React-inspired, longer duration
+    return '<div id="loader" class="nova-splash" role="status" aria-live="polite" aria-label="' + safe + ', please wait" data-splash-ready="0">' +
+      '<div class="nova-splash-bg" aria-hidden="true">' +
+      '<div class="nova-splash-gradient-mesh"></div>' +
+      '<canvas class="nova-splash-particles" aria-hidden="true"></canvas>' +
       '</div>' +
-      '<div class="loader-bar"><div class="loader-bar-inner"></div></div>' +
+      '<div class="nova-splash-content">' +
+      '<div class="nova-splash-logo-wrap">' +
+      '<img class="nova-splash-logo" src="/gudang/icon_logo/nova_logo.png" alt="" width="88" height="88" decoding="async" fetchpriority="high">' +
+      '</div>' +
+      '<h1 class="nova-splash-title" aria-label="Nova UI">NOVA <span>UI</span><span class="nova-splash-title-dot" aria-hidden="true"></span></h1>' +
+      '<p class="nova-splash-tagline">Fast, modern, beautifully crafted for <strong>Geometry Dash</strong></p>' +
+      '<div class="nova-splash-loader">' +
+      '<div class="nova-splash-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 percent loaded" aria-label="Loading progress">' +
+      '<div class="nova-splash-progress-bar"></div>' +
+      '<div class="nova-splash-progress-glow" aria-hidden="true"></div>' +
+      '</div>' +
+      '<div class="nova-splash-progress-meta">' +
+      '<span class="nova-splash-task">Initializing…</span>' +
+      '<span class="nova-splash-percent" aria-live="off">0%</span>' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '<div class="nova-splash-footer" aria-hidden="true">' +
+      '<span class="nova-splash-version">v2.1.0 • Stable</span>' +
+      '<span class="nova-splash-credit">Made with <i class="fas fa-heart" aria-hidden="true"></i> by DANZGAME-GD</span>' +
+      '</div>' +
+      '<span class="visually-hidden">' + safe + '</span>' +
       '</div>';
   }
-
   /**
    * Everything from the start of <body> through the open <header>,
    * i.e. skip-link, loader, floating controls, canvas and the opening

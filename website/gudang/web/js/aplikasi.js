@@ -372,7 +372,7 @@ function initInstallPrompt() {
     const el = document.createElement('div');
     el.className = 'install-prompt';
     el.innerHTML = `
-      <img src="${location.pathname.includes('/app/') ? '..' : '.'}/gudang/icon_logo/nova_logo.png" alt="">
+      <img src="/gudang/icon_logo/nova_logo.png" alt="">
       <div class="ip-text">
         <div class="ip-title">Install Nova UI</div>
         <div class="ip-sub">Add to your home screen for offline access</div>
@@ -508,13 +508,45 @@ function initServiceWorker() {
   });
 }
 
-/* ── Loader ──────────────────────────────────────────────────── */
+/* ── Loader – premium splash ──────────────────────────────────
+   Delegates to the splash module when present (GPU progress,
+   particles, task rotation). Falls back to simple fade for safety
+   if the module failed to load or prefers-reduced-motion. */
 
-export function hideLoader() {
+export async function hideLoader() {
   const loader = document.getElementById('loader');
   if (!loader) return;
+
+  // Try premium completion – uses transform/opacity only (GPU)
+  try {
+    // If splash module booted, it exposes a complete path
+    if (window.__novaSplash?.complete) {
+      await window.__novaSplash.complete();
+      return;
+    }
+    // Dynamic import as secondary path – lazy, non-blocking
+    const mod = await import('./splash.js').catch(() => null);
+    if (mod?.completeSplash) {
+      await mod.completeSplash();
+      return;
+    }
+  } catch (e) {
+    // Silently fall back – never block page hide
+    console.warn('[aplikasi] splash complete failed, falling back', e);
+  }
+
+  // Fallback: simple premium fade
   loader.classList.add('hidden');
-  setTimeout(() => loader.remove(), 700);
+  loader.setAttribute('aria-hidden', 'true');
+  setTimeout(() => {
+    loader.style.display = 'none';
+    loader.remove();
+  }, 700);
+}
+
+export function isSplashVisible() {
+  const loader = document.getElementById('loader');
+  return !!loader && !loader.classList.contains('hidden') && loader.style.display !== 'none';
 }
 
 /* ── Boot ────────────────────────────────────────────────────── */
@@ -534,5 +566,5 @@ export function jalankanAplikasi() {
 
 export default {
   jalankanAplikasi, showToast, openSheet, closeSheet,
-  hideLoader, tap, initShaderToggle, shaderDisabled,
+  hideLoader, isSplashVisible, tap, initShaderToggle, shaderDisabled,
 };

@@ -471,14 +471,21 @@ body.menu-open .nav-scrim {
 .loader {
   position: fixed;
   inset: 0;
-  z-index: var(--z-loader);
+  z-index: var(--z-loader, 9999);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 20px;
-  background: var(--bg);
-  transition: opacity var(--dur-5) var(--ease), visibility var(--dur-5) var(--ease);
+  padding: 24px;
+  box-sizing: border-box;
+  width: 100%;
+  /* Changed from max-width: 100vw to prevent scrollbar bugs */
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg, #111);
+  transition: opacity var(--dur-5, 0.5s) var(--ease, ease),
+    visibility var(--dur-5, 0.5s) var(--ease, ease);
 }
 
 .loader.hidden {
