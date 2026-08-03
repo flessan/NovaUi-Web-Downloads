@@ -1546,12 +1546,14 @@ nav {
 /* ── Pack cards ────────────────────────────────────────────── */
 .packs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(14px, 2vw, 22px);
   max-width: var(--shell);
   margin: 0 auto;
   padding-inline: var(--gutter);
   align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .pack-card {

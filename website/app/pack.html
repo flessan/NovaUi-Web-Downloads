@@ -60,8 +60,8 @@
 
     /* Packs grid: 1 col mobile, 2 tablet, 3 desktop – fully responsive */
     .packs-grid {
-      display: grid;
-      grid-template-columns: 1fr;
+      display: grid !important;
+      grid-template-columns: 1fr !important;
       gap: clamp(14px, 2vw, 22px);
       width: 100%;
       max-width: var(--shell);
@@ -73,13 +73,19 @@
 
     @media (min-width: 640px) {
       .packs-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+    }
+
+    @media (min-width: 861px) {
+      .packs-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
       }
     }
 
     @media (min-width: 1024px) {
       .packs-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
       }
     }
 
@@ -545,8 +551,7 @@
         </div>
       </div>
 
-      <div id="packs" class="packs-grid" aria-live="polite" aria-busy="true"
-        style="display:grid;grid-template-columns:1fr;gap:clamp(14px,2vw,22px);max-width:1200px;margin:0 auto;padding-inline:var(--gutter);box-sizing:border-box;align-items:stretch;width:100%">
+      <div id="packs" class="packs-grid" aria-live="polite" aria-busy="true">
         <!-- Pack cards are rendered from live data (GitHub + official catalogue). Responsive, semantic, accessible. -->
       </div>
       <nav id="pagination" class="pagination" aria-label="Pack list pages"

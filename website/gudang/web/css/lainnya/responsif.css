@@ -218,13 +218,13 @@
 /* ── ≥ 861px · desktop ─────────────────────────────────────── */
 @media (min-width:861px) {
   .packs-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr))
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (min-width:1200px) {
   .packs-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr))
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -561,27 +561,33 @@ html {
 
 /* ── Nova Extension Updater & Pack Actions – Mobile First ───── */
 @media (max-width: 640px) {
+
   .nova-ext-updater,
   #novaExtUpdater {
     padding-inline: clamp(12px, 4vw, 20px);
   }
+
   .ext-updater-card,
   .pack-card {
     border-radius: 20px;
   }
+
   .ext-actions .cta-btn,
   .pack-actions-responsive .cta-btn,
   .pack-actions-responsive .pack-dl-btn {
     width: 100% !important;
     min-height: 48px;
   }
+
   .ext-meta-grid {
     grid-template-columns: 1fr !important;
   }
+
   .pack-download-row {
     flex-direction: column !important;
     align-items: stretch !important;
   }
+
   .pack-download-row-head {
     flex-wrap: wrap;
   }
@@ -591,13 +597,23 @@ html {
   .packs-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   .ext-meta-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 /* Ensure no horizontal scroll ever – critical for mobile */
-html, body, main, #packs-section, .nova-ext-updater, .packs-grid, .filter-bar, .filter-shell, .pack-card, .ext-updater-card {
+html,
+body,
+main,
+#packs-section,
+.nova-ext-updater,
+.packs-grid,
+.filter-bar,
+.filter-shell,
+.pack-card,
+.ext-updater-card {
   max-width: 100%;
   box-sizing: border-box;
   overflow-wrap: break-word;
@@ -605,15 +621,18 @@ html, body, main, #packs-section, .nova-ext-updater, .packs-grid, .filter-bar, .
 }
 
 @media (max-width: 480px) {
+
   .pack-card,
   .ext-updater-card,
   .nova-featured .nf-inner {
     padding: 18px 14px;
   }
+
   .pack-actions-responsive,
   .ext-actions {
     gap: 10px;
   }
+
   /* Buttons become full-width on mobile – requirement */
   .pack-actions-responsive .cta-btn,
   .ext-actions .cta-btn,
@@ -635,9 +654,17 @@ html, body, main, #packs-section, .nova-ext-updater, .packs-grid, .filter-bar, .
 }
 
 /* Text wrapping ensures readability on all screens */
-.pack-card h3, .pack-card p, .pack-desc, .pack-creator,
-.ext-updater-title, .ext-updater-desc, .nf-desc, .nf-by,
-.pack-updater-desc, .pack-download-row, .ext-state {
+.pack-card h3,
+.pack-card p,
+.pack-desc,
+.pack-creator,
+.ext-updater-title,
+.ext-updater-desc,
+.nf-desc,
+.nf-by,
+.pack-updater-desc,
+.pack-download-row,
+.ext-state {
   overflow-wrap: break-word;
   word-break: break-word;
   hyphens: auto;
@@ -645,12 +672,14 @@ html, body, main, #packs-section, .nova-ext-updater, .packs-grid, .filter-bar, .
 
 /* Touch device spacing */
 @media (pointer: coarse) {
+
   .pack-actions-responsive .cta-btn,
   .ext-actions .cta-btn,
   .pack-dl-btn {
     min-height: 48px;
     padding: 14px 18px;
   }
+
   .pack-card {
     padding: 20px 16px;
   }
