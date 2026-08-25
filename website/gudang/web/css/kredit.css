@@ -22,6 +22,8 @@
   --c-violet-dim: rgba(167, 139, 250, .12);
   --c-blue: var(--info);
   --c-blue-dim: var(--info-dim);
+  --c-deep-sky-blue: #00BFFF;
+  --c-deep-sky-blue-dim: #00bfff2f;
 }
 
 /* ── Hero ──────────────────────────────────────────────────── */
@@ -452,6 +454,23 @@ html.perf-lite .credits-particles {
 
 .credit-card[data-color="blue"]:hover .credit-card-arrow {
   color: var(--c-blue)
+}
+
+.credit-card[data-color="deep-sky-blue"]::before {
+  background: var(--c-deep-sky-blue)
+}
+
+.credit-card[data-color="deep-sky-blue"] .credit-card-avatar {
+  background: var(--c-deep-sky-blue-dim);
+  color: var(--c-deep-sky-blue)
+}
+
+.credit-card[data-color="deep-sky-blue"]:hover {
+  border-color: rgba(0, 191, 255, .28)
+}
+
+.credit-card[data-color="deep-sky-blue"]:hover .credit-card-arrow {
+  color: var(--c-deep-sky-blue)
 }
 
 /* ── Built-with strip ──────────────────────────────────────── */
