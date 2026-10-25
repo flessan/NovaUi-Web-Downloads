@@ -14,7 +14,7 @@
                       short-lived caches with the right semantics.
    ═══════════════════════════════════════════════════════════════ */
 
-const VERSION = 'v4';
+const VERSION = 'v5';
 const PRECACHE = `nova-precache-${VERSION}`;
 const RUNTIME = `nova-runtime-${VERSION}`;
 const IMAGES = `nova-images-${VERSION}`;
@@ -35,6 +35,7 @@ const PRECACHE_URLS = [
   '/gudang/web/css/releases.css',
   '/gudang/web/css/kredit.css',
   '/gudang/web/css/lainnya/warna.css',
+  '/gudang/web/css/lainnya/material-you.css',
   '/gudang/web/css/lainnya/responsif.css',
   '/gudang/web/css/sperpart/gerak.css',
   '/gudang/web/css/sperpart/aplikasi.css',
