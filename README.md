@@ -37,6 +37,8 @@ HTML/CSS/ES-module project - no build step, no bundler. Open
 ### Structure
 
 ```
+functions/
+└── api/github-releases.js   Cloudflare Pages proxy with edge cache and stale fallback
 website/
 ├── app/                      pages (index, pack, guide, changelog, support, credit)
 ├── manifest.webmanifest      PWA manifest
