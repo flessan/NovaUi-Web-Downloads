@@ -419,3 +419,6 @@ footer { background: var(--md-surface-low) !important; border-top: 1px solid var
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+.app-tabbar a { isolation: isolate; }
+.app-tabbar a > i, .app-tabbar a > span { position: relative; z-index: 1; }
