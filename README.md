@@ -45,7 +45,8 @@ website/
 └── gudang/web/
     ├── css/
     │   ├── dohan.config.css      manifest - imports everything in order
-    │   ├── lainnya/warna.css     design tokens (colour, type, spacing, motion)
+    │   ├── lainnya/warna.css     base design tokens
+    │   ├── lainnya/material-you.css Material 3 colour roles, tonal surfaces, and theme switch
     │   ├── gaya.css              base + shared components
     │   ├── sperpart/gerak.css    all animation + performance modes
     │   ├── sperpart/aplikasi.css app shell: drawer, tab bar, sheets, loader
@@ -137,6 +138,11 @@ there - please preserve them when editing:
 `html.perf-lite` (set automatically on weak devices, Data Saver or a low
 battery) drops blur and ambient animation while keeping the layout
 identical. `prefers-reduced-motion` is honoured throughout.
+
+
+### Material You 3 theme
+
+The shared interface uses a sky-blue Material You 3 palette, tonal surfaces, accessible focus states, pill-shaped controls, and responsive pack cards. Light and dark themes follow the operating system by default; the sun/moon control in the navigation lets visitors override the theme, with their preference saved locally. The WebGL background is off on a first visit to keep the interface calm and lightweight, and remains available from the existing background control. The service worker cache version is bumped whenever the theme layer changes.
 
 ### Background shader
 
