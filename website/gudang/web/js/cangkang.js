@@ -39,10 +39,18 @@
      Apply the saved "off" state before the body exists so the
      animated background never flashes on for users who disabled it. */
   try {
-    if (localStorage.getItem('shader-off') === '1') {
+    /* Prefer a quiet, solid Material surface on first visit. People can
+       still enable the shader with the existing floating control. */
+    if (localStorage.getItem('shader-off') !== '0') {
       document.documentElement.classList.add('shader-disabled');
     }
-  } catch (e) { /* private mode / storage blocked */ }
+    var savedTheme = localStorage.getItem('nova-theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+  } catch (e) {
+    document.documentElement.classList.add('shader-disabled');
+  }
 
   /* ── 2. Common <head> meta + resource hints ────────────────────
      Injected once instead of being copied into every page. Absolute
@@ -66,8 +74,8 @@
     FRAG.appendChild(l);
   }
 
-  meta('theme-color', '#070a12');
-  meta('color-scheme', 'dark');
+  meta('theme-color', '#f1f3fa');
+  meta('color-scheme', 'light dark');
   meta('apple-mobile-web-app-capable', 'yes');
   meta('apple-mobile-web-app-status-bar-style', 'black-translucent');
   meta('apple-mobile-web-app-title', 'Nova UI');
@@ -87,6 +95,18 @@
   link('dns-prefetch', 'https://docs.google.com');
 
   head.appendChild(FRAG);
+
+  function activeTheme() {
+    var chosen = document.documentElement.getAttribute('data-theme');
+    if (chosen) return chosen;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function updateThemeMeta(theme) {
+    var themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) themeColor.content = theme === 'dark' ? '#101418' : '#f1f3fa';
+  }
+  updateThemeMeta(activeTheme());
 
   /* ═══════════════════════════════════════════════════════════════
      3. Site chrome data - the one place to edit navigation.
@@ -182,6 +202,8 @@
       'aria-label="Open navigation menu" aria-expanded="false" aria-controls="navLinks">' +
       '<i class="fas fa-bars" aria-hidden="true"></i></button>' +
       '<ul class="nav-links" id="navLinks">' + navList() + '</ul>' +
+      '<button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme" title="Switch theme">' +
+      '<i class="fas fa-moon" aria-hidden="true"></i><span class="visually-hidden">Switch colour theme</span></button>' +
       '</nav>' +
       '</header>';
   }
@@ -285,6 +307,35 @@
 
   /* Expose. Read from window in the inline body scripts so a missing
      script degrades to an empty write instead of a thrown ReferenceError. */
+  function initThemeToggle() {
+    var button = document.querySelector('[data-theme-toggle]');
+    if (!button) return;
+
+    function paint(theme) {
+      var dark = theme === 'dark';
+      button.innerHTML = '<i class="fas fa-' + (dark ? 'sun' : 'moon') + '" aria-hidden="true"></i><span class="visually-hidden">Switch colour theme</span>';
+      button.setAttribute('aria-label', 'Switch to ' + (dark ? 'light' : 'dark') + ' theme');
+      button.setAttribute('title', 'Switch to ' + (dark ? 'light' : 'dark') + ' theme');
+      updateThemeMeta(theme);
+    }
+
+    button.addEventListener('click', function () {
+      var next = activeTheme() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      document.documentElement.style.colorScheme = next;
+      try { localStorage.setItem('nova-theme', next); } catch (e) { /* Theme still works for this visit. */ }
+      paint(next);
+    });
+
+    paint(activeTheme());
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeToggle, { once: true });
+  } else {
+    initThemeToggle();
+  }
+
   window.NOVA = {
     LOGO: LOGO,
     NAV: NAV,
