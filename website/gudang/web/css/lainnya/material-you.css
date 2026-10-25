@@ -224,3 +224,119 @@ button:active, .cta-btn:active, .pack-dl-btn:active {
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* Contrast pass: coloured controls use an opaque tonal surface and a
+   deliberate foreground role. This prevents blue-on-blue text when the
+   animated artwork behind the app changes colour. */
+:root {
+  --md-contrast-container: #d7e3ff;
+  --md-on-contrast-container: #102c50;
+  --md-contrast-border: #a9c7ff;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+  box-shadow: none !important;
+}
+
+.nav-links a.active i,
+.nav-links a:hover i {
+  color: var(--md-on-contrast-container) !important;
+}
+
+.skip-link {
+  background: var(--primary) !important;
+  color: #102c50 !important;
+  text-shadow: none !important;
+}
+
+.section-tag,
+.filter-tag.active,
+.guide-tab.active,
+.release-version,
+.pack-card.featured::after,
+.pack-badge.badge-cat,
+.nova-featured .nf-badge-primary {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.section-tag *,
+.filter-tag.active *,
+.guide-tab.active *,
+.release-version *,
+.pack-card.featured::after *,
+.pack-badge.badge-cat *,
+.nova-featured .nf-badge-primary * {
+  color: var(--md-on-contrast-container) !important;
+}
+
+.filter-tag:hover,
+.guide-tab:hover,
+.copy-btn:hover,
+.footer-links a:hover {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+  border-color: transparent !important;
+}
+
+.filter-tag:hover *,
+.guide-tab:hover *,
+.copy-btn:hover *,
+.footer-links a:hover * {
+  color: var(--md-on-contrast-container) !important;
+}
+
+/* Inline styles in the featured card should not force white labels onto blue. */
+.nova-featured .nf-badge-primary[style] {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+}
+.nova-featured .nf-badge-primary[style] i {
+  color: var(--md-on-contrast-container) !important;
+}
+
+/* Code samples and metadata chips are small, so give their text clean edges. */
+.step-card code,
+.faq-a code,
+.tip-card code {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+  border: 1px solid rgba(16, 44, 80, .12);
+}
+.pack-badge.badge-featured {
+  background: #d7f3f8 !important;
+  color: #064651 !important;
+}
+.pack-badge.badge-featured *,
+.pack-badge.badge-new * {
+  color: inherit !important;
+}
+.pack-badge.badge-new {
+  background: #d9f5e3 !important;
+  color: #14532d !important;
+}
+
+/* The mobile destination pill follows the same foreground/background pairing. */
+.app-tabbar a.active {
+  color: var(--md-on-contrast-container) !important;
+}
+.app-tabbar a.active::before {
+  background: var(--md-contrast-container) !important;
+  border: 1px solid rgba(16, 44, 80, .08);
+}
+.app-tabbar a.active i,
+.app-tabbar a.active span {
+  color: var(--md-on-contrast-container) !important;
+}
+
+/* Links remain visibly distinct on both cards and the original animated backdrop. */
+a:not(.cta-btn):not(.logo):not(.nav-links a):not(.app-tabbar a) {
+  text-decoration-thickness: .07em;
+}
