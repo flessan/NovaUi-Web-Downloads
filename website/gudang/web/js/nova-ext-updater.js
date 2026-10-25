@@ -9,11 +9,11 @@
  *  - Full keyboard & screen reader accessibility
  *  ═══════════════════════════════════════════════════════════════ */
 
-import { cacheRead, cacheWrite, cacheRemove, KEYS, purgeAllCaches } from './cache.js';
+import { cacheRead, cacheWrite, KEYS, purgeAllCaches } from './cache.js';
+import { fetchGitHubReleases } from './github-releases.js';
 
 const EXT_OWNER = 'DANZGAME-GD';
 const EXT_REPO = 'NovaUI-exten';
-const API_URL = `https://api.github.com/repos/${encodeURIComponent(EXT_OWNER)}/${encodeURIComponent(EXT_REPO)}/releases?per_page=20`;
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 const TIMEOUT = 12000;
 
@@ -80,19 +80,20 @@ export async function getExtReleases({ force = false, hardPurge = false } = {}) 
     if (cached) return cached.data;
     const persisted = cacheRead(extCacheKey, { ttl: CACHE_TTL, persistent: true });
     if (persisted) return persisted.data;
-  } else {
-    cacheRemove(extCacheKey);
   }
 
+  // Retain the previous copy so a forced refresh can fall back to stale data.
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT);
 
   let response;
   try {
-    response = await fetch(API_URL, {
-      headers: { Accept: 'application/vnd.github+json' },
+    response = await fetchGitHubReleases({
+      owner: EXT_OWNER,
+      repo: EXT_REPO,
+      perPage: 20,
+      force: force || hardPurge,
       signal: controller.signal,
-      cache: force || hardPurge ? 'no-store' : 'default',
     });
   } catch (cause) {
     // Try stale cache on network failure so UI doesn't collapse
@@ -111,9 +112,11 @@ export async function getExtReleases({ force = false, hardPurge = false } = {}) 
     if (stale) return stale.data;
     const messages = {
       403: 'GitHub API rate limit reached. Please try again shortly.',
+      429: 'GitHub API rate limit reached. Showing cached updater data whenever available.',
+      503: 'GitHub is temporarily unavailable. Showing cached updater data whenever available.',
       404: 'Extension repository could not be found.',
     };
-    const kinds = { 403: 'rate-limit', 404: 'not-found' };
+    const kinds = { 403: 'rate-limit', 429: 'rate-limit', 503: 'error', 404: 'not-found' };
     throw Object.assign(
       new Error(messages[response.status] || `GitHub could not load extension releases (${response.status}).`),
       { kind: kinds[response.status] || 'api', status: response.status }

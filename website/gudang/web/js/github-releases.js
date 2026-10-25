@@ -5,7 +5,7 @@
  *  pages never burns through the unauthenticated rate limit.
  *  ═══════════════════════════════════════════════════════════════ */
 
-import { cacheRead, cacheWrite, cacheRemove, KEYS, purgeAllCaches } from './cache.js';
+import { cacheRead, cacheWrite, KEYS, purgeAllCaches } from './cache.js';
 
 const DEFAULT_REPOSITORY = Object.freeze({ owner: 'DANZGAME-GD', repo: 'NovaUI' });
 const CACHE_TTL = 5 * 60 * 1000;
@@ -42,6 +42,41 @@ export function formatBytes(bytes) {
 }
 
 /**
+ * Fetch through the site's Cloudflare Pages proxy first. Static local previews
+ * that do not include Functions fall back to GitHub's public API directly.
+ */
+export async function fetchGitHubReleases({ owner, repo, perPage = 100, force = false, signal } = {}) {
+  const directUrl = 'https://api.github.com/repos/' + encodeURIComponent(owner) + '/' +
+    encodeURIComponent(repo) + '/releases?per_page=' + perPage;
+  const proxyUrl = new URL('/api/github-releases', window.location.href);
+  proxyUrl.searchParams.set('owner', owner);
+  proxyUrl.searchParams.set('repo', repo);
+  proxyUrl.searchParams.set('per_page', String(perPage));
+  if (force) proxyUrl.searchParams.set('refresh', '1');
+
+  try {
+    const proxied = await fetch(proxyUrl.toString(), {
+      headers: { Accept: 'application/vnd.github+json' },
+      signal,
+      cache: force ? 'no-store' : 'default',
+    });
+    const contentType = proxied.headers.get('content-type') || '';
+    // A JSON 404 is an API result; an HTML 404 means the static preview
+    // does not have the Pages Function deployed.
+    if (proxied.status !== 404 || contentType.includes('application/json')) return proxied;
+  } catch (error) {
+    if (error?.name === 'AbortError') throw error;
+    // The static-only preview cannot serve /api/github-releases.
+  }
+
+  return fetch(directUrl, {
+    headers: { Accept: 'application/vnd.github+json' },
+    signal,
+    cache: force ? 'no-store' : 'default',
+  });
+}
+
+/**
  * Fetch releases from GitHub with a short-lived session cache.
  *
  * @param {object}  options
@@ -57,26 +92,25 @@ export async function getReleases({ force = false, hardPurge = false } = {}) {
   if (!force && !hardPurge) {
     const cached = cacheRead(key, { ttl: CACHE_TTL, persistent: false });
     if (cached) return cached.data;
-  } else {
-    // A "soft" force (Refresh button) drops the entry for this repo
-    // only, so stale data from another repo can't leak through.
-    cacheRemove(key);
   }
+  // Keep the previous local copy when forcing a request. If GitHub rejects
+  // the refresh due to its shared unauthenticated quota, this copy is fallback.
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT);
 
   let response;
   try {
-    response = await fetch(
-      `https://api.github.com/repos/${encodeURIComponent(target.owner)}/${encodeURIComponent(target.repo)}/releases?per_page=100`,
-      {
-        headers: { Accept: 'application/vnd.github+json' },
-        signal: controller.signal,
-        cache: (force || hardPurge) ? 'no-store' : 'default',
-      }
-    );
+    response = await fetchGitHubReleases({
+      owner: target.owner,
+      repo: target.repo,
+      perPage: 100,
+      force: force || hardPurge,
+      signal: controller.signal,
+    });
   } catch (cause) {
+    const stale = cacheRead(key, { persistent: false }) || cacheRead(key, { persistent: true });
+    if (stale) return stale.data;
     throw Object.assign(
       new Error(cause.name === 'AbortError'
         ? 'GitHub took too long to respond. Please try again.'
@@ -90,9 +124,11 @@ export async function getReleases({ force = false, hardPurge = false } = {}) {
   if (!response.ok) {
     const messages = {
       403: 'GitHub API rate limit reached. Please try again shortly.',
+      429: 'GitHub API rate limit reached. Showing cached releases whenever available.',
+      503: 'GitHub is temporarily unavailable. Showing cached releases whenever available.',
       404: 'This releases repository could not be found.',
     };
-    const kinds = { 403: 'rate-limit', 404: 'not-found' };
+    const kinds = { 403: 'rate-limit', 429: 'rate-limit', 503: 'api', 404: 'not-found' };
     // When rate-limited, serve whatever's left in session/local cache
     // so the UI doesn't collapse for a transient 403.
     const stale = cacheRead(key, { persistent: false }) || cacheRead(key, { persistent: true });

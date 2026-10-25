@@ -37,6 +37,8 @@ HTML/CSS/ES-module project - no build step, no bundler. Open
 ### Structure
 
 ```
+functions/
+└── api/github-releases.js   Cloudflare Pages proxy with edge cache and stale fallback
 website/
 ├── app/                      pages (index, pack, guide, changelog, support, credit)
 ├── manifest.webmanifest      PWA manifest
@@ -45,7 +47,8 @@ website/
 └── gudang/web/
     ├── css/
     │   ├── dohan.config.css      manifest - imports everything in order
-    │   ├── lainnya/warna.css     design tokens (colour, type, spacing, motion)
+    │   ├── lainnya/warna.css     base design tokens
+    │   ├── lainnya/material-you.css Material You 3 component styling and interaction states
     │   ├── gaya.css              base + shared components
     │   ├── sperpart/gerak.css    all animation + performance modes
     │   ├── sperpart/aplikasi.css app shell: drawer, tab bar, sheets, loader
@@ -111,9 +114,23 @@ The pack catalogue intentionally combines two providers in `jawa.js`:
   UI rows in that sheet are ignored so stale Spreadsheet URLs can never
   override GitHub release assets.
 
-The Packs page's **Refresh** button bypasses both short-lived caches and
+The Packs page's **Refresh** button requests fresh release data and
 updates the existing cards asynchronously. It does not reload or navigate
-away from the page.
+away from the page. The client keeps its previous copy until the refresh
+succeeds, so a rate-limited request does not discard the fallback data.
+
+On Cloudflare Pages, the root `functions/api/github-releases.js` function
+proxies the two allowlisted public release repositories through
+`/api/github-releases`. It caches successful JSON responses at the edge for
+five minutes and retains a seven-day stale copy for GitHub rate limits or
+temporary upstream failures. The service worker deliberately bypasses this
+same-origin API route so it cannot pin an old error response.
+
+The function works without a token. For higher upstream quota, optionally add
+a `GITHUB_TOKEN` secret in the Cloudflare Pages environment settings, scoped
+to read public repository metadata. The token is used only server-side and
+is never sent to the browser. Plain static previews without Pages Functions
+continue to fall back to the public GitHub API directly.
 
 ### Performance rules
 
@@ -137,6 +154,11 @@ there - please preserve them when editing:
 `html.perf-lite` (set automatically on weak devices, Data Saver or a low
 battery) drops blur and ambient animation while keeping the layout
 identical. `prefers-reduced-motion` is honoured throughout.
+
+
+### Material You 3 theme
+
+The shared interface gets a Material You 3 visual polish through a cool blue accent palette, softer tonal borders, clearer focus states, rounded controls, and more consistent feedback. The existing page layout, spacing, catalogue geometry, illustrations, animated WebGL background, and background preference behaviour are intentionally preserved. The theme layer only refines component styling and does not add a new theme switch or alter the page structure.
 
 ### Background shader
 

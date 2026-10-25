@@ -14,7 +14,7 @@
                       short-lived caches with the right semantics.
    ═══════════════════════════════════════════════════════════════ */
 
-const VERSION = 'v4';
+const VERSION = 'v6';
 const PRECACHE = `nova-precache-${VERSION}`;
 const RUNTIME = `nova-runtime-${VERSION}`;
 const IMAGES = `nova-images-${VERSION}`;
@@ -35,6 +35,7 @@ const PRECACHE_URLS = [
   '/gudang/web/css/releases.css',
   '/gudang/web/css/kredit.css',
   '/gudang/web/css/lainnya/warna.css',
+  '/gudang/web/css/lainnya/material-you.css',
   '/gudang/web/css/lainnya/responsif.css',
   '/gudang/web/css/sperpart/gerak.css',
   '/gudang/web/css/sperpart/aplikasi.css',
@@ -139,8 +140,10 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
-  // Live data must never be served stale by the worker.
+  // Live data must never be served stale by the worker. Same-origin
+  // Pages Functions manage their own edge cache and stale fallback.
   if (url.hostname === 'api.github.com' || url.hostname === 'docs.google.com') return;
+  if (url.origin === location.origin && url.pathname.startsWith('/api/')) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(event));
