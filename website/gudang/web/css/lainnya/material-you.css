@@ -422,3 +422,9 @@ footer { background: var(--md-surface-low) !important; border-top: 1px solid var
 
 .app-tabbar a { isolation: isolate; }
 .app-tabbar a > i, .app-tabbar a > span { position: relative; z-index: 1; }
+
+@media (max-width: 860px) {
+  nav { justify-content: flex-start !important; }
+  .menu-toggle { margin-left: auto; }
+  .theme-toggle { margin-left: 0 !important; }
+}
