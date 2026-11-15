@@ -1,0 +1,532 @@
+/*
+ * Nova UI · Material You 3 visual polish
+ * This is a styling-only layer: preserve the original layout, artwork,
+ * shader, page backgrounds, component dimensions, and responsive behaviour.
+ */
+:root {
+  --primary: #a9c7ff;
+  --primary-light: #d7e3ff;
+  --primary-bright: #b9d0ff;
+  --primary-dim: rgba(169, 199, 255, .16);
+  --primary-glow: rgba(169, 199, 255, .2);
+
+  --secondary: #80d8e7;
+  --secondary-light: #9eeffd;
+  --secondary-dim: rgba(128, 216, 231, .14);
+
+  --accent: #80d8e7;
+  --accent-light: #9eeffd;
+  --accent-dim: rgba(128, 216, 231, .16);
+
+  --danger: #ffb4ab;
+  --danger-dim: rgba(255, 180, 171, .14);
+  --info: #a9c7ff;
+  --info-dim: rgba(169, 199, 255, .16);
+  --success: #8ed9ad;
+  --success-dim: rgba(142, 217, 173, .14);
+
+  --border: rgba(196, 210, 235, .17);
+  --border-soft: rgba(196, 210, 235, .1);
+  --border-hover: rgba(169, 199, 255, .5);
+  --ring: rgba(169, 199, 255, .42);
+
+  --gradient: #a9c7ff;
+  --gradient-warm: #80d8e7;
+  --shadow-glow: 0 8px 24px rgba(0, 0, 0, .2);
+}
+
+/* Material-like interaction feedback without changing element placement. */
+::selection {
+  color: #102c50;
+  background: #d7e3ff;
+}
+
+a { text-underline-offset: .18em; }
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Native-feeling app bar: the existing height, position and blur remain intact. */
+header {
+  border-bottom-color: var(--border) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .1);
+}
+
+.logo img {
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+}
+
+.nav-links a {
+  border-radius: 999px !important;
+  transition: color .2s ease, background-color .2s ease;
+}
+
+.nav-links a:hover {
+  background: var(--primary-dim) !important;
+}
+
+.nav-links a.active {
+  color: #d7e3ff !important;
+  background: rgba(169, 199, 255, .17) !important;
+  box-shadow: inset 0 0 0 1px rgba(169, 199, 255, .12) !important;
+}
+
+.nav-links a.active i { color: var(--primary-light) !important; }
+
+.menu-toggle {
+  border-radius: 14px !important;
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+}
+
+/* Buttons use consistent Material motion and colour roles; sizes stay untouched. */
+.cta-btn, .btn, .pack-dl-btn, .nova-discord-cta {
+  box-shadow: none !important;
+  transition:
+    color .2s ease,
+    background-color .2s ease,
+    border-color .2s ease,
+    transform .2s cubic-bezier(.2, 0, 0, 1) !important;
+}
+
+.cta-primary, .pack-dl-btn, .nova-discord-cta {
+  background: var(--primary) !important;
+  color: #102c50 !important;
+  border: 1px solid transparent !important;
+}
+
+.cta-primary:hover, .pack-dl-btn:hover, .nova-discord-cta:hover {
+  background: var(--primary-light) !important;
+  color: #102c50 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.cta-secondary {
+  border: 1px solid rgba(169, 199, 255, .48) !important;
+  color: var(--primary-light) !important;
+  box-shadow: none !important;
+}
+
+.cta-secondary:hover {
+  background: var(--primary-dim) !important;
+  border-color: var(--primary) !important;
+  box-shadow: none !important;
+}
+
+button:active, .cta-btn:active, .pack-dl-btn:active {
+  transform: scale(.98);
+}
+
+/* Tonal catalogue cards keep their original grid, alignment, padding and artwork. */
+.pack-card, .info-card, .info-feat, .req-item, .step-card, .faq-item,
+.nova-mod-item, .nova-credit-row, .ext-updater-card, .pack-download-row {
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition:
+    border-color .22s ease,
+    box-shadow .22s ease,
+    transform .22s cubic-bezier(.2, 0, 0, 1) !important;
+}
+
+.pack-card { border-radius: var(--radius-lg) !important; }
+.pack-card:hover, .info-card:hover, .info-feat:hover, .req-item:hover,
+.step-card:hover, .nova-mod-item:hover, .nova-credit-row:hover {
+  border-color: var(--border-hover) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.pack-card.featured { border-color: rgba(169, 199, 255, .62) !important; }
+.pack-card.featured::after {
+  background: var(--primary-dim) !important;
+  color: var(--primary-light) !important;
+  box-shadow: none !important;
+}
+
+.pack-meta-item {
+  border-radius: var(--radius-sm) !important;
+}
+
+.section-tag {
+  background: var(--primary-dim) !important;
+  color: var(--primary-light) !important;
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+}
+
+.info-feat-icon, .req-item i, .step-num {
+  box-shadow: none !important;
+}
+
+/* Search and form controls retain their original sizing and position. */
+#search, .filter-sort, input, select, textarea {
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+#search:focus, .filter-sort:focus, input:focus, select:focus, textarea:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-dim) !important;
+  outline: none;
+}
+
+.filter-tag {
+  border-radius: 999px !important;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.filter-tag.active {
+  background: var(--primary-dim) !important;
+  color: var(--primary-light) !important;
+  border-color: rgba(169, 199, 255, .22) !important;
+  box-shadow: none !important;
+}
+
+.filter-tag:hover { border-color: var(--border-hover) !important; }
+
+.pagination button {
+  box-shadow: none !important;
+  border-radius: 999px !important;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+/* Readable tonal notices and overlays, while leaving their original placement intact. */
+.toast {
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .24) !important;
+  border-radius: 18px !important;
+}
+.pack-download-table th { border-color: var(--border) !important; }
+.pack-download-table td { border-color: var(--border-soft) !important; }
+
+.footer-links a {
+  border-radius: 999px !important;
+  transition: color .2s ease, background-color .2s ease;
+}
+.footer-links a:hover {
+  background: var(--primary-dim) !important;
+  color: var(--primary-light) !important;
+}
+
+.scroll-top, .shader-toggle {
+  box-shadow: none !important;
+  border: 1px solid var(--border) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+
+/* Contrast pass: coloured controls use an opaque tonal surface and a
+   deliberate foreground role. This prevents blue-on-blue text when the
+   animated artwork behind the app changes colour. */
+:root {
+  --md-contrast-container: #d7e3ff;
+  --md-on-contrast-container: #102c50;
+  --md-contrast-border: #a9c7ff;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+  box-shadow: none !important;
+}
+
+.nav-links a.active i,
+.nav-links a:hover i {
+  color: var(--md-on-contrast-container) !important;
+}
+
+.skip-link {
+  background: var(--primary) !important;
+  color: #102c50 !important;
+  text-shadow: none !important;
+}
+
+.section-tag,
+.filter-tag.active,
+.guide-tab.active,
+.release-version,
+.pack-card.featured::after,
+.pack-badge.badge-cat,
+.nova-featured .nf-badge-primary {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.section-tag *,
+.filter-tag.active *,
+.guide-tab.active *,
+.release-version *,
+.pack-card.featured::after *,
+.pack-badge.badge-cat *,
+.nova-featured .nf-badge-primary * {
+  color: var(--md-on-contrast-container) !important;
+}
+
+.filter-tag:hover,
+.guide-tab:hover,
+.copy-btn:hover,
+.footer-links a:hover {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+  border-color: transparent !important;
+}
+
+.filter-tag:hover *,
+.guide-tab:hover *,
+.copy-btn:hover *,
+.footer-links a:hover * {
+  color: var(--md-on-contrast-container) !important;
+}
+
+/* Inline styles in the featured card should not force white labels onto blue. */
+.nova-featured .nf-badge-primary[style] {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+}
+.nova-featured .nf-badge-primary[style] i {
+  color: var(--md-on-contrast-container) !important;
+}
+
+/* Code samples and metadata chips are small, so give their text clean edges. */
+.step-card code,
+.faq-a code,
+.tip-card code {
+  background: var(--md-contrast-container) !important;
+  color: var(--md-on-contrast-container) !important;
+  border: 1px solid rgba(16, 44, 80, .12);
+}
+.pack-badge.badge-featured {
+  background: #d7f3f8 !important;
+  color: #064651 !important;
+}
+.pack-badge.badge-featured *,
+.pack-badge.badge-new * {
+  color: inherit !important;
+}
+.pack-badge.badge-new {
+  background: #d9f5e3 !important;
+  color: #14532d !important;
+}
+
+/* The mobile destination pill follows the same foreground/background pairing. */
+.app-tabbar a.active {
+  color: var(--md-on-contrast-container) !important;
+}
+.app-tabbar a.active::before {
+  background: var(--md-contrast-container) !important;
+  border: 1px solid rgba(16, 44, 80, .08);
+}
+.app-tabbar a.active i,
+.app-tabbar a.active span {
+  color: var(--md-on-contrast-container) !important;
+}
+
+/* Links remain visibly distinct on both cards and the original animated backdrop. */
+a:not(.cta-btn):not(.logo):not(.nav-links a):not(.app-tabbar a) {
+  text-decoration-thickness: .07em;
+}
+
+
+/* Playful colour tuning: saturated accents and deep tonal chips, never a
+   washed-out white surface. Original page backdrops and geometry stay intact. */
+:root {
+  --primary: #6f91ff;
+  --primary-light: #b9c8ff;
+  --primary-bright: #87a5ff;
+  --primary-dim: rgba(94, 124, 231, .2);
+  --primary-glow: rgba(111, 145, 255, .24);
+
+  --secondary: #47d8c7;
+  --secondary-light: #87f0e2;
+  --secondary-dim: rgba(71, 216, 199, .16);
+
+  --accent: #ffad72;
+  --accent-light: #ffc99e;
+  --accent-dim: rgba(255, 173, 114, .17);
+
+  --danger: #ff8795;
+  --danger-dim: rgba(255, 135, 149, .16);
+  --info: #6f91ff;
+  --info-dim: rgba(111, 145, 255, .2);
+  --success: #65e5a7;
+  --success-dim: rgba(101, 229, 167, .16);
+
+  --border: rgba(169, 190, 255, .2);
+  --border-soft: rgba(169, 190, 255, .12);
+  --border-hover: rgba(111, 145, 255, .72);
+  --ring: rgba(111, 145, 255, .48);
+  --gradient: #6f91ff;
+  --gradient-warm: #ffad72;
+  --shadow-glow: 0 8px 24px rgba(18, 31, 68, .3);
+
+  --md-contrast-container: #3158c8;
+  --md-on-contrast-container: #ffffff;
+  --md-contrast-border: #6f91ff;
+}
+
+/* A solid cobalt pill is easier to read than pale blue over the moving canvas. */
+.nav-links a.active {
+  background: var(--md-contrast-container) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+.nav-links a.active i { color: #ffffff !important; }
+.nav-links a:hover:not(.active) {
+  background: rgba(49, 88, 200, .32) !important;
+  color: #ffffff !important;
+}
+.nav-links a:hover:not(.active) i { color: #ffffff !important; }
+
+.section-tag,
+.filter-tag.active,
+.guide-tab.active,
+.release-version,
+.pack-card.featured::after,
+.pack-badge.badge-cat,
+.nova-featured .nf-badge-primary,
+.app-tabbar a.active::before {
+  background: var(--md-contrast-container) !important;
+  color: #ffffff !important;
+  border-color: rgba(169, 190, 255, .25) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+.section-tag *,
+.filter-tag.active *,
+.guide-tab.active *,
+.release-version *,
+.nova-featured .nf-badge-primary *,
+.app-tabbar a.active i,
+.app-tabbar a.active span {
+  color: #ffffff !important;
+}
+.app-tabbar a.active { color: #ffffff !important; }
+
+.filter-tag:hover,
+.guide-tab:hover,
+.copy-btn:hover,
+.footer-links a:hover {
+  background: rgba(49, 88, 200, .35) !important;
+  color: #ffffff !important;
+  border-color: rgba(111, 145, 255, .55) !important;
+}
+.filter-tag:hover *,
+.guide-tab:hover *,
+.copy-btn:hover *,
+.footer-links a:hover * { color: #ffffff !important; }
+
+.skip-link {
+  background: #6f91ff !important;
+  color: #101936 !important;
+}
+
+/* Brighter brand/action blue keeps its foreground dark enough for legibility. */
+.cta-primary,
+.pack-dl-btn,
+.nova-discord-cta {
+  background: #6f91ff !important;
+  color: #101936 !important;
+}
+.cta-primary *,
+.pack-dl-btn *,
+.nova-discord-cta * { color: #101936 !important; }
+.cta-primary:hover,
+.pack-dl-btn:hover,
+.nova-discord-cta:hover {
+  background: #9db5ff !important;
+  color: #101936 !important;
+}
+.cta-primary:hover *,
+.pack-dl-btn:hover *,
+.nova-discord-cta:hover * { color: #101936 !important; }
+
+.cta-secondary {
+  color: #c6d2ff !important;
+  border-color: rgba(111, 145, 255, .62) !important;
+}
+.cta-secondary:hover {
+  background: rgba(49, 88, 200, .36) !important;
+  color: #ffffff !important;
+}
+
+/* Warm coral + mint make category badges and feature markers feel more playful. */
+.pack-badge.badge-featured {
+  background: #ffad72 !important;
+  color: #35200b !important;
+}
+.pack-badge.badge-featured *,
+.pack-badge.badge-new * { color: inherit !important; }
+.pack-badge.badge-new {
+  background: #65e5a7 !important;
+  color: #073b2a !important;
+}
+
+/* Keep inline-styled featured release badges on the same high-contrast colour role. */
+.nova-featured .nf-badge-primary[style] {
+  background: #3158c8 !important;
+  color: #ffffff !important;
+}
+.nova-featured .nf-badge-primary[style] i { color: #ffffff !important; }
+
+/* Code remains a subtle inset chip instead of becoming a loud blue block. */
+.step-card code,
+.faq-a code,
+.tip-card code {
+  background: rgba(94, 124, 231, .2) !important;
+  color: #c6d2ff !important;
+  border: 1px solid rgba(111, 145, 255, .22);
+}
+
+/* The changelog has a separate local M3 palette; align it with the richer theme. */
+.m3-timeline {
+  --m3-primary: #3158c8;
+  --m3-on-primary: #ffffff;
+  --m3-primary-container: #263a74;
+  --m3-on-primary-container: #dbe5ff;
+  --m3-secondary: #47d8c7;
+  --m3-tertiary: #ffad72;
+}
+
+/* A little controlled colour in icon tiles adds playfulness without changing layout. */
+.info-feat:nth-child(4n + 1) .info-feat-icon,
+.req-item:nth-child(4n + 1) i {
+  color: #87f0e2 !important;
+  background: rgba(71, 216, 199, .16) !important;
+}
+.info-feat:nth-child(4n + 2) .info-feat-icon,
+.req-item:nth-child(4n + 2) i {
+  color: #ffc99e !important;
+  background: rgba(255, 173, 114, .16) !important;
+}
+.info-feat:nth-child(4n + 3) .info-feat-icon,
+.req-item:nth-child(4n + 3) i {
+  color: #b9c8ff !important;
+  background: rgba(111, 145, 255, .2) !important;
+}
+.info-feat:nth-child(4n) .info-feat-icon,
+.req-item:nth-child(4n) i {
+  color: #8ce9ad !important;
+  background: rgba(101, 229, 167, .15) !important;
+}
+
+/* Keep hero copy legible while the original shader continues behind it. */
+.hero h1,
+.hero-brand span,
+.hero-tagline {
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .45);
+}
